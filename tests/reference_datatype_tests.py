@@ -52,6 +52,7 @@ class ReferenceDataTypeTests(TestCase):
                 self.assertEqual(len(errors), 1, errors)
                 self.assertEqual(errors[0]["message"], message)
 
+        mock_list_item_id = uuid.uuid4()
         data = {
             "uri": "https://www.domain.com/label",
             "labels": [
@@ -59,13 +60,13 @@ class ReferenceDataTypeTests(TestCase):
                     "id": "23b4efbd-2e46-4b3f-8d75-2f3b2bb96af2",
                     "value": "label",
                     "language_id": "en",
-                    "list_item_id": str(uuid.uuid4()),
+                    "list_item_id": str(mock_list_item_id),
                     "valuetype_id": "prefLabel",
                 },
                 {
                     "id": "e8676242-f0c7-4e3d-b031-fded4960cd86",
                     "language_id": "de",
-                    "list_item_id": str(uuid.uuid4()),
+                    "list_item_id": str(mock_list_item_id),
                     "valuetype_id": "prefLabel",
                 },
             ],
@@ -86,6 +87,12 @@ class ReferenceDataTypeTests(TestCase):
         data["labels"][1]["value"] = "ein label"
         data["labels"][1]["language_id"] = "de"
         data["labels"][1]["list_item_id"] = str(uuid.uuid4())
+
+        # Mixed list_item_id values
+        errors = reference.validate(value=[data], node=mock_node)
+        self.assertEqual(len(errors), 1, errors)
+
+        data["labels"][1]["list_item_id"] = str(mock_list_item_id)
 
         # Valid
         errors = reference.validate(value=[data], node=mock_node)
@@ -145,8 +152,14 @@ class ReferenceDataTypeTests(TestCase):
         config = {"controlledList": list1_pk}
         tile_val = reference.transform_value_for_tile("label1-pref", **config)
         materialized = reference.to_python(tile_val)
+        # This transformation will visit the database.
         tile_val_reparsed = reference.transform_value_for_tile(materialized, **config)
         self.assertEqual(tile_val_reparsed, tile_val)
+        # This one will not.
+        serialized_reference = reference.serialize(materialized)
+        self.assertEqual(serialized_reference, tile_val)
+        # Also test None.
+        self.assertIsNone(reference.serialize(None))
 
     def test_transform_value_for_tile(self):
         reference = DataTypeFactory().get_instance("reference")
@@ -154,10 +167,10 @@ class ReferenceDataTypeTests(TestCase):
         config = {"controlledList": list1_pk}
 
         tile_value1 = reference.transform_value_for_tile("label1-pref", **config)
-        self.assertTrue(isinstance(tile_value1, list))
-        self.assertTrue("uri" in tile_value1[0])
-        self.assertTrue("labels" in tile_value1[0])
-        self.assertTrue("list_id" in tile_value1[0])
+        self.assertIsInstance(tile_value1, list)
+        self.assertIn("uri", tile_value1[0])
+        self.assertIn("labels", tile_value1[0])
+        self.assertIn("list_id", tile_value1[0])
 
         self.assertIsNone(reference.transform_value_for_tile(None, **config))
 
@@ -176,6 +189,28 @@ class ReferenceDataTypeTests(TestCase):
         self.assertEqual(
             tile_value2[0]["labels"][0]["list_item_id"], expected_list_item_pk
         )
+
+    def test_to_representation(self):
+        reference = DataTypeFactory().get_instance("reference")
+        list_item_value = ListItemValue.objects.get(
+            value="label1-pref", list_item__list__name="list1"
+        )
+        config = {"controlledList": str(list_item_value.list_item.list_id)}
+        tile_val = reference.transform_value_for_tile("label1-pref", **config)
+
+        representation = reference.to_representation(tile_val)
+
+        self.assertEqual(
+            representation,
+            [
+                {
+                    "list_item_id": str(list_item_value.list_item.pk),
+                    "display_value": "label1-pref",
+                }
+            ],
+        )
+
+        self.assertIsNone(reference.to_representation(None))
 
     def test_get_display_value(self):
         reference = DataTypeFactory().get_instance("reference")
@@ -230,3 +265,7 @@ class ReferenceDataTypeTests(TestCase):
             }
         )
         self.assertEqual(reference.get_display_value(mock_tile2, mock_node), "")
+
+    def test_collects_multiple_values(self):
+        reference = DataTypeFactory().get_instance("reference")
+        self.assertIs(reference.collects_multiple_values(), True)

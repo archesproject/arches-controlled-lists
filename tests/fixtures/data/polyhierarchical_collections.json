@@ -1,46 +1,6 @@
 [
     {
         "model": "models.concept",
-        "pk": "00000000-0000-0000-0000-000000000001",
-        "fields": {
-            "nodetype": "ConceptScheme",
-            "legacyoid": "ARCHES"
-        }
-    },
-    {
-        "model": "models.concept",
-        "pk": "00000000-0000-0000-0000-000000000004",
-        "fields": {
-            "nodetype": "Concept",
-            "legacyoid": "ARCHES RESOURCE CROSS-REFERENCE RELATIONSHIP TYPES CONCEPT"
-        }
-    },
-    {
-        "model": "models.concept",
-        "pk": "00000000-0000-0000-0000-000000000005",
-        "fields": {
-            "nodetype": "Collection",
-            "legacyoid": "ARCHES RESOURCE CROSS-REFERENCE RELATIONSHIP TYPES COLLECTION"
-        }
-    },
-    {
-        "model": "models.concept",
-        "pk": "00000000-0000-0000-0000-000000000006",
-        "fields": {
-            "nodetype": "ConceptScheme",
-            "legacyoid": "CANDIDATES"
-        }
-    },
-    {
-        "model": "models.concept",
-        "pk": "00000000-0000-0000-0000-000000000007",
-        "fields": {
-            "nodetype": "Concept",
-            "legacyoid": "DEFAULT RESOURCE TO RESOURCE RELATIONSHIP TYPE"
-        }
-    },
-    {
-        "model": "models.concept",
         "pk": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
         "fields": {
             "nodetype": "Concept",
@@ -149,16 +109,6 @@
     },
     {
         "model": "models.value",
-        "pk": "ac41d9be-79db-4256-b368-2f4559cfbe55",
-        "fields": {
-            "concept": "00000000-0000-0000-0000-000000000007",
-            "valuetype": "prefLabel",
-            "value": "is related to",
-            "language": "en"
-        }
-    },
-    {
-        "model": "models.value",
         "pk": "b1f230c5-c9c3-4f86-a23f-8c56b2094c86",
         "fields": {
             "concept": "6490ac87-ac80-41d7-a135-1119b4cd912d",
@@ -189,41 +139,11 @@
     },
     {
         "model": "models.value",
-        "pk": "c12e7e6c-e417-11e6-b14b-0738913905b4",
-        "fields": {
-            "concept": "00000000-0000-0000-0000-000000000004",
-            "valuetype": "prefLabel",
-            "value": "Resource To Resource Relationship Types",
-            "language": "en"
-        }
-    },
-    {
-        "model": "models.value",
         "pk": "c477760d-ec4e-4911-81d1-706a2ffb6a22",
         "fields": {
             "concept": "843c76cb-7e2a-47dd-b588-a0d0fcb00de7",
             "valuetype": "identifier",
             "value": "http://www.archesproject.org/7c90899a-dbe9-4574-9175-e69481a80b3c",
-            "language": "en"
-        }
-    },
-    {
-        "model": "models.value",
-        "pk": "d8c60bf4-e786-11e6-905a-b756ec83dad5",
-        "fields": {
-            "concept": "00000000-0000-0000-0000-000000000001",
-            "valuetype": "prefLabel",
-            "value": "Arches",
-            "language": "en"
-        }
-    },
-    {
-        "model": "models.value",
-        "pk": "d8c622f6-e786-11e6-905a-475a5eee86f5",
-        "fields": {
-            "concept": "00000000-0000-0000-0000-000000000005",
-            "valuetype": "prefLabel",
-            "value": "Resource To Resource Relationship Types",
             "language": "en"
         }
     },
@@ -268,16 +188,6 @@
         }
     },
     {
-        "model": "models.value",
-        "pk": "fee39428-e83f-11e6-b49d-9b976819ac02",
-        "fields": {
-            "concept": "00000000-0000-0000-0000-000000000006",
-            "valuetype": "prefLabel",
-            "value": "Candidates",
-            "language": "en"
-        }
-    },
-    {
         "model": "models.relation",
         "pk": "1704bf8f-1ec0-43f0-a4d0-c444baf067fb",
         "fields": {
@@ -311,33 +221,6 @@
             "conceptfrom": "7c90899a-dbe9-4574-9175-e69481a80b3c",
             "conceptto": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
             "relationtype": "hasTopConcept"
-        }
-    },
-    {
-        "model": "models.relation",
-        "pk": "62c053fe-706f-11ef-b739-5f5ed88be48e",
-        "fields": {
-            "conceptfrom": "00000000-0000-0000-0000-000000000001",
-            "conceptto": "00000000-0000-0000-0000-000000000004",
-            "relationtype": "hasTopConcept"
-        }
-    },
-    {
-        "model": "models.relation",
-        "pk": "62c061d2-706f-11ef-b739-9b431c19ea92",
-        "fields": {
-            "conceptfrom": "00000000-0000-0000-0000-000000000005",
-            "conceptto": "00000000-0000-0000-0000-000000000007",
-            "relationtype": "member"
-        }
-    },
-    {
-        "model": "models.relation",
-        "pk": "62f2909e-706f-11ef-b739-07f87b82b9bb",
-        "fields": {
-            "conceptfrom": "00000000-0000-0000-0000-000000000004",
-            "conceptto": "00000000-0000-0000-0000-000000000007",
-            "relationtype": "narrower"
         }
     },
     {

@@ -63,14 +63,9 @@ def _prefetch_terms(request):
 class ListsView(APIBase):
     def get(self, request):
         """Returns either a flat representation (?flat=true) or a tree (default)."""
-        flat = str_to_bool(request.GET.get("flat", "false"))
-        permitted = get_nodegroups_by_perm(request.user, "read_nodegroup")
-        NOT_PROVIDED = object()
-        node_aliases = request.GET.getlist("node_alias", NOT_PROVIDED)
-        lists_query = (
+        lists = (
             List.objects.annotate_node_fields(
                 node_ids="pk",
-                node_alias="alias",
                 node_names="name",
                 nodegroup_ids="nodegroup_id",
                 graph_ids="graph_id",
@@ -79,12 +74,11 @@ class ListsView(APIBase):
             .order_by("name")
             .prefetch_related(*_prefetch_terms(request))
         )
-        if node_aliases is not NOT_PROVIDED:
-            lists_query = lists_query.filter(node_alias__overlap=node_aliases)
 
+        flat = str_to_bool(request.GET.get("flat", "false"))
+        permitted = get_nodegroups_by_perm(request.user, "read_nodegroup")
         serialized = [
-            obj.serialize(flat=flat, permitted_nodegroups=permitted)
-            for obj in lists_query
+            obj.serialize(flat=flat, permitted_nodegroups=permitted) for obj in lists
         ]
 
         return JSONResponse({"controlled_lists": serialized})
@@ -372,3 +366,25 @@ class ListItemImageMetadataView(APIBase):
         if not count:
             return JSONErrorResponse(status=HTTPStatus.NOT_FOUND)
         return JSONResponse(status=HTTPStatus.NO_CONTENT)
+
+
+class ListOptionsView(APIBase):
+    def get(self, request):
+        node_alias = request.GET.get("node_alias")
+        graph_slug = request.GET.get("graph_slug")
+
+        controlled_list_id = (
+            NodeProxy.objects.filter(
+                alias=node_alias, graph__slug=graph_slug, source_identifier=None
+            )
+            .with_controlled_lists()
+            .values("controlled_list_id")[:1]
+        )
+
+        list_items = ListItem.objects.filter(
+            list_id=controlled_list_id
+        ).with_list_item_labels()
+        serialized = [
+            item.build_select_option() for item in list_items if item.parent_id is None
+        ]
+        return JSONResponse(serialized)

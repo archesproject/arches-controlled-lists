@@ -1,33 +1,47 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, watch } from "vue";
+import { ref, toRef, useTemplateRef, watch } from "vue";
 
 import { FormField } from "@primevue/forms";
 import Message from "primevue/message";
-import Select from "primevue/select";
+import TreeSelect from "primevue/treeselect";
 
-import { fetchLists } from "@/arches_component_lab/widgets/api.ts";
+import { fetchWidgetOptions } from "@/arches_controlled_lists/widgets/api.ts";
 
 import type { FormFieldResolverOptions } from "@primevue/forms";
-import type { ControlledListItem } from "@/arches_controlled_lists/types";
+import type {
+    ReferenceSelectTreeNode,
+    ReferenceSelectFetchedOption,
+} from "@/arches_controlled_lists/widgets/types";
 
 const props = defineProps<{
-    initialValue: ControlledListItem[] | null | undefined;
-    widgetData: {
-        config: {
-            placeholder: string;
-        };
+    initialValue: ReferenceSelectFetchedOption[] | undefined;
+    configuration: {
+        placeholder: string;
+        controlledList: string;
+        multiValue: boolean;
     };
     nodeAlias: string;
     graphSlug: string;
 }>();
 
-const options = ref<ControlledListItem[]>(props.initialValue || []);
+function extractInitialValue (initialValue: ReferenceSelectFetchedOption | undefined) {
+    if (!initialValue) {return {}}
+    return {[initialValue?.list_item_id]: true};
+}
+
+const initialValue = toRef(
+    props.configuration.multiValue ? 
+        props.initialValue?.map((reference) => extractInitialValue(reference)) :
+        extractInitialValue(props.initialValue ? props.initialValue[0] : undefined)
+);
+
+const options = ref<ReferenceSelectTreeNode[]>();
 const isLoading = ref(false);
 const optionsError = ref<string | null>(null);
 
 const formFieldRef = useTemplateRef("formFieldRef");
 
-// this watcher is necessary to be able to format the value of the form field when the date picker is updated
+// this watcher is necessary to be able to format the value of the form field when the dropdown is updated
 watch(
     // @ts-expect-error - This is a bug in the PrimeVue types
     () => formFieldRef.value?.field?.states?.value,
@@ -35,27 +49,41 @@ watch(
         if (typeof newVal === "string") {
             // @ts-expect-error - This is a bug in the PrimeVue types
             formFieldRef.value!.field.states.value = [
-                options.value.find(
-                    (option: ControlledListItem) => option.uri === newVal,
+                options.value?.find(
+                    (option: ReferenceSelectTreeNode) => option.uri === newVal,
                 ),
             ];
         }
     },
 );
 
+function optionAsNode(
+    item: ReferenceSelectFetchedOption,
+): ReferenceSelectTreeNode {
+    if (!item) {return {} as ReferenceSelectTreeNode;}
+    return {
+        key: item.list_item_id,
+        label: item.display_label,
+        sort_order: item.sort_order,
+        children: item.children?.map((child) => optionAsNode(child)),
+        data: item,
+    };
+}
+
+function optionsAsNodes(
+    items: ReferenceSelectFetchedOption[],
+): ReferenceSelectTreeNode[] {
+    return items.map((item) => optionAsNode(item));
+}
+
 async function getOptions() {
     isLoading.value = true;
-
     try {
-        const fetchedLists = await fetchLists([props.nodeAlias]);
-
-        options.value = fetchedLists.controlled_lists[0].items.map(
-            (item: ControlledListItem) => ({
-                list_id: item.list_id,
-                uri: item.uri,
-                labels: item.values,
-            }),
+        const fetchedLists = await fetchWidgetOptions(
+            props.graphSlug,
+            props.nodeAlias,
         );
+        options.value = optionsAsNodes(fetchedLists);
     } catch (error) {
         optionsError.value = (error as Error).message;
     } finally {
@@ -90,18 +118,6 @@ function validate(e: FormFieldResolverOptions) {
     //     };
     // }
 }
-
-// THIS SHOULD NOT EXIST, THE API SHOULD RETURN A MORE SIMPLIFIED RESPONSE
-function getOptionLabels(item: {
-    labels: [{ valuetype_id: string; language_id: string; value: string }];
-}): string {
-    const prefLabels = item.labels.filter(
-        (label) => label.valuetype_id === "prefLabel",
-    );
-    const optionLabel =
-        prefLabels.find((label) => label.language_id === "en") || prefLabels[0];
-    return optionLabel?.value ?? "";
-}
 </script>
 
 <template>
@@ -117,16 +133,16 @@ function getOptionLabels(item: {
         v-slot="$field"
         :name="props.nodeAlias"
         :resolver="resolver"
-        :initial-value="props.initialValue && props.initialValue[0].uri"
+        :initial-value="initialValue"
     >
-        <Select
+        <TreeSelect
             style="display: flex"
-            option-value="uri"
+            option-value="list_item_id"
             :fluid="true"
             :loading="isLoading"
             :options="options"
-            :option-label="getOptionLabels"
-            :placeholder="props.widgetData.config.placeholder"
+            :placeholder="configuration.placeholder"
+            :selectionMode="configuration.multiValue ? 'multiple' : 'single'"
             :show-clear="true"
             @before-show="getOptions"
         />

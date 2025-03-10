@@ -7,12 +7,15 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.db.models import Deferrable, Q
+from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from arches.app.models.models import DValueType, Language, Node
 from arches.app.models.utils import field_names
+from arches.app.utils.i18n import rank_label
 from arches_controlled_lists.querysets import (
     ListQuerySet,
+    ListItemQuerySet,
     ListItemImageManager,
     ListItemValueQuerySet,
     NodeQuerySet,
@@ -137,6 +140,8 @@ class ListItem(models.Model):
     )
     guide = models.BooleanField(default=False)
 
+    objects = ListItemQuerySet.as_manager()
+
     class Meta:
         constraints = [
             # Sort order concerns the list as a whole, not subsets
@@ -218,6 +223,30 @@ class ListItem(models.Model):
             "list_id": str(self.list_id),
         }
         return tile_value
+
+    def build_select_option(self):
+        labels = getattr(self, "list_item_labels", self.list_item_values.labels())
+        ranked_labels = sorted(
+            labels,
+            key=lambda label: rank_label(
+                kind=label.valuetype_id,
+                source_lang=label.language_id,
+                target_lang=translation.get_language(),
+            ),
+            reverse=True,
+        )
+        data = {
+            "list_item_id": str(self.id),
+            "uri": self.uri,
+            "list_item_values": [label.serialize() for label in labels],
+            "display_label": ranked_labels[0].value,
+            "sortorder": self.sortorder,
+        }
+        data["children"] = sorted(
+            [child.build_select_option() for child in self.children.all()],
+            key=lambda d: d["sortorder"],
+        )
+        return data
 
 
 class ListItemValue(models.Model):

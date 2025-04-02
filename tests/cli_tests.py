@@ -159,7 +159,9 @@ class RDMToControlledListsETLTests(TestCase):
         self.assertEqual(expected_output, str(e.exception))
 
 
-@unittest.skipUnless(arches_version >= "8", reason="Fixtures were created for Arches v8")
+@unittest.skipUnless(
+    arches_version >= "8", reason="Fixtures were created for Arches v8"
+)
 class MigrateConceptNodesToReferenceDatatypeTests(TestCase):
     # Test data has three models:
     # - `Concept Node Migration Test`, with four concept nodes

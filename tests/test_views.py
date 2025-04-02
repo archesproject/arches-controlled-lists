@@ -9,6 +9,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
 
+from arches import __version__ as arches_version
 from arches.app.models.graph import Graph
 from arches.app.models.models import (
     DValueType,
@@ -145,19 +146,20 @@ class ListTests(TestCase):
                 language=cls.first_language,
             ).save()
 
-        cls.graph = Graph.new(name="My Graph")
-        if hasattr(cls.graph, "create_editable_future_graph"):
-            cls.future_graph = cls.graph.create_editable_future_graph()
+        if arches_version >= "8":
+            cls.graph = Graph.objects.create_graph(name="My Graph")
+            cls.draft_graph = cls.graph.create_draft_graph()
         else:
             # TODO: remove when dropping support for 7.x
-            cls.future_graph = cls.graph
+            cls.graph = Graph.new(name="My Graph")
+            cls.draft_graph = cls.graph
         admin = User.objects.get(username="admin")
         cls.graph.publish(user=admin)
 
         cls.nodegroup = NodeGroup.objects.get(pk="20000000-0000-0000-0000-100000000000")
         cls.node_using_list1 = Node(
             pk=uuid.UUID("a3c5b7d3-ef2c-4f8b-afd5-f8d4636b8834"),
-            graph=cls.future_graph,
+            graph=cls.draft_graph,
             name="Uses list1",
             datatype="reference",
             nodegroup=cls.nodegroup,
@@ -171,7 +173,7 @@ class ListTests(TestCase):
 
         cls.node_using_list2 = Node(
             pk=uuid.UUID("a3c5b7d3-ef2c-4f8b-afd5-f8d4636b8835"),
-            graph=cls.future_graph,
+            graph=cls.draft_graph,
             name="Uses list2",
             datatype="reference",
             nodegroup=cls.nodegroup,
@@ -220,7 +222,7 @@ class ListTests(TestCase):
                     "id": str(self.node_using_list1.pk),
                     "name": self.node_using_list1.name,
                     "nodegroup_id": str(self.nodegroup.pk),
-                    "graph_id": str(self.future_graph.graphid),
+                    "graph_id": str(self.draft_graph.graphid),
                     "graph_name": "My Graph",
                 },
             ],

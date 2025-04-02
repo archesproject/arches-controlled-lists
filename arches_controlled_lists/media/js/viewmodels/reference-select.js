@@ -3,9 +3,9 @@ import ko from 'knockout';
 import koMapping from 'knockout-mapping';
 import arches from 'arches';
 import WidgetViewModel from 'viewmodels/widget';
-import NAME_LOOKUP from 'viewmodels/concept-select';
 
 export default function(params) {
+    NAME_LOOKUP = {};
     var self = this;
 
     params.configKeys = ['placeholder', 'defaultValue'];

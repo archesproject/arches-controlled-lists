@@ -24,7 +24,7 @@ classifiers = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "arches>=8.0.0a3",
+    "arches>=8.0.0a2",
     "arches-vue-utils @ git+https://github.com/archesproject/arches-vue-utils.git@main",
 ]
 version = "0.0.1"

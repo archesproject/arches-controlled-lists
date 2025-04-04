@@ -18,7 +18,7 @@
         "vitest": "vitest --run --coverage"
     },
     "dependencies": {
-        "@primevue/forms": "4.2.5",
+        "@primevue/forms": "4.3.3",
         "arches": "archesproject/arches#dev/8.0.x",
         "vue-router": "4.4.0"
     },

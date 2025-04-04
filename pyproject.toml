@@ -12,20 +12,19 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Framework :: Django",
-    "Framework :: Django :: 4.2",
     "Framework :: Django :: 5.2",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
-    "arches>=7.6.0",
+    "arches>=8.0.0a3",
     "arches-vue-utils @ git+https://github.com/archesproject/arches-vue-utils.git@main",
 ]
 version = "0.0.1"
@@ -35,7 +34,7 @@ dev = [
     "livereload",
     "sst",
     "coverage",
-    "django-silk==5.1.0",
+    "django-silk==5.3.2",
     "pre-commit",
     "black==24.4.2",
 ]

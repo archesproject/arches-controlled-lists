@@ -1,61 +1,97 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, watch } from "vue";
+import { onMounted, ref, toRef } from "vue";
 
 import { FormField } from "@primevue/forms";
 import Message from "primevue/message";
-import Select from "primevue/select";
+import TreeSelect from "primevue/treeselect";
 
-import { fetchLists } from "@/arches_component_lab/widgets/api.ts";
+import { fetchWidgetOptions } from "@/arches_controlled_lists/widgets/api.ts";
 
+import type { Ref } from "vue";
 import type { FormFieldResolverOptions } from "@primevue/forms";
-import type { ControlledListItem } from "@/arches_controlled_lists/types";
+import type { TreeExpandedKeys } from "primevue/tree";
+import type {
+    ReferenceSelectTreeNode,
+    ReferenceSelectFetchedOption,
+} from "@/arches_controlled_lists/widgets/types";
 
 const props = defineProps<{
-    initialValue: ControlledListItem[] | null | undefined;
-    widgetData: {
-        config: {
-            placeholder: string;
-        };
+    initialValue: ReferenceSelectFetchedOption[] | undefined;
+    configuration: {
+        placeholder: string;
+        controlledList: string;
+        multiValue: boolean;
+        defaultValue: ReferenceSelectFetchedOption[] | undefined;
     };
     nodeAlias: string;
     graphSlug: string;
 }>();
 
-const options = ref<ControlledListItem[]>(props.initialValue || []);
+const options = ref<ReferenceSelectTreeNode[]>();
 const isLoading = ref(false);
 const optionsError = ref<string | null>(null);
+const expandedKeys: Ref<TreeExpandedKeys> = ref({});
 
-const formFieldRef = useTemplateRef("formFieldRef");
-
-// this watcher is necessary to be able to format the value of the form field when the date picker is updated
-watch(
-    // @ts-expect-error - This is a bug in the PrimeVue types
-    () => formFieldRef.value?.field?.states?.value,
-    (newVal) => {
-        if (typeof newVal === "string") {
-            // @ts-expect-error - This is a bug in the PrimeVue types
-            formFieldRef.value!.field.states.value = [
-                options.value.find(
-                    (option: ControlledListItem) => option.uri === newVal,
-                ),
-            ];
-        }
-    },
+const initialVal = toRef(
+    extractInitialOrDefaultValue(
+        props.configuration.multiValue,
+        props.initialValue,
+        props.configuration.defaultValue,
+    ),
 );
+
+function extractInitialOrDefaultValue(
+    multiVal: boolean,
+    initialVal: ReferenceSelectFetchedOption[] | undefined,
+    defaultVal: ReferenceSelectFetchedOption[] | undefined,
+) {
+    return multiVal
+        ? initialVal
+            ? initialVal?.map((reference) => formatValForPrimevue(reference))
+            : defaultVal?.map((reference) => formatValForPrimevue(reference))
+        : initialVal
+          ? formatValForPrimevue(initialVal ? initialVal[0] : undefined)
+          : formatValForPrimevue(defaultVal ? defaultVal[0] : undefined);
+}
+
+function formatValForPrimevue(val: ReferenceSelectFetchedOption | undefined) {
+    if (!val) {
+        return undefined;
+    }
+    return { [val?.list_item_id]: true };
+}
+
+function optionAsNode(
+    item: ReferenceSelectFetchedOption,
+): ReferenceSelectTreeNode {
+    expandedKeys.value = {
+        ...expandedKeys.value,
+        [item.list_item_id]: true,
+    };
+    return {
+        key: item.list_item_id,
+        label: item.display_value,
+        children: item.children?.map(optionAsNode),
+        data: item,
+    };
+}
+
+function optionsAsNodes(
+    items: ReferenceSelectFetchedOption[],
+): ReferenceSelectTreeNode[] {
+    return items
+        .filter((item): item is ReferenceSelectFetchedOption => !!item)
+        .map(optionAsNode);
+}
 
 async function getOptions() {
     isLoading.value = true;
-
     try {
-        const fetchedLists = await fetchLists([props.nodeAlias]);
-
-        options.value = fetchedLists.controlled_lists[0].items.map(
-            (item: ControlledListItem) => ({
-                list_id: item.list_id,
-                uri: item.uri,
-                labels: item.values,
-            }),
+        const fetchedLists = await fetchWidgetOptions(
+            props.graphSlug,
+            props.nodeAlias,
         );
+        options.value = fetchedLists ? optionsAsNodes(fetchedLists) : [];
     } catch (error) {
         optionsError.value = (error as Error).message;
     } finally {
@@ -65,8 +101,8 @@ async function getOptions() {
 
 // let timeout: ReturnType<typeof setTimeout>;
 
-function resolver(e: FormFieldResolverOptions) {
-    validate(e);
+function resolver({ value }: FormFieldResolverOptions) {
+    validate(value);
     // return new Promise((resolve) => {
     //     if (timeout) clearTimeout(timeout);
 
@@ -74,6 +110,20 @@ function resolver(e: FormFieldResolverOptions) {
     //         resolve(validate(e));
     //     }, 500);
     // });
+    const nodeAlias = props.nodeAlias;
+    let selectedItemKeys: string[] = [];
+    if (value) {
+        selectedItemKeys = Object.entries(value).reduce<string[]>(
+            (keys, [key, val]) => {
+                if (val === true) keys.push(key);
+                return keys;
+            },
+            [],
+        );
+    }
+    return {
+        values: { [nodeAlias]: selectedItemKeys },
+    };
 }
 
 function validate(e: FormFieldResolverOptions) {
@@ -91,17 +141,16 @@ function validate(e: FormFieldResolverOptions) {
     // }
 }
 
-// THIS SHOULD NOT EXIST, THE API SHOULD RETURN A MORE SIMPLIFIED RESPONSE
-function getOptionLabels(item: {
-    labels: [{ valuetype_id: string; language_id: string; value: string }];
-}): string {
-    const prefLabels = item.labels.filter(
-        (label) => label.valuetype_id === "prefLabel",
-    );
-    const optionLabel =
-        prefLabels.find((label) => label.language_id === "en") || prefLabels[0];
-    return optionLabel?.value ?? "";
-}
+onMounted(() => {
+    options.value = [
+        ...optionsAsNodes(props.initialValue ? props.initialValue : []),
+        ...optionsAsNodes(
+            props.configuration.defaultValue
+                ? props.configuration.defaultValue
+                : [],
+        ),
+    ];
+});
 </script>
 
 <template>
@@ -113,20 +162,20 @@ function getOptionLabels(item: {
     </Message>
     <FormField
         v-else
-        ref="formFieldRef"
         v-slot="$field"
         :name="props.nodeAlias"
         :resolver="resolver"
-        :initial-value="props.initialValue && props.initialValue[0].uri"
+        :initial-value="initialVal"
     >
-        <Select
+        <TreeSelect
             style="display: flex"
-            option-value="uri"
+            option-value="list_item_id"
             :fluid="true"
             :loading="isLoading"
             :options="options"
-            :option-label="getOptionLabels"
-            :placeholder="props.widgetData.config.placeholder"
+            :expanded-keys="expandedKeys"
+            :placeholder="configuration.placeholder"
+            :selection-mode="configuration.multiValue ? 'multiple' : 'single'"
             :show-clear="true"
             @before-show="getOptions"
         />

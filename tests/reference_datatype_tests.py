@@ -189,7 +189,7 @@ class ReferenceDataTypeTests(TestCase):
                 "data": {
                     "72048cb3-adbc-11e6-9ccf-14109fd34195": [
                         {
-                            "uri": "https://rdm.dev.fargeo.com/plugins/controlled-list-manager/item/9baf3cd5-33d4-4fbc-b1d1-a2d218732f1e",
+                            "uri": "https://lingo.dev.fargeo.com/plugins/controlled-list-manager/item/9baf3cd5-33d4-4fbc-b1d1-a2d218732f1e",
                             "labels": [
                                 {
                                     "id": "ea5c8af7-9933-4356-b537-0330c9da4690",

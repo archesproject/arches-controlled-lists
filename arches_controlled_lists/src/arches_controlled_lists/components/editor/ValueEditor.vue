@@ -20,6 +20,7 @@ import {
     itemKey,
 } from "@/arches_controlled_lists/constants.ts";
 import {
+    commandeerFocusFromDataTable,
     dataIsNew,
     languageNameFromCode,
 } from "@/arches_controlled_lists/utils.ts";
@@ -117,6 +118,10 @@ const headings: Ref<{ heading: string; subheading: string }> = computed(() => {
     }
 });
 
+const isEditing = computed(() => {
+    return editingRows.value.length > 0;
+});
+
 const values = computed(() => {
     if (!item.value) {
         return [];
@@ -167,6 +172,7 @@ const saveValue = async (event: DataTableRowEditInitEvent) => {
 };
 
 const issueDeleteValue = async (value: Value) => {
+    makeRowUneditable(value.id);
     if (dataIsNew(value)) {
         removeItemValue(value);
         return;
@@ -211,6 +217,12 @@ const setRowFocus = (event: DataTableRowEditInitEvent) => {
     rowIndexToFocus.value = event.index;
 };
 
+function makeRowUneditable(valueId: string) {
+    editingRows.value = [
+        ...editingRows.value.filter((value) => value.id !== valueId),
+    ];
+}
+
 const makeValueEditable = (clickedValue: Value, index: number) => {
     if (!editingRows.value.includes(clickedValue)) {
         editingRows.value = [...editingRows.value, clickedValue];
@@ -228,22 +240,18 @@ const inputSelector = computed(() => {
 });
 
 const focusInput = () => {
-    // The editor (pencil) button from the DataTable (elsewhere on page)
-    // immediately hogs focus with a setTimeout of 1,
-    // so we'll get in line behind it to set focus to the input.
-    // This should be reported/clarified with PrimeVue with a MWE.
-    setTimeout(() => {
+    if (rowIndexToFocus.value !== -1) {
         // Note editor uses the second column.
         const indexOfInputCol = valueCategory ? 1 : 0;
-        if (rowIndexToFocus.value !== -1) {
-            const rowEl = editorDiv.value!.querySelector(inputSelector.value);
-            const inputEl = rowEl!.children[indexOfInputCol].children[0];
-            // @ts-expect-error focusVisible not yet in typeshed
-            (inputEl as HTMLInputElement).focus({ focusVisible: true });
-        }
+        const rowEl = editorDiv.value!.querySelector(inputSelector.value);
+        const inputEl = rowEl!.children[indexOfInputCol]
+            .children[0] as HTMLInputElement;
+        commandeerFocusFromDataTable(inputEl);
         rowIndexToFocus.value = -1;
-    }, 25);
+    }
 };
+
+defineExpose({ isEditing });
 </script>
 
 <template>
@@ -262,6 +270,7 @@ const focusInput = () => {
             striped-rows
             scrollable
             :style="{ fontSize: 'small' }"
+            @row-edit-cancel="(event) => makeRowUneditable(event.data.id)"
             @row-edit-init="setRowFocus"
             @row-edit-save="saveValue"
         >
@@ -307,6 +316,7 @@ const focusInput = () => {
                                 onUpdated: focusInput,
                             },
                         }"
+                        :style="{ fontSize: 'small' }"
                     />
                     <InputText
                         v-else

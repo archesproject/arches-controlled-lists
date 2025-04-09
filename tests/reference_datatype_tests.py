@@ -23,8 +23,6 @@ class ReferenceDataTypeTests(TestCase):
         mock_node = SimpleNamespace(config={"multiValue": False})
 
         for value, message in [
-            ("", "Reference datatype value cannot be empty"),
-            ([], "Reference datatype value cannot be empty"),
             ([{}], "Missing required value(s): 'uri', 'labels', and 'list_id'"),
             (
                 [

@@ -46,6 +46,10 @@ class ReferenceDataType(BaseDataType):
 
         return references
 
+    def to_json(self, tile, node):
+        data = self.get_tile_data(tile)[str(node.nodeid)]
+        return self.compile_json(tile, node, item_details=data)
+
     def serialize(self, value):
         if isinstance(value, list):
             return [

@@ -17,3 +17,7 @@ webpack-stats.json
 .DS_STORE
 CACHE
 frontend_configuration/
+
+# Packaging
+build/
+dist/

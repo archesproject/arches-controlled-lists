@@ -1,13 +1,11 @@
 import io
 import os
-import unittest
 
 from django.core import management
 from django.test import TestCase
 from django.test.utils import captured_stdout
 from django.core.management.base import CommandError
 
-from arches import __version__ as arches_version
 from arches.app.models.models import Node
 from arches_controlled_lists.models import List, ListItem, ListItemValue
 
@@ -159,9 +157,6 @@ class RDMToControlledListsETLTests(TestCase):
         self.assertEqual(expected_output, str(e.exception))
 
 
-@unittest.skipUnless(
-    arches_version >= "8", reason="Fixtures were created for Arches v8"
-)
 class MigrateConceptNodesToReferenceDatatypeTests(TestCase):
     # Test data has three models:
     # - `Concept Node Migration Test`, with four concept nodes

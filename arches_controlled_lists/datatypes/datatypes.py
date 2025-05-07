@@ -216,7 +216,7 @@ class ReferenceDataType(BaseDataType):
                         labels.append(label.get("value", ""))
         return ", ".join(labels)
 
-    def get_interchange_value(self, value):
+    def to_json(self, tile, node):
         """
         Expects tile representation of reference datatype:
         [
@@ -271,6 +271,7 @@ class ReferenceDataType(BaseDataType):
             }
         ]
         """
+        value = self.get_tile_data(tile)[str(node.nodeid)]
         list_item_ids = []
         if value:
             for default_val in value:

@@ -528,26 +528,20 @@ class SearchTermsViewTests(TestCase):
     @patch("arches_controlled_lists.views.ReferenceIndex.get_term_results")
     @patch("arches_controlled_lists.views.search_terms")
     def test_get_search_terms(self, mock_search_terms, mock_get_term_results):
-        # Mock the response from search_terms
         mock_search_terms.return_value = JSONResponse(
             {"existing_index": [{"term": "mock_term"}]}
         )
-        # Mock the response from ReferenceIndex.get_term_results
         mock_get_term_results.return_value = [{"term": "reference_term"}]
 
-        # Perform the GET request
         response = self.client.get(
             reverse("search_terms"),
             {"q": "test", "lang": "en"},
         )
 
-        # Assert the response status code
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-        # Parse the response content
         response_data = json.loads(response.content)
 
-        # Assert the mocked data is included in the response
         self.assertIn("existing_index", response_data)
         self.assertEqual(response_data["existing_index"], [{"term": "mock_term"}])
         self.assertIn("references_index", response_data)
@@ -555,6 +549,5 @@ class SearchTermsViewTests(TestCase):
             response_data["references_index"], [{"term": "reference_term"}]
         )
 
-        # Assert the mock methods were called with the correct arguments
         mock_search_terms.assert_called_once()
         mock_get_term_results.assert_called_once_with("test", lang="en")

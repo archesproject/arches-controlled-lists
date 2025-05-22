@@ -267,3 +267,37 @@ class ReferenceDataTypeTests(TestCase):
     def test_collects_multiple_values(self):
         reference = DataTypeFactory().get_instance("reference")
         self.assertIs(reference.collects_multiple_values(), True)
+
+    def test_append_to_document(self):
+        datatype = DataTypeFactory().get_instance("reference")
+        tile = type("Tile", (object,), {"nodegroup_id": uuid.uuid4()})
+        document = {"references": [], "strings": []}
+        list_item_id = uuid.uuid4()
+        reference = {
+            "uri": "http://example.com",
+            "labels": [
+                {
+                    "id": uuid.uuid4(),
+                    "value": "Test Label",
+                    "language_id": "en",
+                    "valuetype_id": "prefLabel",
+                    "list_item_id": list_item_id,
+                }
+            ],
+            "list_id": uuid.uuid4(),
+        }
+        nodevalue = [reference]
+
+        datatype.append_to_document(document, nodevalue, uuid.uuid4(), tile)
+
+        self.assertEqual(len(document["references"]), 1)
+        self.assertEqual(document["references"][0]["uri"], reference["uri"])
+        self.assertEqual(document["references"][0]["list_id"], reference["list_id"])
+        self.assertEqual(document["references"][0]["nodegroup_id"], tile.nodegroup_id)
+
+        self.assertEqual(len(document["strings"]), 1)
+        self.assertEqual(
+            document["strings"][0]["string"], reference["labels"][0]["value"]
+        )
+        self.assertEqual(document["strings"][0]["nodegroup_id"], tile.nodegroup_id)
+        self.assertFalse(document["strings"][0]["provisional"])

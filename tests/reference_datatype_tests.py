@@ -294,6 +294,7 @@ class ReferenceDataTypeTests(TestCase):
         self.assertEqual(document["references"][0]["uri"], reference["uri"])
         self.assertEqual(document["references"][0]["list_id"], reference["list_id"])
         self.assertEqual(document["references"][0]["nodegroup_id"], tile.nodegroup_id)
+        self.assertFalse(document["references"][0]["provisional"])
 
         self.assertEqual(len(document["strings"]), 1)
         self.assertEqual(

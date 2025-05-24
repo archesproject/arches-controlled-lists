@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from uuid import UUID
+import json
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -8,12 +9,23 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 
 from arches.app.models.utils import field_names
+from arches.app.models.system_settings import settings
+from arches.app.search.elasticsearch_dsl_builder import (
+    Bool,
+    Query,
+    Term,
+    Match,
+    Aggregation,
+    MaxAgg,
+)
+from arches.app.search.search_engine_factory import SearchEngineInstance
 from arches.app.utils.betterJSONSerializer import JSONDeserializer
 from arches.app.utils.decorators import group_required
 from arches.app.utils.permission_backend import get_nodegroups_by_perm
 from arches.app.utils.response import JSONErrorResponse, JSONResponse
 from arches.app.utils.string_utils import str_to_bool
 from arches.app.views.api import APIBase
+from arches.app.views.search import search_terms
 from arches_controlled_lists.models import (
     List,
     ListItem,
@@ -22,6 +34,7 @@ from arches_controlled_lists.models import (
     ListItemValue,
     NodeProxy,
 )
+from arches_controlled_lists.search_indexes.reference_index import ReferenceIndex
 
 
 def _prefetch_terms(request):
@@ -378,3 +391,18 @@ class ListOptionsView(APIBase):
             item.build_select_option() for item in list_items if item.parent_id is None
         ]
         return JSONResponse(serialized)
+
+
+class SearchTermsView(APIBase):
+    def get(self, request):
+        json_response = search_terms(request)
+        response_content = json_response.content.decode("utf-8")
+        response_data = json.loads(response_content)
+        lang = request.GET.get("lang", request.LANGUAGE_CODE)
+        search_string = request.GET.get("q", "")
+        index = settings.REFERENCES_INDEX_NAME
+
+        response_data[index] = ReferenceIndex.get_term_results(search_string, lang=lang)
+        json_response.content = json.dumps(response_data).encode("utf-8")
+        json_response["Content-Length"] = len(json_response.content)
+        return json_response

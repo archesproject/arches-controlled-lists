@@ -8440,7 +8440,7 @@
         "fields": {
             "name": "Top concept",
             "dynamic": false,
-            "search_only": false
+            "searchable": false
         }
     },
     {

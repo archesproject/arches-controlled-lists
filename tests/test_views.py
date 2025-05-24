@@ -11,6 +11,8 @@ from guardian.shortcuts import assign_perm
 
 from arches import __version__ as arches_version
 from arches.app.models.graph import Graph
+from arches.app.utils.response import JSONResponse
+from unittest.mock import patch
 from arches.app.models.models import (
     DValueType,
     Language,
@@ -520,3 +522,32 @@ class ListTests(TestCase):
         self.assertQuerySetEqual(
             ListItemImageMetadata.objects.filter(pk=metadata.pk), []
         )
+
+
+class SearchTermsViewTests(TestCase):
+    @patch("arches_controlled_lists.views.ReferenceIndex.get_term_results")
+    @patch("arches_controlled_lists.views.search_terms")
+    def test_get_search_terms(self, mock_search_terms, mock_get_term_results):
+        mock_search_terms.return_value = JSONResponse(
+            {"existing_index": [{"term": "mock_term"}]}
+        )
+        mock_get_term_results.return_value = [{"term": "reference_term"}]
+
+        response = self.client.get(
+            reverse("search_terms"),
+            {"q": "test", "lang": "en"},
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        response_data = json.loads(response.content)
+
+        self.assertIn("existing_index", response_data)
+        self.assertEqual(response_data["existing_index"], [{"term": "mock_term"}])
+        self.assertIn("references_index", response_data)
+        self.assertEqual(
+            response_data["references_index"], [{"term": "reference_term"}]
+        )
+
+        mock_search_terms.assert_called_once()
+        mock_get_term_results.assert_called_once_with("test", lang="en")

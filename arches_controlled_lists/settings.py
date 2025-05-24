@@ -81,12 +81,31 @@ ELASTICSEARCH_CONNECTION_OPTIONS = {
 # a prefix to append to all elasticsearch indexes, note: must be lower case
 ELASTICSEARCH_PREFIX = "arches_controlled_lists"
 
-ELASTICSEARCH_CUSTOM_INDEXES = []
-# [{
-#     'module': 'arches_controlled_lists.search_indexes.sample_index.SampleIndex',
-#     'name': 'my_new_custom_index', <-- follow ES index naming rules
-#     'should_update_asynchronously': False  <-- denotes if asynchronously updating the index would affect custom functionality within the project.
-# }]
+REFERENCES_INDEX_NAME = "references_index"
+ELASTICSEARCH_CUSTOM_INDEXES = [
+    {
+        "module": "arches_controlled_lists.search_indexes.reference_index.ReferenceIndex",
+        "name": REFERENCES_INDEX_NAME,
+        "should_update_asynchronously": True,
+    }
+]
+TERM_SEARCH_TYPES = [
+    {
+        "type": "term",
+        "label": _("Term Matches"),
+        "key": "terms",
+    },
+    {
+        "type": "concept",
+        "label": _("Concepts"),
+        "key": "concepts",
+    },
+    {
+        "type": "reference",
+        "label": _("References"),
+        "key": REFERENCES_INDEX_NAME,
+    },
+]
 
 KIBANA_URL = "http://localhost:5601/"
 KIBANA_CONFIG_BASEPATH = "kibana"  # must match Kibana config.yml setting (server.basePath) but without the leading slash,
@@ -429,6 +448,10 @@ SHOW_LANGUAGE_SWITCH = len(LANGUAGES) > 1
 
 # Location for test data fixtures
 FIXTURE_DIRS = [os.path.join(APP_ROOT, "..", "tests", "fixtures", "data")]
+
+ES_MAPPING_MODIFIER_CLASSES = [
+    "arches_controlled_lists.search.references_es_mapping_modifier.ReferencesEsMappingModifier"
+]
 
 try:
     from .package_settings import *

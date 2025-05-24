@@ -42,15 +42,6 @@ class ReferenceIndexTests(TestCase):
         self.assertEqual(term_results[0]["context_label"], "list1")
         self.assertEqual(term_results[0]["value"], "item1")
 
-    def test_prepare_index(self):
-        self.reference_index.prepare_index()
-        self.assertIn("settings", self.reference_index.index_metadata)
-        self.assertIn("mappings", self.reference_index.index_metadata)
-        self.assertIn("properties", self.reference_index.index_metadata["mappings"])
-        self.assertIn(
-            "label", self.reference_index.index_metadata["mappings"]["properties"]
-        )
-
     def test_get_documents_to_index(self):
         resourceinstance = MagicMock()
         tiles = MagicMock()

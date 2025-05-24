@@ -1,6 +1,13 @@
+import time
+
+from django.conf import settings
 from django.test import TestCase
 
-from arches_controlled_lists.models import List, ListItem
+from arches.app.models.models import DValueType
+from arches.app.search.elasticsearch_dsl_builder import Query
+from arches.app.search.search_engine_factory import SearchEngineInstance
+from arches_controlled_lists.models import List, ListItem, ListItemValue
+
 
 # these tests can be run from the command line via
 # python manage.py test tests.test_models --settings="tests.test_settings"
@@ -47,3 +54,32 @@ class ListItemGetChildUrisTests(TestCase):
     def test_get_child_uris_empty_for_item_without_children(self):
         uris = self.child_item_1.get_child_uris()
         self.assertEqual(uris, [self.child_item_1.uri])
+
+
+class ListIndexTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.list = List.objects.create(name="Test List", searchable=False)
+        cls.list_item = ListItem.objects.create(
+            list=cls.list, sortorder=0, uri="http://example.com/item"
+        )
+        cls.list_item_value = ListItemValue.objects.create(
+            list_item=cls.list_item,
+            valuetype=DValueType.objects.get(valuetype="prefLabel"),
+            language_id="en",
+            value="Test Value",
+        )
+
+    def test_index_called_on_save(self):
+        self.list.searchable = True
+        self.list.save()
+        time.sleep(2)  # Allow time for indexing to complete
+        query = Query(SearchEngineInstance)
+        count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
+        self.assertEqual(count, 1)
+
+    def test_delete_index_called_on_delete(self):
+        self.list.delete()
+        query = Query(SearchEngineInstance)
+        count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
+        self.assertEqual(count, 0)

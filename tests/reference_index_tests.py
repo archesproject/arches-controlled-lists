@@ -1,7 +1,8 @@
 from django.test import TestCase
 from unittest.mock import patch, MagicMock
-from arches_controlled_lists.search_indexes.reference_index import ReferenceIndex
+
 from arches.app.models.system_settings import settings
+from arches_controlled_lists.search_indexes.reference_index import ReferenceIndex
 
 
 class ReferenceIndexTests(TestCase):

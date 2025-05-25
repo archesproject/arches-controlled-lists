@@ -529,7 +529,7 @@ class SearchTermsViewTests(TestCase):
     @patch("arches_controlled_lists.views.search_terms")
     def test_get_search_terms(self, mock_search_terms, mock_get_term_results):
         mock_search_terms.return_value = JSONResponse(
-            {"existing_index": [{"term": "mock_term"}]}
+            {"terms": [{"term": "mock_term"}]}
         )
         mock_get_term_results.return_value = [{"term": "reference_term"}]
 
@@ -542,8 +542,8 @@ class SearchTermsViewTests(TestCase):
 
         response_data = json.loads(response.content)
 
-        self.assertIn("existing_index", response_data)
-        self.assertEqual(response_data["existing_index"], [{"term": "mock_term"}])
+        self.assertIn("terms", response_data)
+        self.assertEqual(response_data["terms"], [{"term": "mock_term"}])
         self.assertIn("references_index", response_data)
         self.assertEqual(
             response_data["references_index"], [{"term": "reference_term"}]

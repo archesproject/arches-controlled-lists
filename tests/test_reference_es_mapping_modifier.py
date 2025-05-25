@@ -7,7 +7,6 @@ from arches_controlled_lists.search.references_es_mapping_modifier import (
 
 
 class TestReferencesEsMappingModifier(TestCase):
-
     @patch("arches_controlled_lists.models.ListItem.objects.get")
     def test_add_search_filter(self, mock_get):
         mock_item = MagicMock()

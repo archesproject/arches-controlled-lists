@@ -8,11 +8,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
+from unittest.mock import patch
 
 from arches import __version__ as arches_version
 from arches.app.models.graph import Graph
 from arches.app.utils.response import JSONResponse
-from unittest.mock import patch
 from arches.app.models.models import (
     DValueType,
     Language,

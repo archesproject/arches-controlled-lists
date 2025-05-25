@@ -1,10 +1,9 @@
-from unittest.mock import MagicMock, patch
 from django.test import TestCase
+from unittest.mock import MagicMock, patch
 
 from arches_controlled_lists.search.references_es_mapping_modifier import (
     ReferencesEsMappingModifier,
 )
-from arches.app.search.elasticsearch_dsl_builder import Bool, Match, Nested, Terms
 
 
 class TestReferencesEsMappingModifier(TestCase):

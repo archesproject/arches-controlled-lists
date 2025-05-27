@@ -544,10 +544,8 @@ class SearchTermsViewTests(TestCase):
 
         self.assertIn("terms", response_data)
         self.assertEqual(response_data["terms"], [{"term": "mock_term"}])
-        self.assertIn("references_index", response_data)
-        self.assertEqual(
-            response_data["references_index"], [{"term": "reference_term"}]
-        )
+        self.assertIn("references", response_data)
+        self.assertEqual(response_data["references"], [{"term": "reference_term"}])
 
         mock_search_terms.assert_called_once()
         mock_get_term_results.assert_called_once_with("test", lang="en")

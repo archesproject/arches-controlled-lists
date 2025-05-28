@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from django.test import TestCase
 from arches.app.datatypes.datatypes import DataTypeFactory
 from arches.app.models.tile import Tile
+from arches.app.models.models import TileModel
 from arches_controlled_lists.models import List, ListItem, ListItemValue
 
 from tests.test_views import ListTests
@@ -270,7 +271,7 @@ class ReferenceDataTypeTests(TestCase):
 
     def test_append_to_document(self):
         datatype = DataTypeFactory().get_instance("reference")
-        tile = type("Tile", (object,), {"nodegroup_id": uuid.uuid4()})
+        tile = TileModel(nodegroup_id=uuid.uuid4())
         document = {"references": [], "strings": []}
         list_item_id = uuid.uuid4()
         reference = {

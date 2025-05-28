@@ -27,20 +27,21 @@ class ListItemTests(TestCase):
 
 
 class ListItemGetChildUrisTests(TestCase):
-    def setUp(self):
-        self.list = List.objects.create(name="Test List")
-        self.parent_item = ListItem.objects.create(
-            list=self.list, sortorder=0, uri="http://example.com/parent"
+    @classmethod
+    def setUpTestData(cls):
+        cls.list = List.objects.create(name="Test List")
+        cls.parent_item = ListItem.objects.create(
+            list=cls.list, sortorder=0, uri="http://example.com/parent"
         )
-        self.child_item_1 = ListItem.objects.create(
-            list=self.list,
-            parent=self.parent_item,
+        cls.child_item_1 = ListItem.objects.create(
+            list=cls.list,
+            parent=cls.parent_item,
             sortorder=1,
             uri="http://example.com/child1",
         )
-        self.child_item_2 = ListItem.objects.create(
-            list=self.list,
-            parent=self.parent_item,
+        cls.child_item_2 = ListItem.objects.create(
+            list=cls.list,
+            parent=cls.parent_item,
             sortorder=2,
             uri="http://example.com/child2",
         )
@@ -79,7 +80,14 @@ class ListIndexTests(TestCase):
         self.assertEqual(count, 1)
 
     def test_delete_index_called_on_delete(self):
+        self.list.searchable = True
+        self.list.save()
+        time.sleep(2)  # Allow time for indexing to complete
+        query = Query(SearchEngineInstance)
+        count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
+        self.assertEqual(count, 1)
         self.list.delete()
+        time.sleep(2)  # Allow time for index deletion to complete
         query = Query(SearchEngineInstance)
         count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
         self.assertEqual(count, 0)

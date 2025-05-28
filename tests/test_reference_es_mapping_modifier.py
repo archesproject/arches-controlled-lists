@@ -1,21 +1,27 @@
+import uuid
 from django.test import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
+from arches.app.models.models import DValueType
+
+from arches_controlled_lists.models import List, ListItem, ListItemValue
 from arches_controlled_lists.search.references_es_mapping_modifier import (
     ReferencesEsMappingModifier,
 )
 
 
 class TestReferencesEsMappingModifier(TestCase):
-    @patch("arches_controlled_lists.models.ListItem.objects.get")
-    def test_add_search_filter(self, mock_get):
-        mock_item = MagicMock()
-        mock_item.get_child_uris.return_value = ["uri1", "uri2"]
-        mock_get.return_value = mock_item
+    @classmethod
+    def setUpTestData(cls):
+        cls.list = List.objects.create(name="Test List", searchable=False)
+        cls.list_item = ListItem.objects.create(
+            list=cls.list, sortorder=0, uri="http://example.com/item"
+        )
 
+    def test_add_search_filter(self):
         search_query = MagicMock()
 
-        term = {"type": "reference", "value": "test_value", "inverted": False}
+        term = {"type": "reference", "value": self.list_item.pk, "inverted": False}
         permitted_nodegroups = ["nodegroup1", "nodegroup2"]
         include_provisional = False
 
@@ -23,8 +29,6 @@ class TestReferencesEsMappingModifier(TestCase):
             search_query, term, permitted_nodegroups, include_provisional
         )
 
-        mock_get.assert_called_once_with(pk="test_value")
-        mock_item.get_child_uris.assert_called_once_with(uris=[])
         search_query.filter.assert_called()
         search_query.must_not.assert_not_called()
 
@@ -48,15 +52,10 @@ class TestReferencesEsMappingModifier(TestCase):
             ReferencesEsMappingModifier.get_mapping_definition(), expected_definition
         )
 
-    @patch("arches_controlled_lists.models.ListItem.objects.get")
-    def test_add_search_filter_inverted(self, mock_get):
-        mock_item = MagicMock()
-        mock_item.get_child_uris.return_value = ["uri1", "uri2"]
-        mock_get.return_value = mock_item
-
+    def test_add_search_filter_inverted(self):
         search_query = MagicMock()
 
-        term = {"type": "reference", "value": "test_value", "inverted": True}
+        term = {"type": "reference", "value": self.list_item.pk, "inverted": True}
         permitted_nodegroups = ["nodegroup1", "nodegroup2"]
         include_provisional = False
 
@@ -64,7 +63,5 @@ class TestReferencesEsMappingModifier(TestCase):
             search_query, term, permitted_nodegroups, include_provisional
         )
 
-        mock_get.assert_called_once_with(pk="test_value")
-        mock_item.get_child_uris.assert_called_once_with(uris=[])
         search_query.must_not.assert_called()
         search_query.filter.assert_not_called()

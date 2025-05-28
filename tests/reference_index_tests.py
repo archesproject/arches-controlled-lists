@@ -36,9 +36,7 @@ class ReferenceIndexTests(TestCase):
         mock_query.search.return_value = mock_results
         mock_search_engine.return_value = mock_query
 
-        term_results = ReferenceIndex.search_terms("search_string", lang="en")[
-            "references"
-        ]
+        term_results = ReferenceIndex.search_terms("search_string", lang="en")
 
         self.assertEqual(len(term_results), 1)
         self.assertEqual(term_results[0]["text"], "label1")

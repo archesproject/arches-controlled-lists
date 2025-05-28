@@ -5,6 +5,7 @@ from django.test import TestCase
 from arches.app.datatypes.datatypes import DataTypeFactory
 from arches.app.models.tile import Tile
 from arches.app.models.models import TileModel
+from arches_controlled_lists.datatypes.datatypes import Reference, ReferenceLabel
 from arches_controlled_lists.models import List, ListItem, ListItemValue
 
 from tests.test_views import ListTests
@@ -274,32 +275,30 @@ class ReferenceDataTypeTests(TestCase):
         tile = TileModel(nodegroup_id=uuid.uuid4())
         document = {"references": [], "strings": []}
         list_item_id = uuid.uuid4()
-        reference = {
-            "uri": "http://example.com",
-            "labels": [
-                {
-                    "id": uuid.uuid4(),
-                    "value": "Test Label",
-                    "language_id": "en",
-                    "valuetype_id": "prefLabel",
-                    "list_item_id": list_item_id,
-                }
+        reference = Reference(
+            uri="http://example.com",
+            labels=[
+                ReferenceLabel(
+                    id=uuid.uuid4(),
+                    value="Test Label",
+                    language_id="en",
+                    valuetype_id="prefLabel",
+                    list_item_id=list_item_id,
+                )
             ],
-            "list_id": uuid.uuid4(),
-        }
-        nodevalue = [reference]
+            list_id=uuid.uuid4(),
+        )
+        nodevalue = datatype.serialize([reference])
 
         datatype.append_to_document(document, nodevalue, uuid.uuid4(), tile)
 
         self.assertEqual(len(document["references"]), 1)
-        self.assertEqual(document["references"][0]["uri"], reference["uri"])
-        self.assertEqual(document["references"][0]["list_id"], reference["list_id"])
+        self.assertEqual(document["references"][0]["uri"], reference.uri)
+        self.assertEqual(document["references"][0]["list_id"], reference.list_id)
         self.assertEqual(document["references"][0]["nodegroup_id"], tile.nodegroup_id)
         self.assertFalse(document["references"][0]["provisional"])
 
         self.assertEqual(len(document["strings"]), 1)
-        self.assertEqual(
-            document["strings"][0]["string"], reference["labels"][0]["value"]
-        )
+        self.assertEqual(document["strings"][0]["string"], reference.labels[0].value)
         self.assertEqual(document["strings"][0]["nodegroup_id"], tile.nodegroup_id)
         self.assertFalse(document["strings"][0]["provisional"])

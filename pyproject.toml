@@ -28,7 +28,7 @@ dependencies = [
 ]
 version = "0.0.1"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "livereload",
     "sst",

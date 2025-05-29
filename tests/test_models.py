@@ -60,34 +60,62 @@ class ListItemGetChildUrisTests(TestCase):
 class ListIndexTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.list = List.objects.create(name="Test List", searchable=False)
+        cls.list = List.objects.create(name="Test List", searchable=True)
         cls.list_item = ListItem.objects.create(
             list=cls.list, sortorder=0, uri="http://example.com/item"
         )
-        cls.list_item_value = ListItemValue.objects.create(
+        cls.preflabel_value = ListItemValue.objects.create(
             list_item=cls.list_item,
             valuetype=DValueType.objects.get(valuetype="prefLabel"),
             language_id="en",
-            value="Test Value",
+            value="Test PrefLabel",
+        )
+        cls.altlabel_value = ListItemValue.objects.create(
+            list_item=cls.list_item,
+            valuetype=DValueType.objects.get(valuetype="altLabel"),
+            language_id="en",
+            value="Test AltLabel",
         )
 
-    def test_index_called_on_save(self):
-        self.list.searchable = True
+    def test_index_list_called_on_save(self):
         self.list.save()
         time.sleep(2)  # Allow time for indexing to complete
         query = Query(SearchEngineInstance)
         count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
-        self.assertEqual(count, 1)
+        self.assertEqual(count, 2)
 
-    def test_delete_index_called_on_delete(self):
-        self.list.searchable = True
+    def test_delete_list_index_called_on_delete(self):
         self.list.save()
         time.sleep(2)  # Allow time for indexing to complete
         query = Query(SearchEngineInstance)
         count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
-        self.assertEqual(count, 1)
+        self.assertEqual(count, 2)
         self.list.delete()
         time.sleep(2)  # Allow time for index deletion to complete
         query = Query(SearchEngineInstance)
         count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
         self.assertEqual(count, 0)
+
+    def test_delete_list_item_index_called_on_delete(self):
+        self.list.save()
+        time.sleep(2)  # Allow time for indexing to complete
+        query = Query(SearchEngineInstance)
+        count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
+        self.assertEqual(count, 2)
+        self.list_item.delete()
+        time.sleep(2)  # Allow time for index deletion to complete
+        query = Query(SearchEngineInstance)
+        count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
+        self.assertEqual(count, 0)
+
+    def test_delete_list_item_value_index_called_on_delete(self):
+        self.list.save()
+        time.sleep(2)  # Allow time for indexing to complete
+        query = Query(SearchEngineInstance)
+        count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
+        self.assertEqual(count, 2)
+        self.altlabel_value.delete()
+        time.sleep(2)  # Allow time for index deletion to complete
+        query = Query(SearchEngineInstance)
+        count = query.se.count(index=settings.REFERENCES_INDEX_NAME)
+        self.assertEqual(count, 1)

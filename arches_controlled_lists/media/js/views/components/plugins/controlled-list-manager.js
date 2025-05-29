@@ -1,6 +1,6 @@
 import ko from 'knockout';
 
-import { definePreset } from '@primeuix/themes';
+import { definePreset, palette } from '@primeuix/themes';
 import { ArchesPreset, DEFAULT_THEME } from '@/arches/themes/default.ts';
 import { routes } from '@/arches_controlled_lists/routes.ts';
 import ControlledListManager from '@/arches_controlled_lists/plugins/ControlledListManager.vue';
@@ -17,17 +17,41 @@ const router = createRouter({
 const ControlledListsPreset = definePreset(ArchesPreset, {
     semantic: {
         iconSize: '1.2rem',
+        colorScheme: {
+            light: {
+                primary: palette(ArchesPreset.primitive.arches.blue),  
+            },
+        },
     },
     components: {
         button: {
+            colorScheme: {
+                // Reverse the "warn" hover and active colors to provide
+                // better color contrast in the majority of cases. Since
+                // we cannot create a custom severity, just hijack danger.
+                light: {
+                    primary: {
+                        background: "{primary-800}",
+                        borderColor: "{button-primary-background}",
+                    },
+                    danger: {
+                        background: "{button-warn-active-background}",
+                        borderColor: "{button-warn-active-background}",
+                        hover: {
+                            background: "{button-warn-background}",
+                            borderColor: "{button-warn-background}",
+                        },
+                    },
+                },
+            },
             root: {
                 label: {
                     fontWeight: 600,
                 },
             },
             border: {
-                    radius: '.25rem',
-                },
+                radius: '.25rem',
+            },
         },
         toast: {
             summary: { fontSize: '1.5rem' },

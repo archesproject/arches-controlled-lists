@@ -39,9 +39,8 @@ const { $gettext } = useGettext();
             style="
                 text-align: center;
                 display: flex;
-                width: 100%;
-                padding-left: 1rem;
-                padding-right: 0.5rem;
+                padding-inline-start: 1rem;
+                padding-inline-end: 0.5rem;
             "
         >
             <Button
@@ -66,7 +65,7 @@ const { $gettext } = useGettext();
             >
                 <Select
                     v-model="selectedLanguage"
-                    aria-labelledby="languageSelectLabel"
+                    :aria-label="$gettext('Select language for labels')"
                     :options="arches.languages"
                     :option-label="
                         (lang: Language) => `${lang.name} (${lang.code})`

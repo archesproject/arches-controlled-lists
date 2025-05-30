@@ -20,9 +20,9 @@ import type {
 
 const { $gettext } = useGettext();
 
-const { displayedRow } = inject(displayedRowKey) as unknown as {
-    displayedRow: Ref<Selectable>;
-};
+const { displayedRow } = inject<{ displayedRow: Ref<Selectable> }>(
+    displayedRowKey,
+)!;
 const selectedLanguage = inject(selectedLanguageKey) as Ref<Language>;
 const systemLanguage = inject(systemLanguageKey) as Language;
 
@@ -66,12 +66,12 @@ const heading = computed(() => {
     display: flex;
     align-items: center;
     background: var(--p-navigation-header-color);
-    color: var(--p-button-primary-color);
+    color: white;
     height: 5.25rem;
 }
 
 i {
-    margin-left: 1rem;
+    margin-inline-start: 1rem;
     margin-top: 0.25rem;
 }
 </style>

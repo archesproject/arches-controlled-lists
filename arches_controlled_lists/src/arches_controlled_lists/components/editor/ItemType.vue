@@ -34,6 +34,7 @@ const issuePatchItem = async () => {
             summary: $gettext("Save failed"),
             detail: error instanceof Error ? error.message : undefined,
         });
+        item.value.guide = !item.value.guide;
     }
 };
 </script>
@@ -59,7 +60,6 @@ const issuePatchItem = async () => {
     display: flex;
     flex-direction: column;
     gap: 0;
-    width: 100%;
 }
 
 .guide-container h4 {

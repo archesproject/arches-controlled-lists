@@ -174,8 +174,7 @@ input {
 }
 
 .edit-controls {
-    padding: 0.5rem 0 0 0;
-    margin-left: 1rem;
+    margin-inline-start: 1rem;
     display: inline-flex;
     justify-content: space-between;
     width: 4rem;
@@ -183,7 +182,7 @@ input {
 
 .edit-controls i {
     font-size: var(--p-icon-size);
-    padding: 0.5rem;
+    align-self: center;
 }
 
 :deep(i[role="button"]) {
@@ -197,6 +196,11 @@ input {
 
 :deep(i[role="button"]:hover) {
     background: var(--p-button-primary-hover-background);
+    color: var(--p-button-primary-hover-color);
+}
+
+:deep(i.fa-undo[role="button"]:hover) {
+    background: var(--p-amber-300);
     color: var(--p-button-primary-hover-color);
 }
 </style>

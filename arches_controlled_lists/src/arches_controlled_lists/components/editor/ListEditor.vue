@@ -10,9 +10,9 @@ import ReferenceNodeLink from "@/arches_controlled_lists/components/editor/Refer
 import type { Ref } from "vue";
 import type { ControlledList } from "@/arches_controlled_lists/types";
 
-const { displayedRow: list } = inject(displayedRowKey) as unknown as {
-    displayedRow: Ref<ControlledList>;
-};
+const { displayedRow: list } = inject<{ displayedRow: Ref<ControlledList> }>(
+    displayedRowKey,
+)!;
 
 const { $gettext } = useGettext();
 </script>
@@ -71,7 +71,6 @@ const { $gettext } = useGettext();
     margin: 1rem 1rem 0rem 1rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--p-content-border-color);
-    width: 100%;
 }
 
 .list-label {
@@ -93,7 +92,7 @@ const { $gettext } = useGettext();
 .nodes-container-title {
     padding: 0 0.5rem 0 0;
     font-weight: 400;
-    margin: 0 0 0.5rem 0;
+    margin: 0.5rem 0 0.5rem 0;
     font-size: 1.75rem;
 }
 

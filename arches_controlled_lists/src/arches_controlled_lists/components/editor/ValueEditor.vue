@@ -444,7 +444,6 @@ const focusInput = () => {
 <style scoped>
 .value-editor-container {
     margin: 1rem 1rem 4rem 2rem;
-    width: 100%;
 }
 
 .value-editor-title {
@@ -500,10 +499,6 @@ p {
 
 :deep(.p-datatable-column-title) {
     font-size: small;
-}
-
-:deep(.p-button-text.p-button-secondary.p-datatable-row-editor-init) {
-    background: var(--p-button-secondary-background);
 }
 
 :deep(.p-button-text.p-button-secondary.p-datatable-row-editor-init) {

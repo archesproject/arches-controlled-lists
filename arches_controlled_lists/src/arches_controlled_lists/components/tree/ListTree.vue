@@ -56,9 +56,9 @@ const rerenderTree = ref(0);
 const nextFilterChangeNeedsExpandAll = ref(false);
 const expandedKeysSnapshotBeforeSearch = ref<TreeExpandedKeys>({});
 
-const { setDisplayedRow } = inject(displayedRowKey) as unknown as {
-    setDisplayedRow: RowSetter;
-};
+const { setDisplayedRow } = inject<{ setDisplayedRow: RowSetter }>(
+    displayedRowKey,
+)!;
 
 const route = useRoute();
 
@@ -325,6 +325,6 @@ function lazyLabelLookup(node: TreeNode) {
 }
 
 :deep(.p-tree-node) {
-    margin-right: 0.5rem;
+    margin-inline-end: 0.5rem;
 }
 </style>

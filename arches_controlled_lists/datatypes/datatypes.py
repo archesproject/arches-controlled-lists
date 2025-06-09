@@ -28,7 +28,9 @@ class Reference:
 
 
 class ReferenceDataType(BaseDataType):
-    def to_python(self, value: Iterable[Mapping] | None) -> list[Reference] | None:
+    def to_python(
+        self, value: Iterable[Mapping] | None, **kwargs
+    ) -> list[Reference] | None:
         if not value:
             return None
 
@@ -217,7 +219,7 @@ class ReferenceDataType(BaseDataType):
                         labels.append(label.get("value", ""))
         return ", ".join(labels)
 
-    def get_interchange_value(self, value):
+    def get_interchange_value(self, value, **kwargs):
         """
         Expects tile representation of reference datatype:
         [

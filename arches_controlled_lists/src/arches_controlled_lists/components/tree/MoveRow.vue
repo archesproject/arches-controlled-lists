@@ -45,16 +45,10 @@ const { $gettext } = useGettext();
 const selectedLanguage = inject(
     selectedLanguageKey,
 ) as Ref<Language> as Ref<Language>;
-const {
-    displayedRow,
-    setDisplayedRow,
-}: {
+const { displayedRow, setDisplayedRow } = inject<{
     displayedRow: Ref<Selectable>;
     setDisplayedRow: RowSetter;
-} = inject(displayedRowKey) as unknown as {
-    displayedRow: Ref<Selectable>;
-    setDisplayedRow: RowSetter;
-};
+}>(displayedRowKey)!;
 
 const { iconLabels, moveLabels, node } = defineProps<{
     iconLabels: IconLabels;
@@ -282,7 +276,6 @@ const vRefocusDownArrow = {
     width: 2.5rem;
     padding: 0.5rem;
     border-radius: 2px;
-    border: 1px solid steelblue;
 }
 
 .add-child-button {
@@ -299,7 +292,7 @@ const vRefocusDownArrow = {
 .move-buttons {
     display: flex;
     gap: 0.25rem;
-    padding-right: 0.5rem;
+    padding-inline-end: 0.5rem;
 }
 
 .move-button {

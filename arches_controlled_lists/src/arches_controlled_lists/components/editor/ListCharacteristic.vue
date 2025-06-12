@@ -24,9 +24,9 @@ const props = defineProps<{
     editable: boolean;
     label: string;
 }>();
-const { displayedRow: list } = inject(displayedRowKey) as unknown as {
-    displayedRow: Ref<ControlledList>;
-};
+const { displayedRow: list } = inject<{ displayedRow: Ref<ControlledList> }>(
+    displayedRowKey,
+)!;
 const { isEditing, setIsEditing } = inject(
     isEditingKey,
 ) as IsEditingRefAndSetter;
@@ -141,7 +141,6 @@ const cancel = () => {
 input {
     font-size: 1.2rem;
     border-radius: 2px;
-    margin: 0.5rem 0;
 }
 
 .characteristic {
@@ -156,7 +155,7 @@ input {
 .value-editor-title h4 {
     font-size: 1.66rem;
     margin: 0;
-    padding: 0.5rem 0 0 0;
+    padding: 0.5rem 0 0.5rem 0;
     font-weight: 400;
 }
 
@@ -175,7 +174,7 @@ input {
 }
 
 .edit-controls {
-    margin-left: 1rem;
+    margin-inline-start: 1rem;
     display: inline-flex;
     justify-content: space-between;
     width: 4rem;
@@ -183,6 +182,18 @@ input {
 
 .edit-controls i {
     font-size: medium;
+    align-self: center;
     padding: 0.5rem;
+    border-radius: 50%;
+}
+
+.edit-controls i.fa-check:hover {
+    background: var(--p-button-primary-hover-background);
+    color: var(--p-button-primary-hover-color);
+}
+
+.edit-controls i.fa-undo:hover {
+    background: var(--p-amber-300);
+    color: var(--p-button-primary-hover-color);
 }
 </style>

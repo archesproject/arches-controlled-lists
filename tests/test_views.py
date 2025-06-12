@@ -8,11 +8,8 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
-from unittest.mock import patch
 
-from arches import __version__ as arches_version
 from arches.app.models.graph import Graph
-from arches.app.utils.response import JSONResponse
 from arches.app.models.models import (
     DValueType,
     Language,
@@ -148,13 +145,8 @@ class ListTests(TestCase):
                 language=cls.first_language,
             ).save()
 
-        if arches_version >= "8":
-            cls.graph = Graph.objects.create_graph(name="My Graph")
-            cls.draft_graph = cls.graph.create_draft_graph()
-        else:
-            # TODO: remove when dropping support for 7.x
-            cls.graph = Graph.new(name="My Graph")
-            cls.draft_graph = cls.graph
+        cls.graph = Graph.objects.create_graph(name="My Graph")
+        cls.draft_graph = cls.graph.draft.first()
         admin = User.objects.get(username="admin")
         cls.graph.publish(user=admin)
 

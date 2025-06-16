@@ -20,6 +20,25 @@ class ReferenceDataTypeTests(TestCase):
     def setUpTestData(cls):
         return ListTests.setUpTestData()
 
+    def get_mock_tile(self):
+        node = ListTests.node_using_list1
+        list1 = ListTests.list1
+        item = list1.list_items.get(sortorder=0)
+        tile_repr = [
+            {
+                k: v
+                for k, v in item.serialize().items()
+                if k in ["uri", "values", "list_id"]
+            }
+        ]
+        tile_repr[0]["labels"] = tile_repr[0].pop("values")
+
+        return TileModel(
+            resourceinstance_id=uuid.UUID("40000000-0000-0000-0000-000000000000"),
+            nodegroup=node.nodegroup,
+            data={str(node.pk): tile_repr},
+        )
+
     def test_validate(self):
         reference = DataTypeFactory().get_instance("reference")
         mock_node = SimpleNamespace(config={"multiValue": False})
@@ -190,81 +209,63 @@ class ReferenceDataTypeTests(TestCase):
             tile_value2[0]["labels"][0]["list_item_id"], expected_list_item_pk
         )
 
-    def test_to_representation(self):
+    def test_to_json(self):
         reference = DataTypeFactory().get_instance("reference")
-        list_item_value = ListItemValue.objects.get(
-            value="label1-pref", list_item__list__name="list1"
-        )
-        config = {"controlledList": str(list_item_value.list_item.list_id)}
-        tile_val = reference.transform_value_for_tile("label1-pref", **config)
-
-        representation = reference.to_representation(tile_val)
+        node = ListTests.node_using_list1
+        mock_tile = self.get_mock_tile()
+        representation = reference.to_json(mock_tile, node)
 
         self.assertEqual(
-            representation,
-            [
-                {
-                    "list_item_id": str(list_item_value.list_item.pk),
-                    "display_value": "label1-pref",
-                }
-            ],
+            representation["@display_value"],
+            ["label0-pref"],
         )
 
-        self.assertIsNone(reference.to_representation(None))
+        mock_tile = Tile(data={str(node.pk): None})
+        self.assertIsNone(reference.to_json(mock_tile, node)["@display_value"])
 
     def test_get_display_value(self):
         reference = DataTypeFactory().get_instance("reference")
-        mock_node = SimpleNamespace(nodeid="72048cb3-adbc-11e6-9ccf-14109fd34195")
-        mock_tile1 = Tile(
-            {
-                "resourceinstance_id": "40000000-0000-0000-0000-000000000000",
-                "parenttile_id": "",
-                "nodegroup_id": "72048cb3-adbc-11e6-9ccf-14109fd34195",
-                "tileid": "",
-                "data": {
-                    "72048cb3-adbc-11e6-9ccf-14109fd34195": [
-                        {
-                            "uri": "https://lingo.dev.fargeo.com/plugins/controlled-list-manager/item/9baf3cd5-33d4-4fbc-b1d1-a2d218732f1e",
-                            "labels": [
-                                {
-                                    "id": "ea5c8af7-9933-4356-b537-0330c9da4690",
-                                    "value": "identifier",
-                                    "language_id": "en",
-                                    "list_item_id": "d8ba08f9-b265-4288-9412-857c77fe2581",
-                                    "valuetype_id": "prefLabel",
-                                },
-                                {
-                                    "id": "ea5c8af7-9933-4356-b537-0330c9da4690",
-                                    "value": "identificateur",
-                                    "language_id": "fr",
-                                    "list_item_id": "d8ba08f9-b265-4288-9412-857c77fe2692",
-                                    "valuetype_id": "prefLabel",
-                                },
-                            ],
-                            "list_id": "a8da34eb-575b-498c-ada7-161ee745fd16",
-                        }
-                    ]
-                },
-            }
-        )
+        node = ListTests.node_using_list1
+        mock_tile1 = self.get_mock_tile()
+        labels = mock_tile1.data[str(node.pk)][0]["labels"]
+        french_label = {
+            **labels[0],
+            "language_id": "fr",
+            "value": labels[0]["value"] + "-french",
+        }
+        labels.append(french_label)
+        self.assertEqual(reference.get_display_value(mock_tile1, node), "label0-pref")
         self.assertEqual(
-            reference.get_display_value(mock_tile1, mock_node), "identifier"
-        )
-        self.assertEqual(
-            reference.get_display_value(mock_tile1, mock_node, language="fr"),
-            "identificateur",
+            reference.get_display_value(mock_tile1, node, language="fr"),
+            "label0-pref-french",
         )
 
         mock_tile2 = Tile(
             {
                 "resourceinstance_id": "50000000-0000-0000-0000-000000000000",
-                "parenttile_id": "",
-                "nodegroup_id": "72048cb3-adbc-11e6-9ccf-14109fd34195",
+                "nodegroup_id": str(node.nodegroup_id),
                 "tileid": "",
-                "data": {"72048cb3-adbc-11e6-9ccf-14109fd34195": None},
+                "data": {str(node.pk): None},
             }
         )
-        self.assertEqual(reference.get_display_value(mock_tile2, mock_node), "")
+        self.assertEqual(reference.get_display_value(mock_tile2, node), "")
+
+    def test_get_interchange_value(self):
+        reference = DataTypeFactory().get_instance("reference")
+        node = ListTests.node_using_list1
+        mock_tile = self.get_mock_tile()
+        interchange_val = reference.get_interchange_value(mock_tile.data[str(node.pk)])
+        self.assertEqual(
+            set(interchange_val[0]),
+            {
+                "list_item_id",
+                "list_item_values",
+                "display_value",
+                "children",
+                "sortorder",
+                "uri",
+            },
+        )
 
     def test_collects_multiple_values(self):
         reference = DataTypeFactory().get_instance("reference")

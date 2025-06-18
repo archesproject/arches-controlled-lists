@@ -217,11 +217,13 @@ class ReferenceDataTypeTests(TestCase):
 
         self.assertEqual(
             representation["@display_value"],
-            ["label0-pref"],
+            "label0-pref",
         )
 
         mock_tile = Tile(data={str(node.pk): None})
-        self.assertIsNone(reference.to_json(mock_tile, node)["@display_value"])
+        self.assertEqual(
+            reference.to_json(mock_tile, node)["@display_value"], "(Empty)"
+        )
 
     def test_get_display_value(self):
         reference = DataTypeFactory().get_instance("reference")
@@ -248,7 +250,7 @@ class ReferenceDataTypeTests(TestCase):
                 "data": {str(node.pk): None},
             }
         )
-        self.assertEqual(reference.get_display_value(mock_tile2, node), "")
+        self.assertEqual(reference.get_display_value(mock_tile2, node), "(Empty)")
 
     def test_get_interchange_value(self):
         reference = DataTypeFactory().get_instance("reference")

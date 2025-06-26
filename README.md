@@ -136,10 +136,6 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
     pip install -e ../arches
     ```
 
-1. Create a settings_local.py file with `DEBUG=True`:
-    ```
-    echo "DEBUG = True" > arches_controlled_lists/settings_local.py
-    ```
 
 7. Run the Django server:
     ```

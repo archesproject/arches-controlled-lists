@@ -36,7 +36,6 @@ Homepage = "https://archesproject.org/"
 Documentation = "https://arches.readthedocs.io"
 Repository = "https://github.com/archesproject/arches-controlled-lists.git"
 Issues = "https://github.com/archesproject/arches-controlled-lists/issues"
-Add comment
 
 [dependency-groups]
 dev = [

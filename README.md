@@ -128,7 +128,7 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
 5. Navigate to the `arches-controlled-lists` directory, and install the project (with development dependencies):
     ```
     cd arches-controlled-lists
-    pip install -e '.[dev]'
+    pip install -e . --group dev
     ```
 
 6. Also install core arches for local development:

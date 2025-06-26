@@ -72,13 +72,6 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
 4. Next ensure arches and arches_controlled_lists are included as dependencies in package.json
     ```
     "dependencies": {
-        "@uppy/aws-s3": "3.6.2",
-        "@uppy/core": "3.13.0",
-        "@uppy/dashboard": "3.9.0",
-        "@uppy/drag-drop": "3.1.0",
-        "@uppy/progress-bar": "3.1.1",
-        "@uppy/companion-client": "3.1.3",
-        "typescript": "5.6.2",
         "arches": "archesproject/arches#dev/8.0.x",
         "arches_controlled_lists": "archesproject/arches-controlled-lists#dev/1.0.x"
     }
@@ -135,7 +128,7 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
 5. Navigate to the `arches-controlled-lists` directory, and install the project (with development dependencies):
     ```
     cd arches-controlled-lists
-    pip install -e '.[dev]'
+    pip install -e . --group dev
     ```
 
 6. Also install core arches for local development:
@@ -143,10 +136,6 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
     pip install -e ../arches
     ```
 
-1. Create a settings_local.py file with `DEBUG=True`:
-    ```
-    echo "DEBUG = True" > arches_controlled_lists/settings_local.py
-    ```
 
 7. Run the Django server:
     ```

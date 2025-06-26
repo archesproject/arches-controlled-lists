@@ -8,7 +8,7 @@ readme = "README.md"
 authors = [
     {"name" = "Arches Project"}
 ]
-license = {text = "GNU AGPL3"}
+license = {text = "AGPL-3.0-or-later"}
 description = "An Arches application designed to manage controlled lists and reference data within the Arches platform."
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -29,7 +29,7 @@ dependencies = [
     "arches>=8.0.0a4",
     "arches_component_lab @ git+https://github.com/archesproject/arches-component-lab.git@main",
 ]
-version = "0.0.1"
+version = "1.0.0b0"
 
 [project.urls]
 Homepage = "https://archesproject.org/"

@@ -5,10 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "arches-controlled-lists"
 readme = "README.md"
-authors = []
+authors = [
+    {"name": "Arches Project"}
+]
 license = {text = "GNU AGPL3"}
+description = "An Arches application designed to manage controlled lists and reference data within the Arches platform."
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
@@ -27,6 +30,13 @@ dependencies = [
     "arches_component_lab @ git+https://github.com/archesproject/arches-component-lab.git@main",
 ]
 version = "0.0.1"
+
+[project.urls]
+Homepage = "https://archesproject.org/"
+Documentation = "https://arches.readthedocs.io"
+Repository = "https://github.com/archesproject/arches-controlled-lists.git"
+Issues = "https://github.com/archesproject/arches-controlled-lists/issues"
+Add comment
 
 [dependency-groups]
 dev = [

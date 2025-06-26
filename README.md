@@ -107,7 +107,7 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
     npm run build_development
     ```
 
-## Developer Setup (for contributing to the Arches Contolled Lists project)
+## Developer Setup (for contributing to the Arches Controlled Lists project)
 
 1. Download the arches-controlled-lists repo:
 

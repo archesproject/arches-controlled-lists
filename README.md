@@ -142,32 +142,25 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
     python manage.py runserver
     ```
 
-8. **OPEN A NEW TERMINAL WINDOW**, the following step will take place in a new terminal window while the python server is running.
-
-9. Ensure this new terminal window has the virtual environment activated.
-    ```
-    source ENV/bin/activate
-    ```
-
-10. (From the `arches-controlled-lists` top-level directory) install the frontend dependencies:
+8.  (From the `arches-controlled-lists` top-level directory) install the frontend dependencies:
     ```
     npm install
     ```
 
-11. Once the dependencies have been installed, generate the static asset bundle:
+9.  Once the dependencies have been installed, generate the static asset bundle:
 
     a. If you're planning on editing HTML/CSS/JavaScript files, run `npm start`. This will start a development server that will automatically detect changes to static assets and rebuild the bundle.
 
     b. If you're not planning on editing HTML/CSS/JavaScript files, run `npm run build_development`
 
-12. If you ran `npm start` in the previous step, you will need to open a new terminal window and activate the virtual environment in the new terminal window. If you ran `npm run build_development` then you can skip this step.
+10. If you ran `npm start` in the previous step, you will need to open a new terminal window and activate the virtual environment in the new terminal window. If you ran `npm run build_development` then you can skip this step.
 
-13. Setup the database:
+11. Setup the database:
     ```
     python manage.py setup_db
     ```
 
-14. In the terminal window that is running the Django server, halt the server and restart it.
+12. In the terminal window that is running the Django server, halt the server and restart it.
     ```
     (ctrl+c to halt the server)
     python manage.py runserver

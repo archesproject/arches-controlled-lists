@@ -7,7 +7,7 @@ Please see the [project page](http://archesproject.org/) for more information on
 
 ## Installation
 
-If you are installing Arches Controlled Lists for the first time, you can install it as an Arches application into a project or run it directly as an Arches project. Running Arches Controlled Lists as a project can provide some convienience if you are a developer contributing to the Arches Controlled Lists project. Otherwise, **we strongly recommend running Arches Controlled Lists as an Arches Application** within a project because that will allow greater flexibility in customizing your project without the risk of conflicts when upgrading to the next version of Arches Controlled Lists.  
+If you are installing Arches Controlled Lists for the first time, we strongly recommend that you install it as an Arches application into a existing (or new) project. Running Arches Controlled Lists as a standalone project can provide some convienience if you are a developer contributing to the Arches Controlled Lists project but you risk conflicts when upgrading to the next version of Arches Controlled Lists.
 
 Install Arches Controlled Lists using the following command:
 ```

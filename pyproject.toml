@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "arches-controlled-lists"
 readme = "README.md"
 authors = [
-    {"name": "Arches Project"}
+    {"name" = "Arches Project"}
 ]
 license = {text = "GNU AGPL3"}
 description = "An Arches application designed to manage controlled lists and reference data within the Arches platform."

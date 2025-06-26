@@ -79,7 +79,7 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
         "@uppy/companion-client": "3.1.3",
         "typescript": "5.6.2",
         "arches": "archesproject/arches#dev/8.0.x",
-        "arches_controlled_lists": "archesproject/arches-controlled_lists#dev/1.0.x"
+        "arches_controlled_lists": "archesproject/arches-controlled-lists#dev/1.0.x"
     }
     ```
 

@@ -335,7 +335,7 @@ class ListTests(TestCase):
         )
 
     def test_move_list_item(self):
-        """Move the top-level item in list2, which has children, into list1."""
+        """Move the top-level item in list2, which has 4 children, into list1."""
         self.client.force_login(self.admin)
 
         body = {
@@ -359,7 +359,7 @@ class ListTests(TestCase):
             .values_list("sortorder", flat=True),
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         )
-        self.assertEqual(self.list1.list_items.filter(parent=None).count(), 6)
+        self.assertEqual(self.list1.list_items.exclude(parent=None).count(), 4)
 
     def test_recursive_cycles(self):
         self.client.force_login(self.admin)

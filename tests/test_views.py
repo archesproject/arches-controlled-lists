@@ -181,12 +181,6 @@ class ListTests(TestCase):
         cls.graph.publish(user=admin)
 
     def test_get_lists(self):
-        self.client.force_login(self.anonymous)
-        with self.assertLogs("django.request", level="WARNING"):
-            response = self.client.get(reverse("controlled_lists"))
-
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN, response.content)
-
         self.client.force_login(self.admin)
         with self.assertNumQueries(14):
             # 1: session
@@ -245,6 +239,11 @@ class ListTests(TestCase):
         self.assertEqual(result["nodes"], [])
 
     def test_create_list(self):
+        self.client.force_login(self.anonymous)
+        with self.assertLogs("django.request", level="WARNING"):
+            response = self.client.post(reverse("controlled_list_add"))
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN, response.content)
+
         self.client.force_login(self.admin)
         self.client.post(
             reverse("controlled_list_add"),

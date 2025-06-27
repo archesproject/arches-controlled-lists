@@ -8,7 +8,7 @@ readme = "README.md"
 authors = [
     {"name" = "Arches Project"}
 ]
-license = {text = "AGPL-3.0-or-later"}
+license = AGPL-3.0-or-later"
 description = "An Arches application designed to manage controlled lists and reference data within the Arches platform."
 classifiers = [
     "Development Status :: 4 - Beta",

@@ -9,6 +9,7 @@ authors = [
     {"name" = "Arches Project"}
 ]
 license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
 description = "An Arches application designed to manage controlled lists and reference data within the Arches platform."
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -26,8 +27,8 @@ classifiers = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "arches>=8.0.0a4",
-    "arches_component_lab @ git+https://github.com/archesproject/arches-component-lab.git@main",
+    "arches==8.0.1",
+    "arches-component-lab==0.0.1a0",
 ]
 version = "1.0.0b0"
 

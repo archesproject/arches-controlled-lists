@@ -72,8 +72,8 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
 4. Next ensure arches and arches_controlled_lists are included as dependencies in package.json
     ```
     "dependencies": {
-        "arches": "archesproject/arches#stable/8.0.1",
-        "arches_controlled_lists": "archesproject/arches-controlled-lists#beta/1.0.0b1"
+        "arches": "archesproject/arches#dev/8.0.x",
+        "arches_controlled_lists": "archesproject/arches-controlled-lists#main"
     }
     ```
 

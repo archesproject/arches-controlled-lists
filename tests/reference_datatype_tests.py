@@ -252,13 +252,29 @@ class ReferenceDataTypeTests(TestCase):
         )
         self.assertEqual(reference.get_display_value(mock_tile2, node), "(Empty)")
 
-    def test_get_interchange_value(self):
+    def test_get_display_value_context_in_bulk(self):
         reference = DataTypeFactory().get_instance("reference")
         node = ListTests.node_using_list1
         mock_tile = self.get_mock_tile()
-        interchange_val = reference.get_interchange_value(mock_tile.data[str(node.pk)])
+        node_value = mock_tile.data[str(node.pk)]
+        five_identical_node_values = [node_value] * 5
+
+        qs = reference.get_display_value_context_in_bulk(five_identical_node_values)
+        with self.assertNumQueries(3):
+            # 1: list items
+            # 2: list item labels
+            # 3: children
+            self.assertEqual(len(qs), 1)
+        with self.assertNumQueries(0):
+            qs[0].build_select_option()
+
+    def test_get_details(self):
+        reference = DataTypeFactory().get_instance("reference")
+        node = ListTests.node_using_list1
+        mock_tile = self.get_mock_tile()
+        details = reference.get_details(mock_tile.data[str(node.pk)])
         self.assertEqual(
-            set(interchange_val[0]),
+            set(details[0]),
             {
                 "list_item_id",
                 "list_item_values",

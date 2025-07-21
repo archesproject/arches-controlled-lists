@@ -57,11 +57,64 @@ class ListImportPackageTests(TestCase):
                 stdout=output,
             )
 
-        self.assertEqual(List.objects.all().count(), 2)
-        self.assertEqual(ListItem.objects.all().count(), 10)
-        self.assertEqual(ListItemValue.objects.all().count(), 21)
+        self.assertEqual(List.objects.count(), 2)
+        self.assertEqual(ListItem.objects.count(), 10)
+        self.assertEqual(ListItemValue.objects.count(), 21)
 
     ### TODO Add test for creating new language if language code not in db but found in import file
+
+    def test_import_from_skos(self):
+        input_file = os.path.join(
+            PROJECT_TEST_ROOT, "fixtures", "data", "skos_rdf_import_example.xml"
+        )
+        output = io.StringIO()
+        # packages command does not yet fully avoid print()
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="import_controlled_lists",
+                source=input_file,
+                overwrite="ignore",
+                stdout=output,
+            )
+
+        self.assertEqual(List.objects.count(), 1)
+        self.assertEqual(
+            ListItem.objects.count(), 16
+        )  # should be 17 for polyhierarchical concept
+        self.assertEqual(ListItemValue.objects.count(), 20)
+
+        # Re-run with overwrite
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="import_controlled_lists",
+                source=input_file,
+                overwrite="overwrite",
+                stdout=output,
+            )
+
+        self.assertEqual(List.objects.count(), 1)
+        self.assertEqual(
+            ListItem.objects.count(), 16
+        )  # should be 17 for polyhierarchical concept
+        self.assertEqual(ListItemValue.objects.count(), 20)
+
+        # Re-run last time with duplicate
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="import_controlled_lists",
+                source=input_file,
+                overwrite="duplicate",
+                stdout=output,
+            )
+
+        self.assertEqual(List.objects.count(), 2)
+        self.assertEqual(
+            ListItem.objects.count(), 32
+        )  # should be 34 for polyhierarchical concept
+        self.assertEqual(ListItemValue.objects.count(), 40)
 
 
 class RDMToControlledListsETLTests(TestCase):

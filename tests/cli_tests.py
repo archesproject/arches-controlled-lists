@@ -79,10 +79,8 @@ class ListImportPackageTests(TestCase):
             )
 
         self.assertEqual(List.objects.count(), 1)
-        self.assertEqual(
-            ListItem.objects.count(), 16
-        )  # should be 17 for polyhierarchical concept
-        self.assertEqual(ListItemValue.objects.count(), 20)
+        self.assertEqual(ListItem.objects.count(), 17)
+        self.assertEqual(ListItemValue.objects.count(), 21)
 
         # Re-run with overwrite
         with captured_stdout():
@@ -95,10 +93,8 @@ class ListImportPackageTests(TestCase):
             )
 
         self.assertEqual(List.objects.count(), 1)
-        self.assertEqual(
-            ListItem.objects.count(), 16
-        )  # should be 17 for polyhierarchical concept
-        self.assertEqual(ListItemValue.objects.count(), 20)
+        self.assertEqual(ListItem.objects.count(), 17)
+        self.assertEqual(ListItemValue.objects.count(), 21)
 
         # Re-run last time with duplicate
         with captured_stdout():
@@ -111,10 +107,8 @@ class ListImportPackageTests(TestCase):
             )
 
         self.assertEqual(List.objects.count(), 2)
-        self.assertEqual(
-            ListItem.objects.count(), 32
-        )  # should be 34 for polyhierarchical concept
-        self.assertEqual(ListItemValue.objects.count(), 40)
+        self.assertEqual(ListItem.objects.count(), 34)
+        self.assertEqual(ListItemValue.objects.count(), 42)
 
 
 class RDMToControlledListsETLTests(TestCase):

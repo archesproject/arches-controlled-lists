@@ -11,10 +11,10 @@ import {
 import { dataIsList } from "@/arches_controlled_lists/utils.ts";
 
 import type { Ref } from "vue";
-import type { Language } from "@/arches_component_lab/types";
 import type {
     ControlledList,
     ControlledListItem,
+    Language,
     Selectable,
 } from "@/arches_controlled_lists/types";
 

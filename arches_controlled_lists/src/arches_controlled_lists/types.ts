@@ -1,5 +1,14 @@
 import type { Ref } from "vue";
 
+export interface Language {
+    code: string;
+    default_direction: "ltr" | "rtl";
+    id: number;
+    isdefault: boolean;
+    name: string;
+    scope: string;
+}
+
 export interface Value {
     id: string;
     valuetype_id: string;

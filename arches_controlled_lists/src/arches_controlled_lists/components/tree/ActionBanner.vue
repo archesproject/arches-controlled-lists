@@ -16,7 +16,7 @@ import { shouldUseContrast } from "@/arches_controlled_lists/utils.ts";
 import type { Ref } from "vue";
 import type { TreeSelectionKeys } from "primevue/tree";
 import type { TreeNode } from "primevue/treenode";
-import type { Language } from "@/arches_component_lab/types";
+import type { Language } from "@/arches_controlled_lists/types";
 
 const isMultiSelecting = defineModel<boolean>("isMultiSelecting", {
     required: true,

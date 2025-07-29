@@ -11,10 +11,10 @@ import {
 import ImageMetadata from "@/arches_controlled_lists/components/editor/ImageMetadata.vue";
 
 import type { Ref } from "vue";
-import type { Language } from "@/arches_component_lab/types";
 import type {
     ControlledListItem,
     ControlledListItemImage,
+    Language,
 } from "@/arches_controlled_lists/types";
 
 const item = inject(itemKey) as Ref<ControlledListItem>;

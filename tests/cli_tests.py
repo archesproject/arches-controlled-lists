@@ -81,6 +81,26 @@ class ListImportPackageTests(TestCase):
         self.assertEqual(List.objects.count(), 1)
         self.assertEqual(ListItem.objects.count(), 17)
         self.assertEqual(ListItemValue.objects.count(), 21)
+        # child1 list item should be duplicated
+        child1_list_items = ListItem.objects.filter(
+            uri="http://localhost:8000/fea17c9d-e9c2-4469-91f9-6519f6692625"
+        )
+        self.assertEqual(child1_list_items.count(), 2)
+        # but those list items will have different parents
+        child1_instance_1 = child1_list_items[0]
+        child1_instance_2 = child1_list_items[1]
+        self.assertNotEqual(child1_instance_1.parent, child1_instance_2.parent)
+
+        # They should have distinct list item values
+        self.assertNotEqual(
+            child1_instance_1.list_item_values.first().pk,
+            child1_instance_2.list_item_values.first().pk,
+        )
+        # but the values should be the same
+        self.assertEqual(
+            child1_instance_1.list_item_values.first().value,
+            child1_instance_2.list_item_values.first().value,
+        )
 
         # Re-run with overwrite
         with captured_stdout():

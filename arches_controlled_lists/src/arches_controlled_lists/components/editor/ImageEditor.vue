@@ -2,12 +2,12 @@
 import arches from "arches";
 import { computed, inject } from "vue";
 
-import { getItemLabel } from "@/arches_component_lab/utils.ts";
 import {
     itemKey,
     METADATA_CHOICES,
     systemLanguageKey,
 } from "@/arches_controlled_lists/constants.ts";
+import { getItemLabel } from "@/arches_controlled_lists/utils.ts";
 import ImageMetadata from "@/arches_controlled_lists/components/editor/ImageMetadata.vue";
 
 import type { Ref } from "vue";

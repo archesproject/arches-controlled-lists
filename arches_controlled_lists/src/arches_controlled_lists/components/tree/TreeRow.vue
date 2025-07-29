@@ -7,7 +7,6 @@ import InputText from "primevue/inputtext";
 import ProgressSpinner from "primevue/progressspinner";
 import { useToast } from "primevue/usetoast";
 
-import { getItemLabel } from "@/arches_component_lab/utils.ts";
 import {
     createItem,
     createList,
@@ -26,6 +25,7 @@ import {
 import {
     dataIsNew,
     findNodeInTree,
+    getItemLabel,
     itemAsNode,
     listAsNode,
     nodeIsList,

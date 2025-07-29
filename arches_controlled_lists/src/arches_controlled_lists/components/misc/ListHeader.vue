@@ -2,13 +2,12 @@
 import { computed, inject } from "vue";
 import { useGettext } from "vue3-gettext";
 
-import { getItemLabel } from "@/arches_component_lab/utils.ts";
 import {
     displayedRowKey,
     selectedLanguageKey,
     systemLanguageKey,
 } from "@/arches_controlled_lists/constants.ts";
-import { dataIsList } from "@/arches_controlled_lists/utils.ts";
+import { dataIsList, getItemLabel } from "@/arches_controlled_lists/utils.ts";
 
 import type { Ref } from "vue";
 import type {

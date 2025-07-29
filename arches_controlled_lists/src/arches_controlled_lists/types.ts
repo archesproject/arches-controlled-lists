@@ -9,6 +9,22 @@ export interface Language {
     scope: string;
 }
 
+export interface Label {
+    value: string;
+    language_id: string;
+    valuetype_id: string;
+}
+
+export interface WithLabels {
+    labels: Label[];
+}
+
+export interface WithValues {
+    values: Label[];
+}
+
+export type Labellable = WithLabels | WithValues;
+
 export interface Value {
     id: string;
     valuetype_id: string;

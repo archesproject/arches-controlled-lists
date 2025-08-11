@@ -4,8 +4,10 @@ import { useGettext } from "vue3-gettext";
 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 import SplitButton from "primevue/splitbutton";
+
+import ImportList from "@/arches_controlled_lists/components/misc/ImportList.vue";
 
 import {
     deleteItems,
@@ -123,6 +125,18 @@ const createList = () => {
     selectedKeys.value = { [newList.id]: true };
     setDisplayedRow(newList);
 };
+
+const importDialogVisible = ref(false);
+const openImportDialog = () => {
+    importDialogVisible.value = !importDialogVisible.value;
+};
+
+const addNewListOptions = [
+    {
+        label: $gettext("Import from SKOS"),
+        command: openImportDialog,
+    },
+];
 
 const toDelete = computed(() => {
     if (!selectedKeys.value) {
@@ -265,12 +279,31 @@ await fetchListsAndPopulateTree();
             </h3>
         </div>
         <div class="button-controls-container">
-            <Button
+            <SplitButton
                 class="list-button"
                 :label="$gettext('Add New List')"
                 :severity="shouldUseContrast() ? CONTRAST : PRIMARY"
+                :model="addNewListOptions"
+                :pt="{
+                    pcButton: {
+                        root: { style: { width: '100%', fontSize: 'inherit' } },
+                    },
+                }"
                 @click="createList"
             />
+            <Dialog
+                v-model:visible="importDialogVisible"
+                position="top"
+                :header="$gettext('Import New Controlled List')"
+                :dismissable-mask="true"
+                :close-on-escape="true"
+                :modal="true"
+            >
+                <ImportList
+                    @imported="fetchListsAndPopulateTree"
+                    @close="importDialogVisible = false"
+                />
+            </Dialog>
             <SplitButton
                 class="list-button"
                 :label="$gettext('Delete')"

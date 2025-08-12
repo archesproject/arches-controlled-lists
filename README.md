@@ -21,11 +21,12 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
 
 1. If you don't already have an Arches project, you'll need to create one by following the instructions in the Arches [documentation](http://archesproject.org/documentation/).
 
-2. When your project is ready, add "arches_querysets", "arches_component_lab", "arches_controlled_lists", and "pgtrigger" to INSTALLED_APPS **below** the name of your project:
+2. When your project is ready, add "django.contrib.postgres", "arches_querysets", "arches_component_lab", "arches_controlled_lists", and "pgtrigger" to INSTALLED_APPS **below** the name of your project:
     ```
     INSTALLED_APPS = (
         ...
         "my_project_name",
+        "django.contrib.postgres",
         "arches_querysets",
         "arches_component_lab",
         "arches_controlled_lists",

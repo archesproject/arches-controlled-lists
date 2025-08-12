@@ -293,17 +293,33 @@ await fetchListsAndPopulateTree();
             />
             <Dialog
                 v-model:visible="importDialogVisible"
-                position="top"
-                :header="$gettext('Import New Controlled List')"
-                :dismissable-mask="true"
+                position="center"
+                :header="$gettext('Import Controlled Lists from SKOS File')"
                 :close-on-escape="true"
                 :modal="true"
+                :pt="{
+                    root: {
+                        style: {
+                            minWidth: '50rem',
+                            borderRadius: '0',
+                        },
+                    },
+                    header: {
+                        style: {
+                            background: 'var(--p-navigation-header-color)',
+                            color: 'var(--p-slate-50)',
+                            borderRadius: '0',
+                        },
+                    },
+                }"
+                :class="'import-dialog'"
             >
                 <ImportList
                     @imported="
                         importDialogVisible = false;
                         fetchListsAndPopulateTree();
                     "
+                    @cancel="importDialogVisible = false"
                 />
             </Dialog>
             <SplitButton

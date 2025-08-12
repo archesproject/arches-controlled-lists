@@ -76,11 +76,6 @@ class ListTests(TestCase):
             ]
         )
 
-        cls.parent = ListItem.objects.get(list=cls.list2, uri="https://getty.edu/0")
-        for child in ListItem.objects.filter(list=cls.list2).exclude(pk=cls.parent.pk):
-            child.parent = cls.parent
-            child.save()
-
         # Create a prefLabel and altLabel per item. (20)
         list1_items = cls.list1.list_items.all()
         list2_items = cls.list2.list_items.all()
@@ -122,6 +117,17 @@ class ListTests(TestCase):
                 for num in range(5)
             ]
         )
+
+        # Set the parent and sortorder on the children in list2.
+        cls.parent = ListItem.objects.get(list=cls.list2, uri="https://getty.edu/0")
+        for i, child in enumerate(
+            ListItem.objects.filter(list=cls.list2)
+            .exclude(pk=cls.parent.pk)
+            .order_by("sortorder")
+        ):
+            child.parent = cls.parent
+            child.sortorder = i
+            child.save()
 
         # Create one image with full metadata for the first item in list 1.
         cls.image = ListItemImage.objects.create(
@@ -318,6 +324,19 @@ class ListTests(TestCase):
             .order_by("uri")
             .values_list("sortorder", flat=True),
             [4, 3, 2, 1, 0],
+        )
+
+    def test_get_list_items_flat(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse("controlled_list", kwargs={"list_id": str(self.list2.pk)}),
+            QUERY_STRING="flat=true",
+        )
+
+        self.assertEqual(
+            [item["sortorder"] for item in response.json()["items"]],
+            [0, 0, 1, 2, 3],
         )
 
     def test_move_list_item(self):

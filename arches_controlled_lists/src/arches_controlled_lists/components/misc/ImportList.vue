@@ -2,16 +2,29 @@
 import { ref } from "vue";
 import { useGettext } from "vue3-gettext";
 
-import { Form } from "@primevue/forms";
-
+import { Form, FormField } from "@primevue/forms";
+import { useToast } from "primevue/usetoast";
 import Button from "primevue/button";
 import InputFile from "primevue/fileupload";
+import Message from "primevue/message";
 import RadioButton from "primevue/radiobutton";
 
+import type { FormFieldResolverOptions } from "@primevue/forms";
+
+import { importList } from "@/arches_controlled_lists/api.ts";
+import {
+    DEFAULT_ERROR_TOAST_LIFE,
+    ERROR,
+} from "@/arches_controlled_lists/constants.ts";
+
 const { $gettext } = useGettext();
+const toast = useToast();
+
+const emit = defineEmits<{
+    (e: "imported"): void;
+}>();
 
 const formRef = ref();
-
 const file = ref<File | null>(null);
 const overwriteOption = ref("ignore");
 
@@ -21,18 +34,50 @@ const overwriteOptions = ref([
     { label: $gettext("Overwrite"), value: "overwrite" },
 ]);
 
-function handleFileUpload(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (target.files && target.files.length > 0) {
-        file.value = target.files[0];
+function updateFileValue(event: { files: File[] }) {
+    if (event.files && event.files.length > 0) {
+        file.value = event.files[0];
     } else {
         file.value = null;
     }
 }
 
-function submit() {
-    console.log("File:", file.value);
-    console.log("Boolean:", overwriteOption.value);
+async function submit() {
+    const isValid = await formRef.value?.validate();
+    if (!isValid || !file.value) {
+        return;
+    }
+    await importList(file.value, overwriteOption.value)
+        .then(() => {
+            emit("imported");
+        })
+        .catch((error: Error) => {
+            toast.add({
+                severity: ERROR,
+                life: DEFAULT_ERROR_TOAST_LIFE,
+                summary: $gettext("Unable to fetch lists"),
+                detail: error.message,
+            });
+        });
+}
+
+function fileResolver() {
+    const errors = [];
+    if (!file.value) {
+        errors.push({ message: $gettext("Please select a file") });
+    } else if (!file.value.name.toLowerCase().endsWith(".xml")) {
+        errors.push({ message: $gettext("File must be an XML file") });
+    }
+    return { errors };
+}
+
+function overwriteResolver(formFieldVal: FormFieldResolverOptions) {
+    const value = formFieldVal.value;
+    const errors = [];
+    if (!value) {
+        errors.push({ message: $gettext("Please select an overwrite option") });
+    }
+    return { errors };
 }
 </script>
 
@@ -43,22 +88,39 @@ function submit() {
     >
         <label for="fileUpload">SKOS File</label>
         <FormField
+            v-slot="$field"
             name="fileUpload"
-            :resolver="resolver"
+            :resolver="fileResolver"
         >
             <InputFile
-                v-model:file="file"
+                v-model="file"
                 accept=".xml"
-                @change="handleFileUpload"
+                mode="basic"
+                :auto="false"
+                :choose-label="$gettext('Choose File')"
+                :multiple="false"
+                @select="updateFileValue"
             />
+            <Message
+                v-for="error in $field.errors"
+                :key="error.message"
+                severity="error"
+                size="small"
+            >
+                {{ error.message }}
+            </Message>
         </FormField>
 
         <label for="overwrite-options">Overwrite Options</label>
         <FormField
+            v-slot="$field"
             name="overwrite-options"
-            :resolver="resolver"
+            :resolver="overwriteResolver"
         >
-            <span v-for="option in overwriteOptions">
+            <span
+                v-for="option in overwriteOptions"
+                :key="option.value"
+            >
                 <RadioButton
                     v-model="overwriteOption"
                     :input-id="option.value"
@@ -66,6 +128,14 @@ function submit() {
                 />
                 <label :for="option.value">{{ option.label }}</label>
             </span>
+            <Message
+                v-for="error in $field.errors"
+                :key="error.message"
+                severity="error"
+                size="small"
+            >
+                {{ error.message }}
+            </Message>
         </FormField>
         <Button
             label="Submit"

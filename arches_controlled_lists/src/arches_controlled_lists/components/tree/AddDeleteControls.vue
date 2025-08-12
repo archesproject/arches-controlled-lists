@@ -300,8 +300,10 @@ await fetchListsAndPopulateTree();
                 :modal="true"
             >
                 <ImportList
-                    @imported="fetchListsAndPopulateTree"
-                    @close="importDialogVisible = false"
+                    @imported="
+                        importDialogVisible = false;
+                        fetchListsAndPopulateTree();
+                    "
                 />
             </Dialog>
             <SplitButton

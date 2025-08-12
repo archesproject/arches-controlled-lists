@@ -28,14 +28,6 @@ from arches_controlled_lists.models import (
 # python manage.py test tests.test_views --settings="tests.test_settings"
 
 
-SYNCED_PK = uuid.uuid4()
-
-
-def sync_pk_for_comparison(item):
-    item.pk = SYNCED_PK
-    return item
-
-
 class ListTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -272,18 +264,19 @@ class ListTests(TestCase):
 
     def test_create_list_item(self):
         self.client.force_login(self.admin)
-        existing_pks = [item.pk for item in self.list1.list_items.all()]
+        existing_pks = [item.pk for item in self.list2.list_items.all()]
 
         self.client.post(
             reverse("controlled_list_item_add"),
-            {"list_id": str(self.list1.pk), "parent_id": None},
+            {"list_id": str(self.list2.pk), "parent_id": None},
             content_type="application/json",
         )
 
         self.assertQuerySetEqual(
-            self.list1.list_items.exclude(pk__in=existing_pks),
-            [ListItem(pk=SYNCED_PK, list=self.list1, sortorder=5)],
-            transform=sync_pk_for_comparison,
+            self.list2.list_items.exclude(pk__in=existing_pks).values(
+                "list", "sortorder"
+            ),
+            [{"list": self.list2.pk, "sortorder": 1}],
         )
 
     def test_create_list_item_nested(self):
@@ -298,16 +291,10 @@ class ListTests(TestCase):
         )
 
         self.assertQuerySetEqual(
-            self.list1.list_items.exclude(pk__in=existing_pks),
-            [
-                ListItem(
-                    pk=SYNCED_PK,
-                    list=self.list1,
-                    sortorder=5,
-                    parent_id=parent_item.pk,
-                )
-            ],
-            transform=sync_pk_for_comparison,
+            self.list1.list_items.exclude(pk__in=existing_pks).values(
+                "list", "sortorder", "parent_id"
+            ),
+            [{"list": self.list1.pk, "sortorder": 0, "parent_id": parent_item.pk}],
         )
 
     def test_list_items_provide_new_sortorder(self):

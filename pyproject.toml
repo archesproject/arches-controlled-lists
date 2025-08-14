@@ -28,7 +28,7 @@ classifiers = [
 requires-python = ">=3.11"
 dependencies = [
     "arches>=8.0.1",
-    "arches_component_lab @ git+https://github.com/archesproject/arches-component-lab.git@main",
+    "arches_component_lab @ git+https://github.com/archesproject/arches-component-lab.git@jtw/test",
 ]
 version = "1.0.0b1"
 

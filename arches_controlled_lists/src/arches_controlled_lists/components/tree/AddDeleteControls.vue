@@ -4,8 +4,10 @@ import { useGettext } from "vue3-gettext";
 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 import SplitButton from "primevue/splitbutton";
+
+import ImportList from "@/arches_controlled_lists/components/misc/ImportList.vue";
 
 import {
     deleteItems,
@@ -123,6 +125,18 @@ const createList = () => {
     selectedKeys.value = { [newList.id]: true };
     setDisplayedRow(newList);
 };
+
+const importDialogVisible = ref(false);
+const openImportDialog = () => {
+    importDialogVisible.value = !importDialogVisible.value;
+};
+
+const addNewListOptions = [
+    {
+        label: $gettext("Import from SKOS"),
+        command: openImportDialog,
+    },
+];
 
 const toDelete = computed(() => {
     if (!selectedKeys.value) {
@@ -265,12 +279,49 @@ await fetchListsAndPopulateTree();
             </h3>
         </div>
         <div class="button-controls-container">
-            <Button
+            <SplitButton
                 class="list-button"
                 :label="$gettext('Add New List')"
                 :severity="shouldUseContrast() ? CONTRAST : PRIMARY"
+                :model="addNewListOptions"
+                :pt="{
+                    pcButton: {
+                        root: { style: { width: '100%', fontSize: 'inherit' } },
+                    },
+                }"
                 @click="createList"
             />
+            <Dialog
+                v-model:visible="importDialogVisible"
+                position="center"
+                :header="$gettext('Import Controlled Lists from SKOS File')"
+                :close-on-escape="true"
+                :modal="true"
+                :pt="{
+                    root: {
+                        style: {
+                            minWidth: '50rem',
+                            borderRadius: '0',
+                        },
+                    },
+                    header: {
+                        style: {
+                            background: 'var(--p-navigation-header-color)',
+                            color: 'var(--p-slate-50)',
+                            borderRadius: '0',
+                        },
+                    },
+                }"
+                :class="'import-dialog'"
+            >
+                <ImportList
+                    @imported="
+                        importDialogVisible = false;
+                        fetchListsAndPopulateTree();
+                    "
+                    @cancel="importDialogVisible = false"
+                />
+            </Dialog>
             <SplitButton
                 class="list-button"
                 :label="$gettext('Delete')"

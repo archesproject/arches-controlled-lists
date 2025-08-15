@@ -1,6 +1,6 @@
 import json
 import uuid
-import sys
+import os, sys
 from http import HTTPStatus
 
 from django.contrib.auth.models import Group, User
@@ -23,6 +23,7 @@ from arches_controlled_lists.models import (
     ListItemImageMetadata,
     ListItemValue,
 )
+from .test_settings import PROJECT_TEST_ROOT
 
 # these tests can be run from the command line via
 # python manage.py test tests.test_views --settings="tests.test_settings"
@@ -252,6 +253,27 @@ class ListTests(TestCase):
         self.assertEqual(
             List.objects.filter(name__startswith="Untitled List: ").count(), 1
         )
+
+    def test_import_skos_post(self):
+        self.client.force_login(self.admin)
+        input_file = os.path.join(
+            PROJECT_TEST_ROOT, "fixtures", "data", "skos_rdf_import_example.xml"
+        )
+        with open(input_file, "rb") as file:
+            response = self.client.post(
+                reverse("controlled_list_add"),
+                {"skosfile": file, "overwrite_option": "overwrite"},
+            )
+        self.assertEqual(response.status_code, HTTPStatus.CREATED, response.content)
+        new_lists = List.objects.filter(name__startswith="Test Thesaurus")
+        new_list = new_lists.first()
+        new_list_items = new_list.list_items.all()
+        new_list_item_values = ListItemValue.objects.filter(
+            list_item_id__in=new_list_items.all()
+        )
+        self.assertEqual(new_lists.count(), 1)
+        self.assertEqual(new_list_items.count(), 17)
+        self.assertEqual(new_list_item_values.count(), 21)
 
     def test_delete_list(self):
         self.client.force_login(self.admin)

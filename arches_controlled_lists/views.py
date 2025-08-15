@@ -22,6 +22,7 @@ from arches_controlled_lists.models import (
     ListItemValue,
     NodeProxy,
 )
+from arches_controlled_lists.utils.skos import SKOSReader
 
 
 def _prefetch_terms(request):
@@ -91,16 +92,32 @@ class ListView(APIBase):
         group_required("RDM Administrator", raise_exception=True), name="dispatch"
     )
     def post(self, request):
-        data = JSONDeserializer().deserialize(request.body)
-        lst = List(name=data.get("name", None))
-        try:
-            lst.full_clean()  # applies default name
-        except ValidationError as ve:
-            return JSONErrorResponse(
-                message="\n".join(ve.messages), status=HTTPStatus.BAD_REQUEST
-            )
-        lst.save()
-        return JSONResponse(lst.serialize(), status=HTTPStatus.CREATED)
+        skosfile = request.FILES.get("skosfile", None)
+        overwrite_option = request.POST.get("overwrite_option", None)
+        if skosfile and overwrite_option:
+            try:
+                skos = SKOSReader()
+                rdf = skos.read_file(skosfile)
+                concepts = skos.save_controlled_lists_from_skos(
+                    rdf, overwrite_options=overwrite_option
+                )
+            except ValidationError as ve:
+                return JSONErrorResponse(
+                    message="\n".join(ve.messages), status=HTTPStatus.BAD_REQUEST
+                )
+            return JSONResponse(concepts, status=HTTPStatus.CREATED)
+
+        else:
+            data = JSONDeserializer().deserialize(request.body)
+            lst = List(name=data.get("name", None))
+            try:
+                lst.full_clean()  # applies default name
+            except ValidationError as ve:
+                return JSONErrorResponse(
+                    message="\n".join(ve.messages), status=HTTPStatus.BAD_REQUEST
+                )
+            lst.save()
+            return JSONResponse(lst.serialize(), status=HTTPStatus.CREATED)
 
     @method_decorator(
         group_required("RDM Administrator", raise_exception=True), name="dispatch"

@@ -150,7 +150,9 @@ class RDMToControlledListsETLTests(TestCase):
         )
 
         imported_list = List.objects.get(name="Polyhierarchical Collection Test")
-        imported_items = imported_list.list_items.all()
+        imported_items = (
+            imported_list.list_items.all().with_list_item_labels().order_by("sortorder")
+        )
         self.assertEqual(len(imported_items), 3)
 
         imported_item_values = ListItemValue.objects.filter(
@@ -166,6 +168,24 @@ class RDMToControlledListsETLTests(TestCase):
                 "Test Concept 2",
                 "Test Concept 3",
             ],
+        )
+
+        # Check that sortorder was calculated correctly based on sortorder value coming from RDM
+        # Test Concept 3 has sortorder 0,
+        # Test Concept 2 has sortorder 1,
+        # and Test Concept 1 has no provided sortorder, so will fall back to alpha order
+        # after those with a provided sortorder.
+        self.assertIn(
+            imported_items[0].list_item_labels[0].value,
+            ["Test Concept 3", "French Test Concept 3"],
+        )
+        self.assertIn(
+            imported_items[1].list_item_labels[0].value,
+            ["Test Concept 2", "French Test Concept 2"],
+        )
+        self.assertIn(
+            imported_items[2].list_item_labels[0].value,
+            ["Test Concept 1", "French Test Concept 1"],
         )
 
         imported_list_2 = List.objects.get(name="Polyhierarchy Collection 2")

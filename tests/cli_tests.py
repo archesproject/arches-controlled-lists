@@ -139,10 +139,8 @@ class RDMToControlledListsETLTests(TestCase):
         management.call_command(
             "controlled_lists",
             operation="migrate_collections_to_controlled_lists",
-            collections_to_migrate=[
-                "Polyhierarchical Collection Test",
-                "Polyhierarchy Collection 2",
-            ],
+            # Migrate all collections with empty string param
+            collections_to_migrate=[""],
             host="http://localhost:8000/plugins/controlled-list-manager/item/",
             preferred_sort_language="en",
             overwrite=False,

@@ -69,6 +69,16 @@
     },
     {
         "model": "models.value",
+        "pk": "4ef16d39-dc7b-4db7-b471-71ad568dc20a",
+        "fields": {
+            "concept": "6490ac87-ac80-41d7-a135-1119b4cd912d",
+            "valuetype": "sortorder",
+            "value": "0",
+            "language": "en"
+        }
+    },
+    {
+        "model": "models.value",
         "pk": "7949d7b5-6e57-469a-8f38-87aac08e1788",
         "fields": {
             "concept": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
@@ -104,6 +114,16 @@
             "concept": "89ff530a-f350-44f0-ac88-bdd8904eb57e",
             "valuetype": "prefLabel",
             "value": "Test Concept 1",
+            "language": "en"
+        }
+    },
+    {
+        "model": "models.value",
+        "pk": "ace4b2c7-a5e9-412a-9839-85e143036c4c",
+        "fields": {
+            "concept": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
+            "valuetype": "sortorder",
+            "value": "1",
             "language": "en"
         }
     },

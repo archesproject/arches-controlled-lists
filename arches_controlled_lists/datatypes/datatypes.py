@@ -2,7 +2,7 @@ import uuid
 from dataclasses import asdict, dataclass
 from typing import Iterable, Mapping
 
-from django.db.models import F
+from django.db.models import F, JSONField
 from django.utils.translation import gettext as _
 
 from arches.app.datatypes.base import BaseDataType
@@ -10,6 +10,19 @@ from arches.app.models.models import Node
 from arches.app.models.graph import GraphValidationError
 
 from arches_controlled_lists.models import ListItem
+
+try:
+    import rest_framework.fields
+except:
+    pass
+else:
+
+    class ReferenceSerializer(rest_framework.fields.JSONField):
+        def to_internal_value(self, data):
+            return ReferenceDataType().to_python(data)
+
+
+class ReferenceField(JSONField): ...
 
 
 @dataclass(kw_only=True)
@@ -29,6 +42,8 @@ class Reference:
 
 
 class ReferenceDataType(BaseDataType):
+    model_field = ReferenceField(null=True)
+
     def to_python(
         self, value: Iterable[Mapping] | None, **kwargs
     ) -> list[Reference] | None:

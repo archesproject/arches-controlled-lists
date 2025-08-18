@@ -4,7 +4,6 @@ import { useGettext } from "vue3-gettext";
 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import Dialog from "primevue/dialog";
 import SplitButton from "primevue/splitbutton";
 
 import ImportList from "@/arches_controlled_lists/components/misc/ImportList.vue";
@@ -126,9 +125,9 @@ const createList = () => {
     setDisplayedRow(newList);
 };
 
-const importDialogVisible = ref(false);
+const importDialogRef = ref();
 const openImportDialog = () => {
-    importDialogVisible.value = !importDialogVisible.value;
+    importDialogRef.value?.toggle();
 };
 
 const addNewListOptions = [
@@ -291,37 +290,10 @@ await fetchListsAndPopulateTree();
                 }"
                 @click="createList"
             />
-            <Dialog
-                v-model:visible="importDialogVisible"
-                position="center"
-                :header="$gettext('Import Controlled Lists from SKOS File')"
-                :close-on-escape="true"
-                :modal="true"
-                :pt="{
-                    root: {
-                        style: {
-                            minWidth: '50rem',
-                            borderRadius: '0',
-                        },
-                    },
-                    header: {
-                        style: {
-                            background: 'var(--p-navigation-header-color)',
-                            color: 'var(--p-slate-50)',
-                            borderRadius: '0',
-                        },
-                    },
-                }"
-                :class="'import-dialog'"
-            >
-                <ImportList
-                    @imported="
-                        importDialogVisible = false;
-                        fetchListsAndPopulateTree();
-                    "
-                    @cancel="importDialogVisible = false"
-                />
-            </Dialog>
+            <ImportList
+                ref="importDialogRef"
+                @imported="fetchListsAndPopulateTree()"
+            />
             <SplitButton
                 class="list-button"
                 :label="$gettext('Delete')"

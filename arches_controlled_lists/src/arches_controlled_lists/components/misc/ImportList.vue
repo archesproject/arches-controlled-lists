@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useGettext } from "vue3-gettext";
 
-import { Form, FormField } from "@primevue/forms";
 import { useToast } from "primevue/usetoast";
 import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 import InputFile from "primevue/fileupload";
-import Message from "primevue/message";
 import RadioButton from "primevue/radiobutton";
-
-import type { FormFieldResolverOptions } from "@primevue/forms";
 
 import { importList } from "@/arches_controlled_lists/api.ts";
 import {
@@ -20,20 +17,20 @@ import {
 const { $gettext } = useGettext();
 const toast = useToast();
 
+const visible = ref(false);
+
 const emit = defineEmits<{
     (e: "imported"): void;
-    (e: "cancel"): void;
 }>();
 
-const formRef = ref();
 const file = ref<File | null>(null);
-const overwriteOption = ref();
+const overwriteOption = ref("ignore");
 
 const overwriteOptions = ref([
     {
         label: $gettext("Ignore"),
         value: "ignore",
-        tooltip: $gettext("Do nothing if the list or list item already exist"),
+        tooltip: $gettext("Do nothing if the list or list item already exists"),
     },
     {
         label: $gettext("Duplicate"),
@@ -59,9 +56,20 @@ function updateFileValue(event: { files: File[] }) {
     }
 }
 
+function toggle(clear: boolean | null) {
+    visible.value = !visible.value;
+    if (clear) {
+        file.value = null;
+        overwriteOption.value = "ignore";
+    }
+}
+
+const isValid = computed(() => {
+    return Boolean(file.value && overwriteOption.value);
+});
+
 async function submit() {
-    const isValid = await formRef.value?.validate();
-    if (!isValid || !file.value) {
+    if (!isValid.value || !file.value) {
         return;
     }
     await importList(file.value, overwriteOption.value)
@@ -77,124 +85,112 @@ async function submit() {
             });
         });
 }
-
-function fileResolver() {
-    const errors = [];
-    if (!file.value) {
-        errors.push({ message: $gettext("Please select a file") });
-    } else if (!file.value.name.toLowerCase().endsWith(".xml")) {
-        errors.push({ message: $gettext("File must be an XML file") });
-    }
-    return { errors };
-}
-
-function overwriteResolver(formFieldVal: FormFieldResolverOptions) {
-    const value = formFieldVal.value;
-    const errors = [];
-    if (!value) {
-        errors.push({ message: $gettext("Please select an overwrite option") });
-    }
-    return { errors };
-}
+defineExpose({ toggle });
 </script>
 
 <template>
-    <Form
-        ref="formRef"
-        class="form"
-        @submit="submit"
+    <Dialog
+        v-model:visible="visible"
+        position="center"
+        :draggable="false"
+        :header="$gettext('Import Controlled Lists from SKOS File')"
+        :close-on-escape="true"
+        :modal="true"
+        :pt="{
+            root: {
+                style: {
+                    minWidth: '50rem',
+                    borderRadius: '0',
+                },
+            },
+            header: {
+                style: {
+                    background: 'var(--p-navigation-header-color)',
+                    color: 'var(--p-slate-50)',
+                    borderRadius: '0',
+                },
+            },
+        }"
     >
-        <label for="fileUpload">SKOS File</label>
-        <FormField
-            v-slot="$field"
-            name="fileUpload"
-            :resolver="fileResolver"
-            class="form-fields"
-        >
-            <InputFile
-                v-model="file"
-                accept=".xml"
-                mode="basic"
-                :auto="false"
-                :choose-label="$gettext('Choose File')"
-                :multiple="false"
-                @select="updateFileValue"
-            />
-            <Message
-                v-for="error in $field.errors"
-                :key="error.message"
-                severity="error"
-                size="small"
-            >
-                {{ error.message }}
-            </Message>
-        </FormField>
-
-        <label for="overwrite-options">Overwrite Options</label>
-        <FormField
-            v-slot="$field"
-            name="overwrite-options"
-            :resolver="overwriteResolver"
-            class="form-fields"
-        >
-            <span
-                v-for="option in overwriteOptions"
-                :key="option.value"
-                v-tooltip.bottom="{
-                    value: option.tooltip,
-                    showDelay: 1000,
-                    hideDelay: 300,
-                }"
-                class="radio-button-and-label"
-            >
-                <RadioButton
-                    v-model="overwriteOption"
-                    :input-id="option.value"
-                    :value="option.value"
-                    :initial-value="option.value"
-                    :aria-label="option.tooltip"
+        <template #default>
+            <div class="form-field">
+                <label for="skos-file-upload">{{
+                    $gettext("SKOS File")
+                }}</label>
+                <InputFile
+                    v-model="file"
+                    accept=".xml"
+                    mode="basic"
+                    :auto="false"
+                    :choose-label="$gettext('Choose File')"
+                    :multiple="false"
+                    :pt="{ input: { id: 'skos-file-upload' } }"
+                    @select="updateFileValue"
                 />
-                <label
-                    :for="option.value"
-                    class="radio-label"
-                    >{{ option.label }}</label
+            </div>
+            <div class="form-field">
+                <label id="overwrite-options-label">{{
+                    $gettext("Overwrite Options")
+                }}</label>
+                <div
+                    role="radiogroup"
+                    aria-labelledby="overwrite-options-label"
                 >
-            </span>
-            <Message
-                v-for="error in $field.errors"
-                :key="error.message"
-                severity="error"
-                size="small"
-            >
-                {{ error.message }}
-            </Message>
-        </FormField>
-        <div class="p-dialog-footer">
+                    <span
+                        v-for="option in overwriteOptions"
+                        :key="option.value"
+                        v-tooltip.bottom="{
+                            value: option.tooltip,
+                            showDelay: 1000,
+                            hideDelay: 300,
+                        }"
+                        class="radio-button-and-label"
+                    >
+                        <RadioButton
+                            v-model="overwriteOption"
+                            :input-id="option.value"
+                            :value="option.value"
+                            :initial-value="option.value"
+                            :aria-label="option.tooltip"
+                            :invalid="!overwriteOption"
+                        />
+                        <label
+                            :for="option.value"
+                            class="radio-label"
+                            >{{ option.label }}</label
+                        >
+                    </span>
+                </div>
+            </div>
+        </template>
+        <template #footer>
             <Button
-                label="Cancel"
+                :label="$gettext('Cancel')"
                 type="button"
-                @click="$emit('cancel')"
+                @click="toggle(true)"
             />
             <Button
-                label="Upload File"
+                :label="$gettext('Upload File')"
                 type="submit"
+                :disabled="isValid === false"
+                @click="submit"
             />
-        </div>
-    </Form>
+        </template>
+    </Dialog>
 </template>
 <style scoped>
 .form {
     margin-top: 1rem;
 }
-.p-dialog-footer {
-    padding: 0;
-    margin-top: 1rem;
+.p-radiobutton {
+    vertical-align: unset;
 }
 .p-fileupload-basic {
     justify-content: flex-start;
 }
-.form-fields {
-    padding-inline-start: 1rem;
+.form-field {
+    margin-top: 1rem;
+    padding-inline-start: 0.5rem;
 
     label {
         margin-bottom: 0;

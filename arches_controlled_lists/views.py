@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from uuid import UUID
+import filetype
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -10,6 +11,7 @@ from django.utils.translation import gettext as _
 from arches.app.models.utils import field_names
 from arches.app.utils.betterJSONSerializer import JSONDeserializer
 from arches.app.utils.decorators import group_required
+from arches.app.utils.file_validator import FileValidator
 from arches.app.utils.permission_backend import get_nodegroups_by_perm
 from arches.app.utils.response import JSONErrorResponse, JSONResponse
 from arches.app.utils.string_utils import str_to_bool
@@ -96,16 +98,28 @@ class ListView(APIBase):
         overwrite_option = request.POST.get("overwrite_option", None)
         if skosfile and overwrite_option:
             try:
+                # Do minimal file validation to mock file checking in FileValidator
+                extension = skosfile.name.split(".")[-1]
+                guessed_file_type = filetype.guess(skosfile)
+
+                # guessed_file_type will be None if the file is xml
+                if extension != "xml" or guessed_file_type is not None:
+                    return JSONErrorResponse(
+                        message=(f"File extension {extension} not allowed"),
+                        status=HTTPStatus.BAD_REQUEST,
+                    )
+
                 skos = SKOSReader()
                 rdf = skos.read_file(skosfile)
                 concepts = skos.save_controlled_lists_from_skos(
                     rdf, overwrite_options=overwrite_option
                 )
-            except ValidationError as ve:
+            # Wide catch is because Arches SKOSReader raises generic Exceptions
+            except Exception as error:
                 return JSONErrorResponse(
-                    message="\n".join(ve.messages), status=HTTPStatus.BAD_REQUEST
+                    message=(str(error)), status=HTTPStatus.BAD_REQUEST
                 )
-            return JSONResponse(concepts, status=HTTPStatus.CREATED)
+            return JSONResponse(concepts, status=HTTPStatus.OK)
 
         else:
             data = JSONDeserializer().deserialize(request.body)

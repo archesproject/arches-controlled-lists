@@ -55,6 +55,7 @@ class SKOSReader(SKOSReader):
                 list_id = self.generate_uuidv5_from_subject(baseuuid, scheme)
 
                 if list_id in existing_list_ids and overwrite_options == "ignore":
+                    existing_list = existing_lists.get(pk=list_id)
                     continue
                 elif list_id in existing_list_ids and overwrite_options == "duplicate":
                     new_list = List(uuid.uuid4())
@@ -119,11 +120,13 @@ class SKOSReader(SKOSReader):
                 sortorder = 999999
 
                 for predicate, object in graph.predicate_objects(subject=concept):
+                    obj_value = self.unwrapJsonLiteral(str(object))["value"]
                     if predicate == DCTERMS.identifier:
-                        uri = self.unwrapJsonLiteral(str(object))["value"]
+                        uri = obj_value
 
                     elif predicate == SKOS.inScheme:
-                        list_item.list = self.lists[object]
+                        # if the list exists, but adding a new list item, create proper reference
+                        list_item.list = self.lists[object] or existing_list
 
                     elif any(
                         type in predicate for type in skos_note_and_label_types.keys()
@@ -142,7 +145,7 @@ class SKOSReader(SKOSReader):
                             list_item=list_item,
                             valuetype=skos_value_types.get(relation_or_value_type),
                             language=object_language,
-                            value=self.unwrapJsonLiteral(str(object))["value"],
+                            value=obj_value,
                         )
                         self.list_item_values.append(list_item_value)
 
@@ -154,7 +157,7 @@ class SKOSReader(SKOSReader):
                         self.relations[child].append(list_item)
 
                     elif predicate == ARCHES.sortorder:
-                        sortorder = int(self.unwrapJsonLiteral(str(object))["value"])
+                        sortorder = int(obj_value)
 
                 list_item.uri = uri
                 list_item.sortorder = sortorder
@@ -163,61 +166,69 @@ class SKOSReader(SKOSReader):
             with transaction.atomic():
                 List.objects.filter(pk__in=existing_lists_to_delete).delete()
 
-                List.objects.bulk_create(self.lists.values())
-                new_list_items = ListItem.objects.bulk_create(self.list_items.values())
-                ListItemValue.objects.bulk_create(self.list_item_values)
+                # Check for new lists separately because we could be adding new list items
+                # to an existing list
+                if len(self.lists.values()) > 0:
+                    List.objects.bulk_create(self.lists.values())
+                if len(self.list_items.values()) > 0:
+                    new_list_items = ListItem.objects.bulk_create(
+                        self.list_items.values()
+                    )
+                    ListItemValue.objects.bulk_create(self.list_item_values)
 
-                duplicate_list_items = []
-                duplicate_list_items_values = []
-                list_items_to_update = []
+                    duplicate_list_items = []
+                    duplicate_list_items_values = []
+                    list_items_to_update = []
 
-                ### Relationships ###
-                for child, parents in self.relations.items():
-                    if not isinstance(child, ListItem):
-                        child = self.list_items[child]
-                    parents = [
-                        (
-                            self.list_items[parent]
-                            if not isinstance(parent, ListItem)
-                            else parent
-                        )
-                        for parent in parents
-                    ]
-                    if len(parents) >= 1:
-                        child.parent = parents[0]
-                        list_items_to_update.append(child)
-
-                        if len(parents) > 1:
-                            new_children, new_children_values = (
-                                child.duplicate_under_new_parent(parents[1:])
+                    ### Relationships ###
+                    for child, parents in self.relations.items():
+                        if not isinstance(child, ListItem):
+                            child = self.list_items[child]
+                        parents = [
+                            (
+                                self.list_items[parent]
+                                if not isinstance(parent, ListItem)
+                                else parent
                             )
-                            duplicate_list_items.extend(new_children)
-                            duplicate_list_items_values.extend(new_children_values)
+                            for parent in parents
+                        ]
+                        if len(parents) >= 1:
+                            child.parent = parents[0]
+                            list_items_to_update.append(child)
 
-                ListItem.objects.bulk_update(list_items_to_update, ["parent"])
-                new_list_items.extend(
-                    ListItem.objects.bulk_create(duplicate_list_items)
-                )
-                ListItemValue.objects.bulk_create(duplicate_list_items_values)
+                            if len(parents) > 1:
+                                new_children, new_children_values = (
+                                    child.duplicate_under_new_parent(parents[1:])
+                                )
+                                duplicate_list_items.extend(new_children)
+                                duplicate_list_items_values.extend(new_children_values)
 
-                ### Sort order ###
-                prefetch_related_objects(
-                    new_list_items, "children", "children__list_item_values"
-                )
+                    ListItem.objects.bulk_update(list_items_to_update, ["parent"])
+                    new_list_items.extend(
+                        ListItem.objects.bulk_create(duplicate_list_items)
+                    )
+                    ListItemValue.objects.bulk_create(duplicate_list_items_values)
 
-                list_items_to_update = []
-                root_items = []
-                for parent in new_list_items:
-                    list_items_to_update.extend(parent.sort_children(default_lang.code))
-                    if parent.parent is None:
-                        root_items.append(parent)
-
-                if root_items:
-                    list_items_to_update.extend(
-                        root_items[0].sort_siblings(default_lang.code, root_items)
+                    ### Sort order ###
+                    prefetch_related_objects(
+                        new_list_items, "children", "children__list_item_values"
                     )
 
-                ListItem.objects.bulk_update(list_items_to_update, ["sortorder"])
+                    list_items_to_update = []
+                    root_items = []
+                    for parent in new_list_items:
+                        list_items_to_update.extend(
+                            parent.sort_children(default_lang.code)
+                        )
+                        if parent.parent is None:
+                            root_items.append(parent)
+
+                    if root_items:
+                        list_items_to_update.extend(
+                            root_items[0].sort_siblings(default_lang.code, root_items)
+                        )
+
+                    ListItem.objects.bulk_update(list_items_to_update, ["sortorder"])
 
     def generate_uuidv5_from_subject(self, baseuuid, subject):
         uuidregx = re.compile(

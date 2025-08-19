@@ -105,7 +105,9 @@ class ListView(APIBase):
                 # guessed_file_type will be None if the file is xml
                 if extension != "xml" or guessed_file_type is not None:
                     return JSONErrorResponse(
-                        message=(f"File extension {extension} not allowed"),
+                        message=(
+                            f"File extension {extension}/{guessed_file_type.extension} not allowed"
+                        ),
                         status=HTTPStatus.BAD_REQUEST,
                     )
 

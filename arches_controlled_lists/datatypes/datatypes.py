@@ -168,12 +168,10 @@ class ReferenceDataType(BaseDataType):
 
         final_tile_values = []
         for single_value in pre_processed_values:
-            found_item: ListItem | None = None
+            found_item: ListItem | Reference | None = None
             match single_value:
                 case Reference():
-                    found_item = ListItem.objects.filter(
-                        pk=single_value.labels[0].list_item_id
-                    ).first()
+                    found_item = single_value
                 case uuid.UUID():
                     found_item = ListItem.objects.filter(pk=list_item_id).first()
                 case str():
@@ -190,7 +188,10 @@ class ReferenceDataType(BaseDataType):
                     raise TypeError(type(single_value))
 
             if found_item:
-                final_tile_values.append(found_item.build_tile_value())
+                if isinstance(found_item, Reference):
+                    final_tile_values.append(found_item.serialize())
+                else:
+                    final_tile_values.append(found_item.build_tile_value())
 
         return final_tile_values
 

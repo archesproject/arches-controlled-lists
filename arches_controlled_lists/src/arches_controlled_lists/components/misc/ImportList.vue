@@ -107,7 +107,7 @@ defineExpose({ toggle });
             header: {
                 style: {
                     background: 'var(--p-navigation-header-color)',
-                    color: 'var(--p-slate-50)',
+                    color: 'var(--p-dialog-header-text-color)',
                     borderRadius: '0',
                 },
             },

@@ -74,6 +74,7 @@ async function submit() {
     }
     await importList(file.value, overwriteOption.value)
         .then(() => {
+            toggle(true);
             emit("imported");
         })
         .catch((error: Error) => {

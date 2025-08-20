@@ -264,7 +264,7 @@ class ListTests(TestCase):
                 reverse("controlled_list_add"),
                 {"skosfile": file, "overwrite_option": "overwrite"},
             )
-        self.assertEqual(response.status_code, HTTPStatus.CREATED, response.content)
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
         new_lists = List.objects.filter(name__startswith="Test Thesaurus")
         new_list = new_lists.first()
         new_list_items = new_list.list_items.all()

@@ -169,7 +169,7 @@ class SKOSReader(SKOSReader):
                 # Check for new lists separately because we could be adding new list items
                 # to an existing list
                 if len(self.lists.values()) > 0:
-                    new_lists = List.objects.bulk_create(self.lists.values())
+                    List.objects.bulk_create(self.lists.values())
                 if len(self.list_items.values()) > 0:
                     new_list_items = ListItem.objects.bulk_create(
                         self.list_items.values()
@@ -229,8 +229,6 @@ class SKOSReader(SKOSReader):
                         )
 
                     ListItem.objects.bulk_update(list_items_to_update, ["sortorder"])
-
-                return new_lists
 
     def generate_uuidv5_from_subject(self, baseuuid, subject):
         uuidregx = re.compile(

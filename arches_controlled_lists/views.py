@@ -113,16 +113,15 @@ class ListView(APIBase):
 
                 skos = SKOSReader()
                 rdf = skos.read_file(skosfile)
-                new_lists = skos.save_controlled_lists_from_skos(
+                concepts = skos.save_controlled_lists_from_skos(
                     rdf, overwrite_options=overwrite_option
                 )
             # Wide catch is because Arches SKOSReader raises generic Exceptions
-            except ValidationError as error:
+            except Exception as error:
                 return JSONErrorResponse(
                     message=(str(error)), status=HTTPStatus.BAD_REQUEST
                 )
-            serialized_lists = [lst.serialize() for lst in new_lists]
-            return JSONResponse(serialized_lists, status=HTTPStatus.OK)
+            return JSONResponse(concepts, status=HTTPStatus.OK)
 
         else:
             data = JSONDeserializer().deserialize(request.body)

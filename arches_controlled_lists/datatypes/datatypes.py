@@ -189,7 +189,7 @@ class ReferenceDataType(BaseDataType):
 
             if found_item:
                 if isinstance(found_item, Reference):
-                    final_tile_values.append(found_item.serialize())
+                    final_tile_values.append(asdict(found_item))
                 else:
                     final_tile_values.append(found_item.build_tile_value())
 

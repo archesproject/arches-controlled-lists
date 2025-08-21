@@ -17,7 +17,7 @@ import {
 const { $gettext } = useGettext();
 const toast = useToast();
 
-const visible = ref(false);
+const visible = ref(true);
 
 const emit = defineEmits<{
     (e: "imported"): void;
@@ -56,14 +56,6 @@ function updateFileValue(event: { files: File[] }) {
     }
 }
 
-function toggle(clear: boolean | null) {
-    visible.value = !visible.value;
-    if (clear) {
-        file.value = null;
-        overwriteOption.value = "ignore";
-    }
-}
-
 const isValid = computed(() => {
     return Boolean(file.value && overwriteOption.value);
 });
@@ -74,7 +66,6 @@ async function submit() {
     }
     await importList(file.value, overwriteOption.value)
         .then(() => {
-            toggle(true);
             emit("imported");
         })
         .catch((error: Error) => {
@@ -86,7 +77,6 @@ async function submit() {
             });
         });
 }
-defineExpose({ toggle });
 </script>
 
 <template>
@@ -168,7 +158,7 @@ defineExpose({ toggle });
             <Button
                 :label="$gettext('Cancel')"
                 type="button"
-                @click="toggle(true)"
+                @click="visible = false"
             />
             <Button
                 :label="$gettext('Upload File')"

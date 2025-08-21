@@ -125,17 +125,24 @@ const createList = () => {
     setDisplayedRow(newList);
 };
 
-const importDialogRef = ref();
-const openImportDialog = () => {
-    importDialogRef.value?.toggle();
-};
+const showImportList = ref(false);
+const importDialogKey = ref(0);
 
 const addNewListOptions = [
     {
         label: $gettext("Import from SKOS"),
-        command: openImportDialog,
+        command: () => {
+            importDialogKey.value++;
+            showImportList.value = true;
+        },
     },
 ];
+
+function onImport() {
+    showImportList.value = false;
+    importDialogKey.value++;
+    fetchListsAndPopulateTree();
+}
 
 const toDelete = computed(() => {
     if (!selectedKeys.value) {
@@ -291,8 +298,9 @@ await fetchListsAndPopulateTree();
                 @click="createList"
             />
             <ImportList
-                ref="importDialogRef"
-                @imported="fetchListsAndPopulateTree()"
+                v-if="showImportList"
+                :key="importDialogKey"
+                @imported="onImport"
             />
             <SplitButton
                 class="list-button"

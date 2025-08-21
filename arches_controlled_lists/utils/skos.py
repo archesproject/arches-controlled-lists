@@ -40,10 +40,8 @@ class SKOSReader(SKOSReader):
             allowed_languages[lang.code] = lang
         default_lang = allowed_languages[settings.LANGUAGE_CODE]
 
-        existing_lists = List.objects.all()
-        existing_list_ids = [list.pk for list in existing_lists]
-        existing_list_items = ListItem.objects.all()
-        existing_list_item_ids = [item.pk for item in existing_list_items]
+        existing_lists = {list.pk: list for list in List.objects.all()}
+        existing_list_items = {item.pk: item for item in ListItem.objects.all()}
         existing_lists_to_delete = []
 
         # if the graph is of the type rdflib.graph.Graph
@@ -54,12 +52,12 @@ class SKOSReader(SKOSReader):
             for scheme, v, o in graph.triples((None, RDF.type, SKOS.ConceptScheme)):
                 list_id = self.generate_uuidv5_from_subject(baseuuid, scheme)
 
-                if list_id in existing_list_ids and overwrite_options == "ignore":
-                    existing_list = existing_lists.get(pk=list_id)
+                if list_id in existing_lists and overwrite_options == "ignore":
+                    existing_list = existing_lists[list_id]
                     continue
-                elif list_id in existing_list_ids and overwrite_options == "duplicate":
+                elif list_id in existing_lists and overwrite_options == "duplicate":
                     new_list = List(uuid.uuid4())
-                elif list_id in existing_list_ids and overwrite_options == "overwrite":
+                elif list_id in existing_lists and overwrite_options == "overwrite":
                     existing_lists_to_delete.append(list_id)
                     new_list = List(id=list_id)
                 else:
@@ -100,12 +98,12 @@ class SKOSReader(SKOSReader):
                 list_item_id = self.generate_uuidv5_from_subject(baseuuid, concept)
 
                 if (
-                    list_item_id in existing_list_item_ids
+                    list_item_id in existing_list_items
                     and overwrite_options == "ignore"
                 ):
                     continue
                 elif (
-                    list_item_id in existing_list_item_ids
+                    list_item_id in existing_list_items
                     and overwrite_options == "duplicate"
                 ):
                     list_item = ListItem(uuid.uuid4())

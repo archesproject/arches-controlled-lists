@@ -2,7 +2,7 @@
 import type { ReferenceSelectFetchedOption } from "@/arches_controlled_lists/widgets/types";
 
 defineProps<{
-    value: ReferenceSelectFetchedOption[] | undefined;
+    aliasedNodeData: ReferenceSelectFetchedOption[] | undefined;
 }>();
 </script>
 

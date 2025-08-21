@@ -10,23 +10,22 @@ import { fetchWidgetOptions } from "@/arches_controlled_lists/widgets/api.ts";
 import type { Ref } from "vue";
 import type { FormFieldResolverOptions } from "@primevue/forms";
 import type { TreeExpandedKeys } from "primevue/tree";
+import type { CardXNodeXWidgetData } from "@/arches_component_lab/types";
 import type {
     ReferenceSelectTreeNode,
     ReferenceSelectFetchedOption,
 } from "@/arches_controlled_lists/widgets/types";
 
-const props = defineProps<{
-    value: ReferenceSelectFetchedOption[] | undefined;
-    nodeConfig: {
-        multiValue: boolean;
-        controlledList: string;
-    };
-    widgetConfig: {
-        placeholder: string;
-        defaultValue: ReferenceSelectFetchedOption[] | undefined;
-    };
-    nodeAlias: string;
-    graphSlug: string;
+const { cardXNodeXWidgetData, nodeAlias, graphSlug, aliasedNodeData } =
+    defineProps<{
+        cardXNodeXWidgetData: CardXNodeXWidgetData;
+        nodeAlias: string;
+        graphSlug: string;
+        aliasedNodeData: ReferenceSelectFetchedOption[] ;
+    }>();
+
+const emit = defineEmits<{
+    (event: "update:value", updatedValue: ReferenceSelectFetchedOption[]): void;
 }>();
 
 const options = ref<ReferenceSelectTreeNode[]>();
@@ -36,16 +35,16 @@ const expandedKeys: Ref<TreeExpandedKeys> = ref({});
 
 const initialVal = toRef(
     extractInitialOrDefaultValue(
-        props.nodeConfig.multiValue,
-        props.value,
-        props.widgetConfig.defaultValue,
+        cardXNodeXWidgetData.node.multiValue,
+        aliasedNodeData,
+        cardXNodeXWidgetData.config?.defaultValue,
     ),
 );
 
 onMounted(() => {
-    const defaultVal = props.widgetConfig.defaultValue;
+    const defaultVal = cardXNodeXWidgetData.config?.defaultValue;
     options.value = [
-        ...optionsAsNodes(props.value ? props.value : []),
+        ...optionsAsNodes(aliasedNodeData ? aliasedNodeData : []),
         ...optionsAsNodes(defaultVal ? defaultVal : []),
     ];
 });
@@ -190,7 +189,7 @@ function validate(e: FormFieldResolverOptions) {
             :options="options"
             :expanded-keys="expandedKeys"
             :placeholder="widgetConfig.placeholder"
-            :selection-mode="nodeConfig.multiValue ? 'multiple' : 'single'"
+            :selection-mode="cardXNodeXWidgetData.node.multiValue ? 'multiple' : 'single'"
             :show-clear="true"
             @before-show="getOptions"
         />

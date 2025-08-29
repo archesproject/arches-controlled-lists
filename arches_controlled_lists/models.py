@@ -377,7 +377,9 @@ class ListItem(models.Model):
             child.get_child_uris(uris)
         return uris
 
-    def duplicate_under_new_parent(self, parents):
+    def duplicate_under_new_parent(
+        self, parents, recursive=False, force_sortorder=False
+    ):
         """
         Duplicates the ListItem and its children under the given parent(s),
         returning the new ListItem and its new ListItemValues, for implementer to save.
@@ -386,11 +388,27 @@ class ListItem(models.Model):
         new_items = []
         new_item_values = []
         for parent in parents:
+            if isinstance(parent, List):
+                list = parent
+                parent_item = None
+                children = ListItem.objects.filter(list=list, parent__isnull=True)
+            else:
+                list = parent.list
+                parent_item = parent
+                children = parent.children
+
+            if force_sortorder:
+                max_sortorder = children.aggregate(models.Max("sortorder")).get(
+                    "sortorder__max"
+                )
+                sortorder = (max_sortorder or 0) + 1
+            else:
+                sortorder = self.sortorder
             new_item = ListItem(
                 uri=self.uri,
-                list=self.list,
-                sortorder=self.sortorder,
-                parent=parent,
+                list=list,
+                sortorder=sortorder,
+                parent=parent_item,
                 guide=self.guide,
             )
             new_items.append(new_item)
@@ -402,6 +420,14 @@ class ListItem(models.Model):
                     value=value.value,
                 )
                 new_item_values.append(new_list_item_value)
+            if recursive:
+                for child in self.children.all():
+                    (
+                        child_items,
+                        child_item_values,
+                    ) = child.duplicate_under_new_parent([new_item], recursive=True)
+                    new_items.extend(child_items)
+                    new_item_values.extend(child_item_values)
         return new_items, new_item_values
 
     def sort_children(self, language=None):

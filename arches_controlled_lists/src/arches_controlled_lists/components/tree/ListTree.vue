@@ -41,6 +41,7 @@ const tree: Ref<TreeNode[]> = ref([]);
 const selectedKeys: Ref<TreeSelectionKeys> = ref({});
 const expandedKeys: Ref<TreeExpandedKeys> = ref({});
 const movingItem: Ref<TreeNode | undefined> = ref();
+const copyChildrenFlag = ref(true);
 const isMultiSelecting = ref(false);
 const refetcher = ref(0);
 const filterValue = ref("");
@@ -230,6 +231,7 @@ function lazyLabelLookup(node: TreeNode) {
         v-model:selected-keys="selectedKeys"
         v-model:moving-item="movingItem"
         v-model:is-multi-selecting="isMultiSelecting"
+        v-model:copy-children-flag="copyChildrenFlag"
         v-model:next-new-list="nextNewList"
         v-model:new-list-form-value="newListFormValue"
     />
@@ -308,6 +310,7 @@ function lazyLabelLookup(node: TreeNode) {
                 :move-labels
                 :node="slotProps.node"
                 :is-multi-selecting="isMultiSelecting"
+                :copy-children-flag="copyChildrenFlag"
             />
         </template>
     </Tree>

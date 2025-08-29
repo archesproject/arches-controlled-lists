@@ -3,6 +3,7 @@ import { inject } from "vue";
 import { useGettext } from "vue3-gettext";
 
 import Button from "primevue/button";
+import ToggleSwitch from "primevue/toggleswitch";
 
 import {
     selectedLanguageKey,
@@ -21,6 +22,9 @@ import type { TreeNode } from "primevue/treenode";
 import type { Language } from "@/arches_controlled_lists/types";
 
 const isMultiSelecting = defineModel<boolean>("isMultiSelecting", {
+    required: true,
+});
+const copyChildrenFlag = defineModel<boolean>("copyChildrenFlag", {
     required: true,
 });
 const movingItem = defineModel<TreeNode>("movingItem");
@@ -67,6 +71,19 @@ const abandonMove = () => {
             :label="$gettext('Abandon')"
             @click="abandonMove"
         />
+        <div class="copy-children-option">
+            <div class="value-editor-title">
+                <label for="copyChildrenSwitch">
+                    {{ $gettext("copy children?") }}
+                </label>
+            </div>
+            <div class="copy-children-switch">
+                <ToggleSwitch
+                    v-model="copyChildrenFlag"
+                    input-id="copyChildrenSwitch"
+                />
+            </div>
+        </div>
     </div>
     <div
         v-else-if="isMultiSelecting"
@@ -104,5 +121,11 @@ const abandonMove = () => {
     text-wrap: nowrap;
     font-size: unset;
     border-radius: 2px;
+}
+
+.copy-children-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 </style>

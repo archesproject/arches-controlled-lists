@@ -458,3 +458,40 @@ class ListOptionsView(APIBase):
             item.build_select_option() for item in list_items if item.parent_id is None
         ]
         return JSONResponse(serialized)
+
+
+class ListItemCopyView(APIBase):
+    @method_decorator(
+        group_required("RDM Administrator", raise_exception=True), name="dispatch"
+    )
+    def post(self, request, item_id):
+        data = JSONDeserializer().deserialize(request.body)
+        try:
+            target_list_id = data["target_list_id"]
+            target_item_id = data.get("target_item_id", None)
+            copy_children = data.get("copy_children", False)
+        except KeyError:
+            return JSONErrorResponse(status=HTTPStatus.BAD_REQUEST)
+
+        try:
+            item_to_copy = ListItem.objects.get(pk=item_id)
+        except ListItem.DoesNotExist:
+            return JSONErrorResponse(status=HTTPStatus.NOT_FOUND)
+
+        try:
+            if target_item_id:
+                parent = ListItem.objects.get(id=target_item_id)
+            else:
+                parent = List.objects.get(id=target_list_id)
+
+            new_children, new_children_values = item_to_copy.duplicate_under_new_parent(
+                [parent], recursive=copy_children, force_sortorder=True
+            )
+            ListItem.objects.bulk_create(new_children)
+            ListItemValue.objects.bulk_create(new_children_values)
+        except ValidationError as ve:
+            return JSONErrorResponse(
+                message="\n".join(ve.messages), status=HTTPStatus.BAD_REQUEST
+            )
+
+        return JSONResponse({"success": True}, status=HTTPStatus.CREATED)

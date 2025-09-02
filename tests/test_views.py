@@ -543,3 +543,26 @@ class ListTests(TestCase):
         self.assertQuerySetEqual(
             ListItemImageMetadata.objects.filter(pk=metadata.pk), []
         )
+
+    def test_copy_list_item(self):
+        self.client.force_login(self.admin)
+        item_to_copy = self.list2.list_items.first()
+        target_list_id = str(self.list1.pk)
+        data = {
+            "target_list_id": target_list_id,
+            "copy_children": True,
+        }
+        response = self.client.post(
+            reverse(
+                "controlled_list_item_copy", kwargs={"item_id": str(item_to_copy.pk)}
+            ),
+            data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.CREATED, response.content)
+        result = response.json()
+        self.assertIn("copied_list_item", result)
+        copied_item = result["copied_list_item"]
+        self.assertNotEqual(str(item_to_copy.pk), str(copied_item["id"]))
+        self.assertEqual(copied_item["list_id"], target_list_id)
+        self.assertTrue(len(copied_item.get("children", [])) > 0)

@@ -48,7 +48,7 @@ const abandonMove = () => {
 <template>
     <div
         v-if="movingItem"
-        class="action-banner"
+        class="action-banner action-banner-top"
     >
         <!-- turn off escaping: vue template sanitizes -->
         {{
@@ -71,10 +71,15 @@ const abandonMove = () => {
             :label="$gettext('Abandon')"
             @click="abandonMove"
         />
+    </div>
+    <div
+        v-if="movingItem"
+        class="action-banner action-banner-bottom"
+    >
         <div class="copy-children-option">
             <div class="value-editor-title">
                 <label for="copyChildrenSwitch">
-                    {{ $gettext("copy children?") }}
+                    {{ $gettext("Include children (copy only)?") }}
                 </label>
             </div>
             <div class="copy-children-switch">
@@ -114,6 +119,14 @@ const abandonMove = () => {
     justify-content: space-between;
     padding: 1rem;
     align-items: center;
+}
+
+.action-banner.action-banner-top {
+    padding-bottom: 0;
+}
+
+.action-banner.action-banner-bottom {
+    padding-top: 0;
 }
 
 .banner-button {

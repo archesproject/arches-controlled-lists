@@ -494,4 +494,6 @@ class ListItemCopyView(APIBase):
                 message="\n".join(ve.messages), status=HTTPStatus.BAD_REQUEST
             )
 
-        return JSONResponse({"success": True}, status=HTTPStatus.CREATED)
+        return JSONResponse(
+            {"copied_list_item": new_children[0]}, status=HTTPStatus.CREATED
+        )

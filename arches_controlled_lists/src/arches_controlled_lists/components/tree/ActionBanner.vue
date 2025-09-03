@@ -112,7 +112,6 @@ const abandonMove = () => {
     font-weight: 800;
     font-size: small;
     padding: 1rem;
-    min-height: 5rem;
 }
 
 .action-banner-content {
@@ -129,7 +128,7 @@ const abandonMove = () => {
 }
 
 .action-banner-content.copy-children-option {
-    padding-top: 0.5rem;
+    padding-top: 0rem;
     gap: 1rem;
     justify-content: flex-start;
 }

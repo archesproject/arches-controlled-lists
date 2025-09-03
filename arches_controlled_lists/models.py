@@ -391,14 +391,14 @@ class ListItem(models.Model):
             if isinstance(parent, List):
                 list = parent
                 parent_item = None
-                children = ListItem.objects.filter(list=list, parent__isnull=True)
+                siblings = ListItem.objects.filter(list=list, parent__isnull=True)
             else:
                 list = parent.list
                 parent_item = parent
-                children = parent.children
+                siblings = parent.children
 
             if force_sortorder:
-                max_sortorder = children.aggregate(models.Max("sortorder")).get(
+                max_sortorder = siblings.aggregate(models.Max("sortorder")).get(
                     "sortorder__max"
                 )
                 sortorder = (max_sortorder or 0) + 1

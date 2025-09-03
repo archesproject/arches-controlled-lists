@@ -128,7 +128,7 @@ const abandonMove = () => {
 }
 
 .action-banner-content.copy-children-option {
-    padding-top: 0rem;
+    padding-top: 0.5rem;
     gap: 1rem;
     justify-content: flex-start;
 }

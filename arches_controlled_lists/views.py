@@ -6,6 +6,7 @@ import json
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Max
+from django.db.utils import IntegrityError
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 
@@ -475,23 +476,26 @@ class ListItemCopyView(APIBase):
 
         try:
             item_to_copy = ListItem.objects.get(pk=item_id)
-        except ListItem.DoesNotExist:
-            return JSONErrorResponse(status=HTTPStatus.NOT_FOUND)
-
-        try:
             if target_item_id:
                 parent = ListItem.objects.get(id=target_item_id)
             else:
                 parent = List.objects.get(id=target_list_id)
+        except (ListItem.DoesNotExist, List.DoesNotExist):
+            return JSONErrorResponse(status=HTTPStatus.NOT_FOUND)
 
-            new_children, new_children_values = item_to_copy.duplicate_under_new_parent(
-                [parent], recursive=copy_children, force_sortorder=True
-            )
-            ListItem.objects.bulk_create(new_children)
-            ListItemValue.objects.bulk_create(new_children_values)
-        except ValidationError as ve:
+        new_children, new_children_values = item_to_copy.duplicate_under_new_parent(
+            [parent], recursive=copy_children, force_sortorder=True
+        )
+        try:
+            with transaction.atomic():
+                ListItem.objects.bulk_create(new_children)
+                ListItemValue.objects.bulk_create(new_children_values)
+        except IntegrityError:
             return JSONErrorResponse(
-                message="\n".join(ve.messages), status=HTTPStatus.BAD_REQUEST
+                message=(
+                    f"Copy disallowed: duplicates URI ({item_to_copy.uri}) in list."
+                ),
+                status=HTTPStatus.BAD_REQUEST,
             )
 
         return JSONResponse(

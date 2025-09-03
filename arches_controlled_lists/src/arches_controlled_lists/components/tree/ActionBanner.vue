@@ -48,51 +48,50 @@ const abandonMove = () => {
 <template>
     <div
         v-if="movingItem"
-        class="action-banner action-banner-top"
+        class="action-banner"
     >
-        <!-- turn off escaping: vue template sanitizes -->
-        {{
-            $gettext(
-                "Selecting new parent for: %{item}",
-                {
-                    item: getItemLabel(
-                        movingItem.data,
-                        selectedLanguage.code,
-                        systemLanguage.code,
-                    ).value,
-                },
-                true,
-            )
-        }}
-        <Button
-            type="button"
-            class="banner-button"
-            :severity="shouldUseContrast() ? CONTRAST : SECONDARY"
-            :label="$gettext('Abandon')"
-            @click="abandonMove"
-        />
-    </div>
-    <div
-        v-if="movingItem"
-        class="action-banner action-banner-bottom"
-    >
-        <div class="copy-children-option">
-            <div class="value-editor-title">
-                <label for="copyChildrenSwitch">
-                    {{ $gettext("Include children (copy only)?") }}
-                </label>
-            </div>
-            <div class="copy-children-switch">
-                <ToggleSwitch
-                    v-model="copyChildrenFlag"
-                    input-id="copyChildrenSwitch"
-                />
+        <div class="action-banner-content">
+            <!-- turn off escaping: vue template sanitizes -->
+            {{
+                $gettext(
+                    "Selecting new parent for: %{item}",
+                    {
+                        item: getItemLabel(
+                            movingItem.data,
+                            selectedLanguage.code,
+                            systemLanguage.code,
+                        ).value,
+                    },
+                    true,
+                )
+            }}
+            <Button
+                type="button"
+                class="banner-button"
+                :severity="shouldUseContrast() ? CONTRAST : SECONDARY"
+                :label="$gettext('Abandon')"
+                @click="abandonMove"
+            />
+        </div>
+        <div class="action-banner-content">
+            <div class="copy-children-option">
+                <div class="value-editor-title">
+                    <label for="copyChildrenSwitch">
+                        {{ $gettext("Include children (copy only)?") }}
+                    </label>
+                </div>
+                <div class="copy-children-switch">
+                    <ToggleSwitch
+                        v-model="copyChildrenFlag"
+                        input-id="copyChildrenSwitch"
+                    />
+                </div>
             </div>
         </div>
     </div>
     <div
         v-else-if="isMultiSelecting"
-        class="action-banner"
+        class="action-banner action-banner-content"
     >
         {{ $gettext("Select additional items to delete") }}
         <Button
@@ -113,20 +112,15 @@ const abandonMove = () => {
     background: var(--p-amber-300);
     color: var(--p-slate-950);
     font-weight: 800;
-    height: 5rem;
     font-size: small;
+    padding: 1rem;
+    min-height: 5rem;
+}
+
+.action-banner-content {
     display: flex;
     justify-content: space-between;
-    padding: 1rem;
     align-items: center;
-}
-
-.action-banner.action-banner-top {
-    padding-bottom: 0;
-}
-
-.action-banner.action-banner-bottom {
-    padding-top: 0;
 }
 
 .banner-button {

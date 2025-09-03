@@ -133,4 +133,8 @@ const abandonMove = () => {
     gap: 1rem;
     justify-content: flex-start;
 }
+
+.value-editor-title label {
+    cursor: pointer;
+}
 </style>

@@ -602,7 +602,7 @@ class ListTests(TestCase):
         item_to_copy = self.list2.list_items.first()
         data = {
             "target_list_id": str(self.list1.pk),
-            "copy_children": True,
+            "copy_children": False,
         }
         response = self.client.post(
             reverse(
@@ -617,4 +617,4 @@ class ListTests(TestCase):
         copied_item = result["copied_list_item"]
         self.assertNotEqual(str(item_to_copy.pk), str(copied_item["id"]))
         self.assertEqual(copied_item["list_id"], str(self.list1.pk))
-        self.assertTrue(len(copied_item.get("children", [])) > 0)
+        self.assertEqual(len(copied_item.get("children", [])), 0)

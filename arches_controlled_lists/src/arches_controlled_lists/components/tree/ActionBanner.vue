@@ -73,19 +73,17 @@ const abandonMove = () => {
                 @click="abandonMove"
             />
         </div>
-        <div class="action-banner-content">
-            <div class="copy-children-option">
-                <div class="value-editor-title">
-                    <label for="copyChildrenSwitch">
-                        {{ $gettext("Include children (copy only)?") }}
-                    </label>
-                </div>
-                <div class="copy-children-switch">
-                    <ToggleSwitch
-                        v-model="copyChildrenFlag"
-                        input-id="copyChildrenSwitch"
-                    />
-                </div>
+        <div class="action-banner-content copy-children-option">
+            <div class="value-editor-title">
+                <label for="copyChildrenSwitch">
+                    {{ $gettext("Include children (copy only)?") }}
+                </label>
+            </div>
+            <div class="copy-children-switch">
+                <ToggleSwitch
+                    v-model="copyChildrenFlag"
+                    input-id="copyChildrenSwitch"
+                />
             </div>
         </div>
     </div>
@@ -130,9 +128,9 @@ const abandonMove = () => {
     border-radius: 2px;
 }
 
-.copy-children-option {
-    display: flex;
-    align-items: center;
+.action-banner-content.copy-children-option {
+    padding-top: 0.5rem;
     gap: 1rem;
+    justify-content: flex-start;
 }
 </style>

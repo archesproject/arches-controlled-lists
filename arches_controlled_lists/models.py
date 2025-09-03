@@ -389,12 +389,13 @@ class ListItem(models.Model):
         new_item_values = []
         for parent in parents:
             if isinstance(parent, List):
-                list = parent
-                parent_item = None
-                siblings = ListItem.objects.filter(list=list, parent__isnull=True)
+                controlled_list = parent
+                parent = None
+                siblings = ListItem.objects.filter(
+                    list=controlled_list, parent__isnull=True
+                )
             else:
-                list = parent.list
-                parent_item = parent
+                controlled_list = parent.list
                 siblings = parent.children
 
             if force_sortorder:
@@ -406,9 +407,9 @@ class ListItem(models.Model):
                 sortorder = self.sortorder
             new_item = ListItem(
                 uri=self.uri,
-                list=list,
+                list=controlled_list,
                 sortorder=sortorder,
-                parent=parent_item,
+                parent=parent,
                 guide=self.guide,
             )
             new_items.append(new_item)

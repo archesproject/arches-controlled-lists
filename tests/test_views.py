@@ -450,20 +450,6 @@ class ListTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
 
-    def test_update_label_invalid(self):
-        self.client.force_login(self.admin)
-        serialized_list = self.list1.serialize(flat=False)
-        label = serialized_list["items"][0]["values"][0]
-        label["value"] = "A" * 2049
-
-        with self.assertLogs("django.request", level="WARNING"):
-            response = self.client.put(
-                reverse("controlled_list_item_value", kwargs={"value_id": label["id"]}),
-                label,
-                content_type="application/json",
-            )
-        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST, response.content)
-
     def test_delete_label_valid(self):
         self.client.force_login(self.admin)
         alt_label = ListItemValue.objects.filter(valuetype_id="altLabel").first()

@@ -87,7 +87,6 @@ async function getOptions() {
 function onUpdateModelValue(
     updatedValue: { [key: string]: boolean } | null,
 ): void {
-    console.log({ updatedValue });
     if (!updatedValue) {
         emit("update:value", {
             node_value: [],

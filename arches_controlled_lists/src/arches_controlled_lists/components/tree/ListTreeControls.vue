@@ -21,7 +21,7 @@ const movingItem = defineModel<TreeNode>("movingItem");
 const isMultiSelecting = defineModel<boolean>("isMultiSelecting", {
     required: true,
 });
-const copyChildrenFlag = defineModel<boolean>("copyChildrenFlag", {
+const shouldCopyChildren = defineModel<boolean>("shouldCopyChildren", {
     required: true,
 });
 const nextNewList = defineModel<ControlledList>("nextNewList");
@@ -63,7 +63,7 @@ const expandNode = (node: TreeNode) => {
     <ActionBanner
         v-if="movingItem || isMultiSelecting"
         v-model:is-multi-selecting="isMultiSelecting"
-        v-model:copy-children-flag="copyChildrenFlag"
+        v-model:should-copy-children="shouldCopyChildren"
         v-model:moving-item="movingItem"
         v-model:rerender-tree="rerenderTree"
         v-model:selected-keys="selectedKeys"

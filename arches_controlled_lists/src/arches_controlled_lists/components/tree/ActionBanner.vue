@@ -24,7 +24,7 @@ import type { Language } from "@/arches_controlled_lists/types";
 const isMultiSelecting = defineModel<boolean>("isMultiSelecting", {
     required: true,
 });
-const copyChildrenFlag = defineModel<boolean>("copyChildrenFlag", {
+const shouldCopyChildren = defineModel<boolean>("shouldCopyChildren", {
     required: true,
 });
 const movingItem = defineModel<TreeNode>("movingItem");
@@ -81,7 +81,7 @@ const abandonMove = () => {
             </div>
             <div class="copy-children-switch">
                 <ToggleSwitch
-                    v-model="copyChildrenFlag"
+                    v-model="shouldCopyChildren"
                     input-id="copyChildrenSwitch"
                 />
             </div>

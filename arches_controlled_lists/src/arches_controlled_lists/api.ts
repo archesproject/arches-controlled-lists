@@ -150,7 +150,7 @@ export const copyItem = async (
         },
     );
     if (response.ok) {
-        return true;
+        return response.json();
     }
     try {
         const error = await response.json();

@@ -484,7 +484,7 @@ class ListItemCopyView(APIBase):
             return JSONErrorResponse(status=HTTPStatus.NOT_FOUND)
 
         new_children, new_children_values = item_to_copy.duplicate_under_new_parent(
-            [parent], recursive=copy_children, force_sortorder=True
+            [parent], include_children=copy_children, force_sortorder=True
         )
         try:
             with transaction.atomic():

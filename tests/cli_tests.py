@@ -24,9 +24,9 @@ class ListExportPackageTests(TestCase):
 
         return ListTests.setUpTestData()
 
-    def test_export_controlled_list(self):
-        export_file_name = "export_controlled_lists.xlsx"
-        file_path = os.path.join(PROJECT_TEST_ROOT, export_file_name)
+    def test_export_controlled_list_xlsx(self):
+        export_file_name = "list_xlsx_export"
+        file_path = os.path.join(PROJECT_TEST_ROOT, f"{export_file_name}.xlsx")
         self.addCleanup(os.remove, file_path)
         output = io.StringIO()
         # packages command does not yet fully avoid print()
@@ -36,6 +36,26 @@ class ListExportPackageTests(TestCase):
                 operation="export_controlled_lists",
                 dest_dir=PROJECT_TEST_ROOT,
                 file_name=export_file_name,
+                controlled_lists="",
+                format="xlsx",
+                stdout=output,
+            )
+        self.assertTrue(os.path.exists(file_path))
+
+    def test_export_controlled_list_skos(self):
+        export_file_name = "lists_skos_export"
+        file_path = os.path.join(PROJECT_TEST_ROOT, f"{export_file_name}.xml")
+        self.addCleanup(os.remove, file_path)
+        output = io.StringIO()
+        # packages command does not yet fully avoid print()
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="export_controlled_lists",
+                dest_dir=PROJECT_TEST_ROOT,
+                file_name=export_file_name,
+                controlled_lists="",
+                format="skos-rdf",
                 stdout=output,
             )
         self.assertTrue(os.path.exists(file_path))

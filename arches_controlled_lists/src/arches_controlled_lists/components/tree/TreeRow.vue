@@ -74,9 +74,9 @@ const newListFormValue = defineModel<string>("newListFormValue", {
 });
 const filterValue = defineModel<string>("filterValue", { required: true });
 
-const { isMultiSelecting, copyChildrenFlag, node, iconLabels, moveLabels } =
+const { isMultiSelecting, shouldCopyChildren, node, iconLabels, moveLabels } =
     defineProps<{
-        copyChildrenFlag: boolean;
+        shouldCopyChildren: boolean;
         isMultiSelecting: boolean;
         iconLabels: IconLabels;
         moveLabels: MoveLabels;
@@ -195,7 +195,7 @@ const copyItemTo = async (parentNode: TreeNode) => {
             movingItem.value!.data.id,
             parent_id,
             list_id,
-            copyChildrenFlag,
+            shouldCopyChildren,
         );
     } catch (error) {
         toast.add({
@@ -362,7 +362,7 @@ const acceptNewListShortcutEntry = async () => {
                     class="move-target"
                     type="button"
                     :severity="shouldUseContrast() ? CONTRAST : SECONDARY"
-                    :label="$gettext('Move  here')"
+                    :label="$gettext('Move here')"
                     @click="setParent(node)"
                 />
                 <Button

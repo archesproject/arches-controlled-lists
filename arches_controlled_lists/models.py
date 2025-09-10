@@ -378,7 +378,7 @@ class ListItem(models.Model):
         return uris
 
     def duplicate_under_new_parent(
-        self, parents, recursive=False, force_sortorder=False
+        self, parents, include_children=False, force_sortorder=False
     ):
         """
         Duplicates the ListItem and its children under the given parent(s),
@@ -421,7 +421,7 @@ class ListItem(models.Model):
                     value=value.value,
                 )
                 new_item_values.append(new_list_item_value)
-            if recursive:
+            if include_children:
                 for child in self.children.all():
                     (
                         child_items,

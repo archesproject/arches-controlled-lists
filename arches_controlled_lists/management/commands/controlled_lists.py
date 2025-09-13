@@ -1,10 +1,12 @@
 from urllib.parse import urlparse, urlunparse, urlsplit, urlunsplit
+import logging
+from uuid import UUID
+
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, models, transaction
 from django.db.models.expressions import CombinedExpression
 from django.db.models.fields.json import KT
 from django.db.models.functions import Cast
-from uuid import UUID
 
 from arches.app.datatypes.datatypes import DataTypeFactory
 from arches.app.models.fields.i18n import I18n_JSONField
@@ -16,6 +18,9 @@ from arches.app.models.models import (
     Widget,
 )
 from arches_controlled_lists.models import List, ListItem
+from arches_controlled_lists.datatypes.datatypes import ReferenceDataType
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -35,6 +40,7 @@ class Command(BaseCommand):
                 "migrate_collections_to_controlled_lists",
                 "migrate_concept_nodes_to_reference_datatype",
                 "change_url_base",
+                "migrate_resource_relationships",
             ],
             help="The operation to perform",
         )
@@ -135,6 +141,11 @@ class Command(BaseCommand):
             self.bulk_change_url_base(
                 target_hostname=options["host"], list_ids=list_ids
             )
+        elif options["operation"] == "migrate_resource_relationships":
+            graph = options["graph"]
+            if not graph or graph is None:
+                raise CommandError("Please provide a graph id or slug")
+            self.migrate_resource_relationships(graph)
 
     def migrate_collections_to_controlled_lists(
         self,
@@ -403,3 +414,89 @@ class Command(BaseCommand):
         except Exception as e:
             print(f"An error occurred while processing the URL: {e}")
             return url_string
+
+    def get_item_uri_from_value(self, valueid, collection_id):
+        """
+        take valueid of concept -> conceptid (through old values table) -> list_item_id -> URI
+        Important!!! For this method to work, the values table from old rdm should be present and complete.
+        """
+        # Get the concept id from the value id
+        try:
+            value = Value.objects.get(pk=valueid)
+            concept_id = value.concept_id
+        except Value.DoesNotExist as e:
+            logger.error(f"Concept not found: {valueid}: {str(e)}")
+            return None
+
+        uri = None
+        try:
+            uri = ListItem.objects.get(pk=concept_id).uri
+        except ListItem.DoesNotExist:
+            try:
+                reference_datatype = ReferenceDataType()
+                uri = reference_datatype.lookup_listitem_from_label(
+                    value.value, collection_id
+                ).uri
+            except Exception as e:
+                logger.error(f"URI missing: {concept_id}: {str(e)}")
+        except Exception as e:
+            logger.error(f"URI missing: {concept_id}: {str(e)}")
+        return uri
+
+    def migrate_resource_relationships(self, graph):
+        """
+        "relationshipConcept" -> valueid of concept -> list_item_id
+        "relationshipCollection" -> conceptid of collection -> list_id
+        "inverseRelationshipConcept" -> valueid of concept -> list_item_id
+        """
+        source_graph, draft_graph = self.create_draft_graph(graph)
+        resource_instance_nodes = Node.objects.filter(
+            graph=draft_graph,
+            datatype__in=["resource-instance", "resource-instance-list"],
+            is_immutable=False,
+        )
+        for node in resource_instance_nodes:
+            node_config = node.config.serialize()
+            for graph in node_config["graphs"]:
+                if (
+                    "useOntologyRelationship" in graph
+                    and graph["useOntologyRelationship"] == False
+                ):
+                    try:
+                        graph["relationshipConcept"] = self.get_item_uri_from_value(
+                            graph["relationshipConcept"],
+                            graph["relationshipCollection"],
+                        )
+                        graph["inverseRelationshipConcept"] = (
+                            self.get_item_uri_from_value(
+                                graph["inverseRelationshipConcept"],
+                                graph["relationshipCollection"],
+                            )
+                        )
+                    except KeyError:
+                        logger.error(
+                            f"'relationshipConcept' missing for {node.alias}: {graph['name']}"
+                        )
+                        graph["relationshipConcept"] = (
+                            "http://localhost:8000/plugins/controlled-list-manager/item/00000000-0000-0000-0000-000000000007"
+                        )
+                        graph["inverseRelationshipConcept"] = (
+                            "http://localhost:8000/plugins/controlled-list-manager/item/00000000-0000-0000-0000-000000000007"
+                        )
+                        graph["relationshipCollection"] = (
+                            "00000000-0000-0000-0000-000000000005"
+                        )
+                        graph["useOntologyRelationship"] = False
+            node.config = node_config
+            node.save()
+
+        updated_graph = source_graph.promote_draft_graph_to_active_graph()
+        updated_graph.publish(
+            notes="Define resource-instance relationship using the contorlled_lists"
+        )
+
+        self.stdout.write(
+            "All resource_instance/resource_instance-list nodes for the {0} graph have been successfully migrated to use reference relationship".format(
+                source_graph.name
+            )
+        )

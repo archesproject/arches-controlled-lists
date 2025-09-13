@@ -1,9 +1,11 @@
+import logging
+from uuid import UUID
+
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, models, transaction
 from django.db.models.expressions import CombinedExpression
 from django.db.models.fields.json import KT
 from django.db.models.functions import Cast
-from uuid import UUID
 
 from arches.app.datatypes.datatypes import DataTypeFactory
 from arches.app.models.fields.i18n import I18n_JSONField
@@ -14,7 +16,9 @@ from arches.app.models.models import (
     Value,
     Widget,
 )
-from arches_controlled_lists.models import List
+from arches_controlled_lists.models import List, ListItemValue
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -33,6 +37,8 @@ class Command(BaseCommand):
             choices=[
                 "migrate_collections_to_controlled_lists",
                 "migrate_concept_nodes_to_reference_datatype",
+                "migrate_resource_relationships",
+                "migrate_tile_to_use_listitem_relationships"
             ],
             help="The operation to perform",
         )
@@ -114,6 +120,16 @@ class Command(BaseCommand):
             if not graph or graph is None:
                 raise CommandError("Please provide a graph id or slug")
             self.migrate_concept_nodes_to_reference_datatype(graph)
+        elif options["operation"] == "migrate_resource_relationships":
+            graph = options["graph"]
+            if not graph or graph is None:
+                raise CommandError("Please provide a graph id or slug")
+            self.migrate_resource_relationships(graph)
+        elif options["operation"] == "migrate_tile_to_use_listitem_relationships":
+            graph = options["graph"]
+            if not graph or graph is None:
+                raise CommandError("Please provide a graph id or slug")
+            self.migrate_tile_to_use_listitem_relationships(graph)
 
     def migrate_collections_to_controlled_lists(
         self,
@@ -178,7 +194,7 @@ class Command(BaseCommand):
             result = cursor.fetchone()
             self.stdout.write(result[0])
 
-    def migrate_concept_nodes_to_reference_datatype(self, graph):
+    def create_draft_graph(self, graph):
         try:
             UUID(graph)
             query = models.Q(graphid=graph, source_identifier=None)
@@ -194,6 +210,10 @@ class Command(BaseCommand):
         if not draft_graph:
             draft_graph = source_graph.create_draft_graph()
 
+        return source_graph, draft_graph
+
+    def migrate_concept_nodes_to_reference_datatype(self, graph):
+        source_graph, draft_graph = self.create_draft_graph(graph)
         nodes = (
             Node.objects.filter(
                 graph=draft_graph,
@@ -233,8 +253,8 @@ class Command(BaseCommand):
             )
             for error in errors:
                 self.stderr.write(
-                    "Node alias: {0}, Collection ID: {1}".format(
-                        error["node_alias"], error["collection_id"]
+                    "Node alias: {0} in {1}, Collection ID: {2}".format(
+                        error["node_alias"], graph, error["collection_id"]
                     )
                 )
         else:
@@ -285,7 +305,12 @@ class Command(BaseCommand):
                                     **config,
                                 )
                                 if isinstance(new_value, list):
-                                    new_default_value.append(new_value[0])
+                                    try:
+                                        new_default_value.append(new_value[0])
+                                    except IndexError:
+                                        logger.error(
+                                            f"The default value, {value_rec.value}, not found in list: {node.collection_id} for node: {node.name}"
+                                        )
                                 else:
                                     raise CommandError(
                                         f"Failed to convert original default value: {value_rec.value} in list: {node.collection_id} for node: {node.name} into a reference datatype instance"
@@ -309,3 +334,39 @@ class Command(BaseCommand):
                     source_graph.name
                 )
             )
+
+    def get_item_uri_from_value(self, value_id):
+        try:
+            uri = ListItemValue.objects.select_related('list_item').get(pk=value_id).list_item.uri
+        except Exception as e:
+            logger.error(f"Error getting URI for ListItemValue id {value_id}: {e}")
+            uri = value_id
+        return uri
+
+    def migrate_resource_relationships(self, graph):
+        source_graph, draft_graph = self.create_draft_graph(graph)
+        resource_instance_nodes = (
+            Node.objects.filter(
+                graph=draft_graph,
+                datatype__in=["resource-instance", "resource-instance-list"],
+                is_immutable=False,
+            )
+        )
+        for node in resource_instance_nodes:
+            node_config = node.config.serialize()
+            for graph in node_config["graphs"]:
+                graph["relationshipConcept"] = self.get_item_uri_from_value(graph["relationshipConcept"])
+                graph["inverseRelationshipConcept"] = self.get_item_uri_from_value(graph["inverseRelationshipConcept"])
+            node.config = node_config
+            node.save()
+
+        updated_graph = source_graph.promote_draft_graph_to_active_graph()
+        updated_graph.publish(
+            notes="Migrated resource-instance/resource-instance-list nodes to use "
+        )
+
+        self.stdout.write(
+            "All resource_instance/resource_instance-list nodes for the {0} graph have been successfully migrated to use reference relationship".format(
+                source_graph.name
+            )
+        )

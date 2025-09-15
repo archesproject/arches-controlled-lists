@@ -248,92 +248,91 @@ class Command(BaseCommand):
                     {"node_alias": node.alias, "collection_id": node.collection_id}
                 )
         if errors:
-            self.stderr.write(
+            logger.error(
                 "The following collections for the associated nodes have not been migrated to controlled lists:"
             )
             for error in errors:
-                self.stderr.write(
+                logger.error(
                     "Node alias: {0} in {1}, Collection ID: {2}".format(
                         error["node_alias"], graph, error["collection_id"]
                     )
                 )
-        else:
-            with transaction.atomic():
-                for node in nodes:
-                    if node.datatype == "concept":
-                        node.config = {
-                            "multiValue": False,
-                            "controlledList": str(node.collection_id),
-                        }
-                    elif node.datatype == "concept-list":
-                        node.config = {
-                            "multiValue": True,
-                            "controlledList": str(node.collection_id),
-                        }
-                    node.datatype = "reference"
-                    node.full_clean()
-                    node.save()
+        with transaction.atomic():
+            for node in nodes:
+                if node.datatype == "concept":
+                    node.config = {
+                        "multiValue": False,
+                        "controlledList": str(node.collection_id),
+                    }
+                elif node.datatype == "concept-list":
+                    node.config = {
+                        "multiValue": True,
+                        "controlledList": str(node.collection_id),
+                    }
+                node.datatype = "reference"
+                node.full_clean()
+                node.save()
 
-                    cross_records = node.cardxnodexwidget_set.annotate(
-                        config_without_options=CombinedExpression(
-                            models.F("config"),
-                            "-",
-                            models.Value("options", output_field=models.CharField()),
-                            output_field=I18n_JSONField(),
+                cross_records = node.cardxnodexwidget_set.annotate(
+                    config_without_options=CombinedExpression(
+                        models.F("config"),
+                        "-",
+                        models.Value("options", output_field=models.CharField()),
+                        output_field=I18n_JSONField(),
+                    )
+                )
+                for cross_record in cross_records:
+                    # work around for i18n as_sql method issue detailed here: https://github.com/archesproject/arches/issues/11473
+                    cross_record.config = {}
+                    cross_record.save()
+
+                    # Crosswalk concept version of default values to reference versions
+                    original_default_value = (
+                        cross_record.config_without_options.get(
+                            "defaultValue", None
                         )
                     )
-                    for cross_record in cross_records:
-                        # work around for i18n as_sql method issue detailed here: https://github.com/archesproject/arches/issues/11473
-                        cross_record.config = {}
-                        cross_record.save()
-
-                        # Crosswalk concept version of default values to reference versions
-                        original_default_value = (
-                            cross_record.config_without_options.get(
-                                "defaultValue", None
+                    if original_default_value:
+                        new_default_value = []
+                        if isinstance(original_default_value, str):
+                            original_default_value = [original_default_value]
+                        for value in original_default_value:
+                            value_rec = Value.objects.get(pk=value)
+                            config = {"controlledList": node.collection_id}
+                            new_value = REFERENCE_FACTORY.transform_value_for_tile(
+                                value=value_rec.value,
+                                **config,
                             )
-                        )
-                        if original_default_value:
-                            new_default_value = []
-                            if isinstance(original_default_value, str):
-                                original_default_value = [original_default_value]
-                            for value in original_default_value:
-                                value_rec = Value.objects.get(pk=value)
-                                config = {"controlledList": node.collection_id}
-                                new_value = REFERENCE_FACTORY.transform_value_for_tile(
-                                    value=value_rec.value,
-                                    **config,
-                                )
-                                if isinstance(new_value, list):
-                                    try:
-                                        new_default_value.append(new_value[0])
-                                    except IndexError:
-                                        logger.error(
-                                            f"The default value, {value_rec.value}, not found in list: {node.collection_id} for node: {node.name}"
-                                        )
-                                else:
-                                    raise CommandError(
-                                        f"Failed to convert original default value: {value_rec.value} in list: {node.collection_id} for node: {node.name} into a reference datatype instance"
+                            if isinstance(new_value, list):
+                                try:
+                                    new_default_value.append(new_value[0])
+                                except IndexError:
+                                    logger.error(
+                                        f"The default value, {value_rec.value}, not found in list: {node.collection_id} for node: {node.name}"
                                     )
-                            cross_record.config_without_options["defaultValue"] = (
-                                new_default_value
-                            )
+                            else:
+                                raise CommandError(
+                                    f"Failed to convert original default value: {value_rec.value} in list: {node.collection_id} for node: {node.name} into a reference datatype instance"
+                                )
+                        cross_record.config_without_options["defaultValue"] = (
+                            new_default_value
+                        )
 
-                        cross_record.config = cross_record.config_without_options
-                        cross_record.widget = REFERENCE_SELECT_WIDGET
-                        cross_record.full_clean()
-                        cross_record.save()
+                    cross_record.config = cross_record.config_without_options
+                    cross_record.widget = REFERENCE_SELECT_WIDGET
+                    cross_record.full_clean()
+                    cross_record.save()
 
-            updated_graph = source_graph.promote_draft_graph_to_active_graph()
-            updated_graph.publish(
-                notes="Migrated concept/concept-list nodes to reference datatype"
+        updated_graph = source_graph.promote_draft_graph_to_active_graph()
+        updated_graph.publish(
+            notes="Migrated concept/concept-list nodes to reference datatype"
+        )
+
+        self.stdout.write(
+            "All concept/concept-list nodes for the {0} graph have been successfully migrated to reference datatype".format(
+                source_graph.name
             )
-
-            self.stdout.write(
-                "All concept/concept-list nodes for the {0} graph have been successfully migrated to reference datatype".format(
-                    source_graph.name
-                )
-            )
+        )
 
     def get_item_uri_from_value(self, value_id):
         try:

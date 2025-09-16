@@ -354,8 +354,15 @@ class Command(BaseCommand):
         for node in resource_instance_nodes:
             node_config = node.config.serialize()
             for graph in node_config["graphs"]:
-                graph["relationshipConcept"] = self.get_item_uri_from_value(graph["relationshipConcept"])
-                graph["inverseRelationshipConcept"] = self.get_item_uri_from_value(graph["inverseRelationshipConcept"])
+                try:
+                    graph["relationshipConcept"] = self.get_item_uri_from_value(graph["relationshipConcept"])
+                    graph["inverseRelationshipConcept"] = self.get_item_uri_from_value(graph["inverseRelationshipConcept"])
+                except KeyError:
+                    logger.error(f"KeyError for {node.alias}: {graph}")
+                    graph["relationshipConcept"] = "http://localhost:8000/plugins/controlled-list-manager/item/00000000-0000-0000-0000-000000000007"
+                    graph["inverseRelationshipConcept"] = "http://localhost:8000/plugins/controlled-list-manager/item/00000000-0000-0000-0000-000000000007"
+                    graph["relationshipCollection"] = "00000000-0000-0000-0000-000000000005"
+                    graph["useOntologyRelationship"] = False
             node.config = node_config
             node.save()
 

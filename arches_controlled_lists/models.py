@@ -426,7 +426,9 @@ class ListItem(models.Model):
                     (
                         child_items,
                         child_item_values,
-                    ) = child.duplicate_under_new_parent([new_item], recursive=True)
+                    ) = child.duplicate_under_new_parent(
+                        [new_item], include_children=True
+                    )
                     new_items.extend(child_items)
                     new_item_values.extend(child_item_values)
         return new_items, new_item_values

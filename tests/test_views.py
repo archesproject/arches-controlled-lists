@@ -275,6 +275,21 @@ class ListTests(TestCase):
         self.assertEqual(new_list_items.count(), 17)
         self.assertEqual(new_list_item_values.count(), 21)
 
+    def test_export_skos_post(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(
+            reverse("controlled_list_export"),
+            {"list_ids": [str(self.list1.pk), str(self.list2.pk)]},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
+        self.assertEqual(
+            response["Content-Disposition"],
+            'attachment; filename="list1.xml"',
+        )
+        self.assertIn(b"<rdf:RDF", response.content)
+        self.assertIn(b"<skos:ConceptScheme", response.content)
+
     def test_delete_list(self):
         self.client.force_login(self.admin)
         with self.assertLogs("django.request", level="WARNING"):

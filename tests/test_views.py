@@ -543,3 +543,78 @@ class ListTests(TestCase):
         self.assertQuerySetEqual(
             ListItemImageMetadata.objects.filter(pk=metadata.pk), []
         )
+
+    def test_copy_list_item_missing_data(self):
+        self.client.force_login(self.admin)
+        item_to_copy = self.list2.list_items.first()
+        data = {
+            "copy_children": True,
+        }
+        response = self.client.post(
+            reverse(
+                "controlled_list_item_copy", kwargs={"item_id": str(item_to_copy.pk)}
+            ),
+            data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST, response.content)
+
+    def test_copy_list_item_not_found(self):
+        self.client.force_login(self.admin)
+        fake_id = uuid.uuid4()
+        data = {
+            "target_list_id": str(self.list1.pk),
+            "copy_children": True,
+        }
+        response = self.client.post(
+            reverse("controlled_list_item_copy", kwargs={"item_id": str(fake_id)}),
+            data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    def test_copy_list_item_to_item(self):
+        self.client.force_login(self.admin)
+        item_to_copy = self.list2.list_items.first()
+        target_item = self.list1.list_items.first()
+        data = {
+            "target_list_id": str(self.list1.pk),
+            "target_item_id": str(target_item.pk),
+            "copy_children": True,
+        }
+        response = self.client.post(
+            reverse(
+                "controlled_list_item_copy", kwargs={"item_id": str(item_to_copy.pk)}
+            ),
+            data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.CREATED, response.content)
+        result = response.json()
+        self.assertIn("copied_list_item", result)
+        copied_item = result["copied_list_item"]
+        self.assertNotEqual(str(item_to_copy.pk), str(copied_item["id"]))
+        self.assertEqual(copied_item["parent_id"], str(target_item.pk))
+        self.assertTrue(len(copied_item.get("children", [])) > 0)
+
+    def test_copy_list_item_to_list(self):
+        self.client.force_login(self.admin)
+        item_to_copy = self.list2.list_items.first()
+        data = {
+            "target_list_id": str(self.list1.pk),
+            "copy_children": False,
+        }
+        response = self.client.post(
+            reverse(
+                "controlled_list_item_copy", kwargs={"item_id": str(item_to_copy.pk)}
+            ),
+            data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.CREATED, response.content)
+        result = response.json()
+        self.assertIn("copied_list_item", result)
+        copied_item = result["copied_list_item"]
+        self.assertNotEqual(str(item_to_copy.pk), str(copied_item["id"]))
+        self.assertEqual(copied_item["list_id"], str(self.list1.pk))
+        self.assertEqual(len(copied_item.get("children", [])), 0)

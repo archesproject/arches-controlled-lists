@@ -365,9 +365,23 @@ class ReferenceDataTypeTests(TestCase):
         reference.append_search_filters(mock_value, mock_node, mock_query, Mock())
         mock_query.should.assert_called()
 
+        # Test in_list_all
+        mock_query.reset_mock()
+        mock_query.must = Mock()
+        mock_value = {"op": "in_list_all", "val": mock_filter_value}
+        reference.append_search_filters(mock_value, mock_node, mock_query, Mock())
+        mock_query.must.assert_called()
+
         # Test in_list_not
         mock_query.reset_mock()
         mock_query.must_not = Mock()
         mock_value = {"op": "in_list_not", "val": mock_filter_value}
         reference.append_search_filters(mock_value, mock_node, mock_query, Mock())
         mock_query.must_not.assert_called()
+
+        # Test null op
+        mock_query.reset_mock()
+        mock_query.should = Mock()
+        mock_value = {"op": "null", "val": None}
+        reference.append_search_filters(mock_value, mock_node, mock_query, Mock())
+        mock_query.should.assert_called()

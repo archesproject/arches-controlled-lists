@@ -1,11 +1,17 @@
 import uuid
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 from django.test import TestCase
 from arches.app.datatypes.datatypes import DataTypeFactory
 from arches.app.models.tile import Tile
-from arches.app.models.models import TileModel
-from arches_controlled_lists.datatypes.datatypes import Reference, ReferenceLabel
+from arches.app.models.models import Node, TileModel
+from arches.app.search.elasticsearch_dsl_builder import Bool
+from arches_controlled_lists.datatypes.datatypes import (
+    Reference,
+    ReferenceDataType,
+    ReferenceLabel,
+)
 from arches_controlled_lists.models import List, ListItem, ListItemValue
 
 from tests.test_views import ListTests
@@ -319,3 +325,49 @@ class ReferenceDataTypeTests(TestCase):
         self.assertEqual(document["strings"][0]["string"], reference.labels[0].value)
         self.assertEqual(document["strings"][0]["nodegroup_id"], tile.nodegroup_id)
         self.assertFalse(document["strings"][0]["provisional"])
+
+    def test_append_search_filters(self):
+        mock_node = Mock(Node)
+        mock_query = Mock(Bool)
+        reference = ReferenceDataType()
+
+        # Test matching query
+        mock_query.must = Mock()
+        mock_filter_value = [
+            {
+                "uri": "https://archesproject.org/1",
+                "labels": [
+                    {
+                        "value": "label1-pref",
+                        "language_id": "en",
+                        "valuetype_id": "prefLabel",
+                    }
+                ],
+            }
+        ]
+        mock_value = {"op": "eq", "val": mock_filter_value}
+        reference.append_search_filters(mock_value, mock_node, mock_query, Mock())
+        mock_query.must.assert_called()
+
+        # Test not matching query
+        mock_query.reset_mock()
+        mock_query.must_not = Mock()
+        mock_query.filter = Mock()
+        mock_value = {"op": "!eq", "val": mock_filter_value}
+        reference.append_search_filters(mock_value, mock_node, mock_query, Mock())
+        mock_query.must_not.assert_called()
+        mock_query.filter.assert_called()
+
+        # Test in_list_any
+        mock_query.reset_mock()
+        mock_query.should = Mock()
+        mock_value = {"op": "in_list_any", "val": mock_filter_value}
+        reference.append_search_filters(mock_value, mock_node, mock_query, Mock())
+        mock_query.should.assert_called()
+
+        # Test in_list_not
+        mock_query.reset_mock()
+        mock_query.must_not = Mock()
+        mock_value = {"op": "in_list_not", "val": mock_filter_value}
+        reference.append_search_filters(mock_value, mock_node, mock_query, Mock())
+        mock_query.must_not.assert_called()

@@ -289,6 +289,27 @@ class ReferenceDataTypeTests(TestCase):
             },
         )
 
+    def test_transform_export_values(self):
+        reference = DataTypeFactory().get_instance("reference")
+        node = ListTests.node_using_list1
+        mock_tile = self.get_mock_tile()
+        node_value = mock_tile.data[str(node.pk)]
+
+        # Export as URI
+        self.assertEqual(
+            reference.transform_export_values(
+                node_value, concept_export_value_type="id"
+            ),
+            "https://archesproject.org/0",
+        )
+        # Export as label
+        self.assertEqual(
+            reference.transform_export_values(
+                node_value, concept_export_value_type="label"
+            ),
+            "label0-pref",
+        )
+
     def test_collects_multiple_values(self):
         reference = DataTypeFactory().get_instance("reference")
         self.assertIs(reference.collects_multiple_values(), True)

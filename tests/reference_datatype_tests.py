@@ -199,6 +199,12 @@ class ReferenceDataTypeTests(TestCase):
 
         self.assertIsNone(reference.transform_value_for_tile(None, **config))
 
+        # Test multiple incoming values (e.g. from csv import)
+        tile_value3 = reference.transform_value_for_tile(
+            "label1-pref,label3-pref", **config
+        )
+        self.assertEqual(len(tile_value3), 2)
+
         # Test deterministic sorting:
         #   Force two items to have the same prefLabel in a list,
         #   expect the list item with lower sortorder to be returned

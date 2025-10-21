@@ -191,19 +191,19 @@ class ReferenceDataTypeTests(TestCase):
         list1_pk = str(List.objects.get(name="list1").pk)
         config = {"controlledList": list1_pk}
 
-        tile_value1 = reference.transform_value_for_tile("label1-pref", **config)
-        self.assertIsInstance(tile_value1, list)
-        self.assertIn("uri", tile_value1[0])
-        self.assertIn("labels", tile_value1[0])
-        self.assertIn("list_id", tile_value1[0])
+        tile_value0 = reference.transform_value_for_tile("label1-pref", **config)
+        self.assertIsInstance(tile_value0, list)
+        self.assertIn("uri", tile_value0[0])
+        self.assertIn("labels", tile_value0[0])
+        self.assertIn("list_id", tile_value0[0])
 
         self.assertIsNone(reference.transform_value_for_tile(None, **config))
 
         # Test multiple incoming values (e.g. from csv import)
-        tile_value3 = reference.transform_value_for_tile(
+        tile_value1 = reference.transform_value_for_tile(
             "label1-pref,label3-pref", **config
         )
-        self.assertEqual(len(tile_value3), 2)
+        self.assertEqual(len(tile_value1), 2)
 
         # Test deterministic sorting:
         #   Force two items to have the same prefLabel in a list,
@@ -220,6 +220,14 @@ class ReferenceDataTypeTests(TestCase):
         self.assertEqual(
             tile_value2[0]["labels"][0]["list_item_id"], expected_list_item_pk
         )
+
+        # Test proper parsing of values with commas
+        list_w_commas_pk = str(List.objects.get(name="list with commas").pk)
+        config = {"controlledList": list_w_commas_pk}
+        tile_value3 = reference.transform_value_for_tile(
+            '"label0,with-commas","label1,with-commas"', **config
+        )
+        self.assertEqual(len(tile_value3), 2)
 
     def test_to_json(self):
         reference = DataTypeFactory().get_instance("reference")

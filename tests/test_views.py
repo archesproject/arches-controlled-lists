@@ -45,6 +45,8 @@ class ListTests(TestCase):
         cls.list1 = List.objects.create(name="list1")
         # Second list has children (nested items).
         cls.list2 = List.objects.create(name="list2")
+        # Third list has items with values with commas for import tests
+        cls.list3 = List.objects.create(name="list with commas")
 
         cls.first_language = Language.objects.first()
         cls.new_language = Language.objects.create(
@@ -57,7 +59,7 @@ class ListTests(TestCase):
         cls.pref_label = DValueType.objects.get(valuetype="prefLabel")
         cls.alt_label = DValueType.objects.get(valuetype="altLabel")
 
-        # Create 5 labels per list. (10)
+        # Create 5 labels per list. (15)
         ListItem.objects.bulk_create(
             [
                 ListItem(
@@ -75,11 +77,20 @@ class ListTests(TestCase):
                 )
                 for num in range(5)
             ]
+            + [
+                ListItem(
+                    uri=f"https://archesproject.org/{num}",
+                    list=cls.list3,
+                    sortorder=num,
+                )
+                for num in range(5)
+            ]
         )
 
         # Create a prefLabel and altLabel per item. (20)
         list1_items = cls.list1.list_items.all()
         list2_items = cls.list2.list_items.all()
+        list3_items = cls.list3.list_items.all()
         ListItemValue.objects.bulk_create(
             [
                 ListItemValue(
@@ -114,6 +125,15 @@ class ListTests(TestCase):
                     language=cls.first_language,
                     valuetype=cls.alt_label,
                     list_item=list2_items[num],
+                )
+                for num in range(5)
+            ]
+            + [
+                ListItemValue(
+                    value=f"label{num},with-commas",
+                    language=cls.first_language,
+                    valuetype=cls.pref_label,
+                    list_item=list3_items[num],
                 )
                 for num in range(5)
             ]
@@ -200,7 +220,7 @@ class ListTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
         result = json.loads(response.content)
 
-        first_list, second_list = result["controlled_lists"]
+        list_with_commas, first_list, second_list = result["controlled_lists"]
 
         self.assertEqual(
             first_list["nodes"],
@@ -249,7 +269,7 @@ class ListTests(TestCase):
             {"name": ""},
             content_type="application/json",
         )
-        self.assertEqual(List.objects.count(), 3)
+        self.assertEqual(List.objects.count(), 4)
         self.assertEqual(
             List.objects.filter(name__startswith="Untitled List: ").count(), 1
         )
@@ -302,8 +322,8 @@ class ListTests(TestCase):
         response = self.client.delete(
             reverse("controlled_list", kwargs={"list_id": str(self.list1.pk)}),
         )
-        self.assertEqual(List.objects.count(), 1)
-        self.assertEqual(List.objects.first().pk, self.list2.pk)
+        self.assertEqual(List.objects.count(), 2)
+        self.assertIn(List.objects.first().pk, [self.list2.pk, self.list3.pk])
 
     def test_create_list_item(self):
         self.client.force_login(self.admin)

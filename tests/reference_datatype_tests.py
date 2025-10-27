@@ -217,6 +217,13 @@ class ReferenceDataTypeTests(TestCase):
         )
         self.assertEqual(len(tile_value2), 2)
 
+        # Test custom delimiter
+        tile_value2b = reference.transform_value_for_tile(
+            "label2,with-commas;label3,with-commas",
+            **{**config, "delimiter": ";", "quotechar": '"'},
+        )
+        self.assertEqual(len(tile_value2b), 2)
+
         # Test deterministic sorting:
         #   Force two items to have the same prefLabel in a list,
         #   expect the list item with lower sortorder to be returned

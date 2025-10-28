@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from slugify import slugify
 from uuid import UUID
 import filetype
 import json
@@ -10,6 +11,7 @@ from django.db.utils import IntegrityError
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 
+from arches.app.models.system_settings import settings
 from arches.app.models.utils import field_names
 from arches.app.utils.betterJSONSerializer import JSONDeserializer
 from arches.app.utils.decorators import group_required
@@ -221,11 +223,12 @@ class ListExportView(APIBase):
                 export_lists, export_list_items, format="pretty-xml"
             )
 
+            filename = (
+                f"{slugify(settings.APP_NAME, separator='_')}_controlled_lists.xml"
+            )
             response = JSONResponse(rdf, status=HTTPStatus.OK)
             response["Content-Type"] = "application/xml"
-            response["Content-Disposition"] = (
-                f'attachment; filename="{export_lists[0].name}.xml"'
-            )
+            response["Content-Disposition"] = f'attachment; filename="{filename}"'
             return response
         else:
             return JSONErrorResponse(

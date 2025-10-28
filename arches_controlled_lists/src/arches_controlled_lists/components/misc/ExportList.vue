@@ -33,7 +33,7 @@ const listOptions = ref();
 const selectedListIds = ref<string[]>([]);
 
 function extractLists() {
-    return (listOptions.value = props.lists.map((node) => ({
+    return (listOptions.value = props.lists.map((node: TreeNode) => ({
         id: node.data.id,
         name: node.data.name,
     })));
@@ -55,11 +55,11 @@ async function exportToSKOS() {
     if (file) {
         loading.value = false;
         const url = window.URL.createObjectURL(
-            new Blob([file], { type: "application/xml" }),
+            new Blob([file.blob], { type: "application/xml" }),
         );
         const download = document.createElement("a");
         download.href = url;
-        download.setAttribute("download", `${"PLACEHOLDER"}.xml`);
+        download.setAttribute("download", `${file.filename}`);
         document.body.appendChild(download);
         download.click();
         document.body.removeChild(download);

@@ -285,7 +285,7 @@ class ListTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
         self.assertEqual(
             response["Content-Disposition"],
-            'attachment; filename="list1.xml"',
+            'attachment; filename="arches_controlled_lists_controlled_lists.xml"',
         )
         self.assertIn(b"<rdf:RDF", response.content)
         self.assertIn(b"<skos:ConceptScheme", response.content)

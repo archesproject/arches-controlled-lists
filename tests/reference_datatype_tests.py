@@ -191,34 +191,53 @@ class ReferenceDataTypeTests(TestCase):
         list1_pk = str(List.objects.get(name="list1").pk)
         config = {"controlledList": list1_pk}
 
-        tile_value1 = reference.transform_value_for_tile("label1-pref", **config)
-        self.assertIsInstance(tile_value1, list)
-        self.assertIn("uri", tile_value1[0])
-        self.assertIn("labels", tile_value1[0])
-        self.assertIn("list_id", tile_value1[0])
+        tile_value0 = reference.transform_value_for_tile("label1-pref", **config)
+        self.assertIsInstance(tile_value0, list)
+        self.assertIn("uri", tile_value0[0])
+        self.assertIn("labels", tile_value0[0])
+        self.assertIn("list_id", tile_value0[0])
 
         self.assertIsNone(reference.transform_value_for_tile(None, **config))
 
         # Test multiple incoming values (e.g. from csv import)
-        tile_value3 = reference.transform_value_for_tile(
+        tile_value1 = reference.transform_value_for_tile(
             "label1-pref,label3-pref", **config
         )
-        self.assertEqual(len(tile_value3), 2)
+        self.assertEqual(len(tile_value1), 2)
+
+        # Test proper parsing of values with commas
+        ListItemValue.objects.filter(
+            value="label2-pref", list_item_id__list_id=list1_pk
+        ).update(value="label2,with-commas")
+        ListItemValue.objects.filter(
+            value="label3-pref", list_item_id__list_id=list1_pk
+        ).update(value="label3,with-commas")
+        tile_value2 = reference.transform_value_for_tile(
+            '"label2,with-commas","label3,with-commas"', **config
+        )
+        self.assertEqual(len(tile_value2), 2)
+
+        # Test custom delimiter
+        tile_value2b = reference.transform_value_for_tile(
+            "label2,with-commas;label3,with-commas",
+            **{**config, "delimiter": ";", "quotechar": '"'},
+        )
+        self.assertEqual(len(tile_value2b), 2)
 
         # Test deterministic sorting:
         #   Force two items to have the same prefLabel in a list,
         #   expect the list item with lower sortorder to be returned
         expected_list_item_pk = str(
             ListItem.objects.get(
-                list_item_values__value="label2-pref", list_id=list1_pk
+                list_item_values__value="label1-pref", list_id=list1_pk
             ).pk
         )
         ListItemValue.objects.filter(
-            value="label3-pref", list_item_id__list_id=list1_pk
-        ).update(value="label2-pref")
-        tile_value2 = reference.transform_value_for_tile("label2-pref", **config)
+            value="label2,with-commas", list_item_id__list_id=list1_pk
+        ).update(value="label1-pref")
+        tile_value3 = reference.transform_value_for_tile("label1-pref", **config)
         self.assertEqual(
-            tile_value2[0]["labels"][0]["list_item_id"], expected_list_item_pk
+            tile_value3[0]["labels"][0]["list_item_id"], expected_list_item_pk
         )
 
     def test_to_json(self):

@@ -24,6 +24,7 @@ PACKAGE_NAME = "arches_controlled_lists"
 
 PROJECT_TEST_ROOT = os.path.dirname(__file__)
 MEDIA_ROOT = os.path.join(PROJECT_TEST_ROOT, "fixtures", "data")
+TEST_PACKAGE_DIR = os.path.join(PROJECT_TEST_ROOT, "fixtures", "pkg")
 
 BUSINESS_DATA_FILES = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".

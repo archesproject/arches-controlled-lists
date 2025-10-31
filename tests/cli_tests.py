@@ -9,11 +9,38 @@ from django.core.management.base import CommandError
 from arches.app.models.models import Node
 from arches_controlled_lists.models import List, ListItem, ListItemValue
 
-from .test_settings import PROJECT_TEST_ROOT
+from .test_settings import PROJECT_TEST_ROOT, TEST_PACKAGE_DIR
 
 
 # these tests can be run from the command line via
 # python manage.py test tests.cli_tests --settings="tests.test_settings"
+
+
+class PackageCommandTests(TestCase):
+
+    def test_load_package(self):
+        with captured_stdout() as stdout:
+            management.call_command(
+                "packages",
+                [
+                    "-o",
+                    "load_package",
+                    "-s",
+                    TEST_PACKAGE_DIR,
+                    "-y",
+                ],
+            )
+        output = stdout.getvalue()
+        self.assertIn("Importing controlled lists...", output)
+        new_lists = List.objects.filter(name__startswith="Test Thesaurus")
+        new_list = new_lists.first()
+        new_list_items = new_list.list_items.filter(list_id=new_list.id)
+        new_list_item_values = ListItemValue.objects.filter(
+            list_item_id__in=new_list_items.all()
+        )
+        self.assertEqual(new_lists.count(), 1)
+        self.assertEqual(new_list_items.count(), 17)
+        self.assertEqual(new_list_item_values.count(), 21)
 
 
 class ListExportPackageTests(TestCase):
@@ -85,7 +112,10 @@ class ListImportPackageTests(TestCase):
 
     def test_import_from_skos(self):
         input_file = os.path.join(
-            PROJECT_TEST_ROOT, "fixtures", "data", "skos_rdf_import_example.xml"
+            TEST_PACKAGE_DIR,
+            "reference_data",
+            "controlled_lists",
+            "skos_rdf_import_example.xml",
         )
         output = io.StringIO()
         # packages command does not yet fully avoid print()

@@ -23,7 +23,7 @@ from arches_controlled_lists.models import (
     ListItemImageMetadata,
     ListItemValue,
 )
-from .test_settings import PROJECT_TEST_ROOT
+from .test_settings import TEST_PACKAGE_DIR
 
 # these tests can be run from the command line via
 # python manage.py test tests.test_views --settings="tests.test_settings"
@@ -257,7 +257,10 @@ class ListTests(TestCase):
     def test_import_skos_post(self):
         self.client.force_login(self.admin)
         input_file = os.path.join(
-            PROJECT_TEST_ROOT, "fixtures", "data", "skos_rdf_import_example.xml"
+            TEST_PACKAGE_DIR,
+            "reference_data",
+            "controlled_lists",
+            "skos_rdf_import_example.xml",
         )
         with open(input_file, "rb") as file:
             response = self.client.post(

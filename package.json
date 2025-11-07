@@ -18,7 +18,7 @@
         "vitest": "vitest --run --coverage"
     },
     "dependencies": {
-        "arches": "archesproject/arches#dev/8.0.x",
+        "arches": "archesproject/arches#dev/8.1.x",
         "arches-component-lab": "archesproject/arches-component-lab#main",
         "vue-router": "4.4.3"
     },

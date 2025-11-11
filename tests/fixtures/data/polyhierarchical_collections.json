@@ -28,7 +28,15 @@
         "pk": "843c76cb-7e2a-47dd-b588-a0d0fcb00de7",
         "fields": {
             "nodetype": "Collection",
-            "legacyoid": "843c76cb-7e2a-47dd-b588-a0d0fcb00de7"
+            "legacyoid": "http://localhost:8000/843c76cb-7e2a-47dd-b588-a0d0fcb00de7"
+        }
+    },
+    {
+        "model": "models.concept",
+        "pk": "86399966-b68a-4ac1-8255-d452e0fe1ce8",
+        "fields": {
+            "nodetype": "Collection",
+            "legacyoid": "http://localhost:8000/86399966-b68a-4ac1-8255-d452e0fe1ce8"
         }
     },
     {
@@ -159,11 +167,11 @@
     },
     {
         "model": "models.value",
-        "pk": "c477760d-ec4e-4911-81d1-706a2ffb6a22",
+        "pk": "df418223-c574-4b24-8db3-ce767542f908",
         "fields": {
-            "concept": "843c76cb-7e2a-47dd-b588-a0d0fcb00de7",
-            "valuetype": "identifier",
-            "value": "http://www.archesproject.org/7c90899a-dbe9-4574-9175-e69481a80b3c",
+            "concept": "86399966-b68a-4ac1-8255-d452e0fe1ce8",
+            "valuetype": "prefLabel",
+            "value": "Nested Polyhierarchy",
             "language": "en"
         }
     },
@@ -209,61 +217,16 @@
     },
     {
         "model": "models.relation",
-        "pk": "1704bf8f-1ec0-43f0-a4d0-c444baf067fb",
-        "fields": {
-            "conceptfrom": "843c76cb-7e2a-47dd-b588-a0d0fcb00de7",
-            "conceptto": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
-            "relationtype": "member"
-        }
-    },
-    {
-        "model": "models.relation",
-        "pk": "25da169c-e2a2-47f2-8469-216240853fee",
-        "fields": {
-            "conceptfrom": "7c90899a-dbe9-4574-9175-e69481a80b3c",
-            "conceptto": "6490ac87-ac80-41d7-a135-1119b4cd912d",
-            "relationtype": "hasTopConcept"
-        }
-    },
-    {
-        "model": "models.relation",
-        "pk": "5391022a-735d-4dab-b695-0ec107d2812e",
-        "fields": {
-            "conceptfrom": "7c90899a-dbe9-4574-9175-e69481a80b3c",
-            "conceptto": "89ff530a-f350-44f0-ac88-bdd8904eb57e",
-            "relationtype": "hasTopConcept"
-        }
-    },
-    {
-        "model": "models.relation",
-        "pk": "54d5685a-daf3-45af-b619-9bf61cb4d017",
-        "fields": {
-            "conceptfrom": "7c90899a-dbe9-4574-9175-e69481a80b3c",
-            "conceptto": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
-            "relationtype": "hasTopConcept"
-        }
-    },
-    {
-        "model": "models.relation",
-        "pk": "7096e255-3c88-4e1d-ab02-3d917afb9e16",
-        "fields": {
-            "conceptfrom": "843c76cb-7e2a-47dd-b588-a0d0fcb00de7",
-            "conceptto": "89ff530a-f350-44f0-ac88-bdd8904eb57e",
-            "relationtype": "member"
-        }
-    },
-    {
-        "model": "models.relation",
-        "pk": "81d4e52f-1750-4a30-83c7-e92cbfb8e1c5",
+        "pk": "000febf0-030c-4f1b-92a8-2599f9a2a6a5",
         "fields": {
             "conceptfrom": "abeaef4a-f57c-40d3-bdb1-9d16bf0811b5",
-            "conceptto": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
+            "conceptto": "6490ac87-ac80-41d7-a135-1119b4cd912d",
             "relationtype": "member"
         }
     },
     {
         "model": "models.relation",
-        "pk": "8e813235-2aaa-4d36-bc9a-33d39e2b41c3",
+        "pk": "15a7a793-8d38-41da-b81e-5df46bee23cc",
         "fields": {
             "conceptfrom": "abeaef4a-f57c-40d3-bdb1-9d16bf0811b5",
             "conceptto": "89ff530a-f350-44f0-ac88-bdd8904eb57e",
@@ -272,7 +235,34 @@
     },
     {
         "model": "models.relation",
-        "pk": "b066c2d2-d12a-4689-8a70-400d80c1e39b",
+        "pk": "2838d385-4dd9-42ef-9458-63455e25e430",
+        "fields": {
+            "conceptfrom": "843c76cb-7e2a-47dd-b588-a0d0fcb00de7",
+            "conceptto": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
+            "relationtype": "member"
+        }
+    },
+    {
+        "model": "models.relation",
+        "pk": "477406e7-1640-45ec-8f7d-d3acd9dd0de2",
+        "fields": {
+            "conceptfrom": "86399966-b68a-4ac1-8255-d452e0fe1ce8",
+            "conceptto": "abeaef4a-f57c-40d3-bdb1-9d16bf0811b5",
+            "relationtype": "member"
+        }
+    },
+    {
+        "model": "models.relation",
+        "pk": "5013864a-a308-4b37-b947-f741e5d68fde",
+        "fields": {
+            "conceptfrom": "abeaef4a-f57c-40d3-bdb1-9d16bf0811b5",
+            "conceptto": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
+            "relationtype": "member"
+        }
+    },
+    {
+        "model": "models.relation",
+        "pk": "55cc1eab-3b60-499e-ac8c-cbcda1c833b0",
         "fields": {
             "conceptfrom": "843c76cb-7e2a-47dd-b588-a0d0fcb00de7",
             "conceptto": "6490ac87-ac80-41d7-a135-1119b4cd912d",
@@ -281,11 +271,74 @@
     },
     {
         "model": "models.relation",
-        "pk": "d149161a-74b2-4887-a2b5-e10957c970c3",
+        "pk": "579c64f8-cd28-4998-93ee-000ad9ff1905",
         "fields": {
-            "conceptfrom": "abeaef4a-f57c-40d3-bdb1-9d16bf0811b5",
+            "conceptfrom": "7c90899a-dbe9-4574-9175-e69481a80b3c",
+            "conceptto": "89ff530a-f350-44f0-ac88-bdd8904eb57e",
+            "relationtype": "hasTopConcept"
+        }
+    },
+    {
+        "model": "models.relation",
+        "pk": "767a2137-91ce-4cc5-8b61-de98ed126176",
+        "fields": {
+            "conceptfrom": "7c90899a-dbe9-4574-9175-e69481a80b3c",
+            "conceptto": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
+            "relationtype": "member"
+        }
+    },
+    {
+        "model": "models.relation",
+        "pk": "a5a3df7f-83b7-42e2-84b9-35a0143e0325",
+        "fields": {
+            "conceptfrom": "7c90899a-dbe9-4574-9175-e69481a80b3c",
+            "conceptto": "0fc72a30-2ead-4afd-9e7a-a5067d2cc5c8",
+            "relationtype": "hasTopConcept"
+        }
+    },
+    {
+        "model": "models.relation",
+        "pk": "a6caaab1-d52b-43fc-b211-6e05aa465adb",
+        "fields": {
+            "conceptfrom": "7c90899a-dbe9-4574-9175-e69481a80b3c",
             "conceptto": "6490ac87-ac80-41d7-a135-1119b4cd912d",
             "relationtype": "member"
+        }
+    },
+    {
+        "model": "models.relation",
+        "pk": "a9bc9e9c-7423-4b0b-81be-242be3589eaa",
+        "fields": {
+            "conceptfrom": "7c90899a-dbe9-4574-9175-e69481a80b3c",
+            "conceptto": "89ff530a-f350-44f0-ac88-bdd8904eb57e",
+            "relationtype": "member"
+        }
+    },
+    {
+        "model": "models.relation",
+        "pk": "bb0574bd-785d-4e28-b12f-5019d176529a",
+        "fields": {
+            "conceptfrom": "843c76cb-7e2a-47dd-b588-a0d0fcb00de7",
+            "conceptto": "89ff530a-f350-44f0-ac88-bdd8904eb57e",
+            "relationtype": "member"
+        }
+    },
+    {
+        "model": "models.relation",
+        "pk": "c27ac77f-f136-4cd1-8021-b1b9046345a2",
+        "fields": {
+            "conceptfrom": "86399966-b68a-4ac1-8255-d452e0fe1ce8",
+            "conceptto": "7c90899a-dbe9-4574-9175-e69481a80b3c",
+            "relationtype": "member"
+        }
+    },
+    {
+        "model": "models.relation",
+        "pk": "d01b73e6-18ca-4e2b-bf7f-86608f05e036",
+        "fields": {
+            "conceptfrom": "7c90899a-dbe9-4574-9175-e69481a80b3c",
+            "conceptto": "6490ac87-ac80-41d7-a135-1119b4cd912d",
+            "relationtype": "hasTopConcept"
         }
     },
     {

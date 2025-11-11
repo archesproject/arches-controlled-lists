@@ -167,17 +167,15 @@ class RDMToControlledListsETLTests(TestCase):
             stdout=output,
         )
 
-        imported_list = List.objects.get(name="Polyhierarchical Collection Test")
-        imported_items = (
-            imported_list.list_items.all().with_list_item_labels().order_by("sortorder")
+        list1 = List.objects.get(name="Polyhierarchical Collection Test")
+        list1_items = (
+            list1.list_items.all().with_list_item_labels().order_by("sortorder")
         )
-        self.assertEqual(len(imported_items), 3)
+        self.assertEqual(len(list1_items), 3)
 
-        imported_item_values = ListItemValue.objects.filter(
-            list_item__in=imported_items
-        )
+        list1_item_values = ListItemValue.objects.filter(list_item__in=list1_items)
         self.assertQuerySetEqual(
-            imported_item_values.values_list("value", flat=True).order_by("value"),
+            list1_item_values.values_list("value", flat=True).order_by("value"),
             [
                 "French Test Concept 1",
                 "French Test Concept 2",
@@ -194,41 +192,71 @@ class RDMToControlledListsETLTests(TestCase):
         # and Test Concept 1 has no provided sortorder, so will fall back to alpha order
         # after those with a provided sortorder.
         self.assertIn(
-            imported_items[0].list_item_labels[0].value,
+            list1_items[0].list_item_labels[0].value,
             ["Test Concept 3", "French Test Concept 3"],
         )
         self.assertIn(
-            imported_items[1].list_item_labels[0].value,
+            list1_items[1].list_item_labels[0].value,
             ["Test Concept 2", "French Test Concept 2"],
         )
         self.assertIn(
-            imported_items[2].list_item_labels[0].value,
+            list1_items[2].list_item_labels[0].value,
             ["Test Concept 1", "French Test Concept 1"],
         )
 
-        imported_list_2 = List.objects.get(name="Polyhierarchy Collection 2")
-        imported_items_2 = imported_list_2.list_items.all()
-        imported_item_values_2 = ListItemValue.objects.filter(
-            list_item__in=imported_items_2
-        )
+        list2 = List.objects.get(name="Polyhierarchy Collection 2")
+        list2_items = list2.list_items.all()
+        self.assertEqual(len(list2_items), 3)
+        list2_item_values = ListItemValue.objects.filter(list_item__in=list2_items)
 
         # Check that new uuids were generated for polyhierarchical concepts
         self.assertNotEqual(
-            imported_item_values.filter(value="Test Concept 1"),
-            imported_item_values_2.filter(value="Test Concept 1"),
+            list1_item_values.filter(value="Test Concept 1"),
+            list2_item_values.filter(value="Test Concept 1"),
         )
 
         # Check that items with multiple prefLabels in different languages have same listitemid
         self.assertEqual(
-            imported_item_values.get(value="Test Concept 1").list_item_id,
-            imported_item_values.get(value="French Test Concept 1").list_item_id,
+            list1_item_values.get(value="Test Concept 1").list_item_id,
+            list1_item_values.get(value="French Test Concept 1").list_item_id,
         )
 
         # But that items with prefLabels in different languages have different listitemvalue ids
         self.assertNotEqual(
-            imported_item_values.get(value="Test Concept 1").pk,
-            imported_item_values.get(value="French Test Concept 1").pk,
+            list1_item_values.get(value="Test Concept 1").pk,
+            list1_item_values.get(value="French Test Concept 1").pk,
         )
+
+        # Nested Polyhierarchy contains Polyhierarchical Collection Test & Polyhierarchy Collection 2
+        nested_list = List.objects.get(name="Nested Polyhierarchy")
+        nested_list_items = (
+            nested_list.list_items.all().with_list_item_labels().order_by("sortorder")
+        )
+        nested_list_item_values = ListItemValue.objects.filter(
+            list_item__in=nested_list_items
+        )
+        self.assertEqual(len(nested_list_items), 8)
+
+        # Check that two nested collections that became nested list items have
+        # list_item_ids that differ from their list ids (correspond to original conceptids)
+        nested_polyhierarchy_1 = nested_list_item_values.get(
+            value="Polyhierarchical Collection Test"
+        )
+        nested_polyhierarchy_2 = nested_list_item_values.get(
+            value="Polyhierarchy Collection 2"
+        )
+        self.assertNotEqual(nested_polyhierarchy_1.list_item_id, list1.id)
+        self.assertNotEqual(nested_polyhierarchy_2.list_item_id, list2.id)
+
+        # Check that a duplicated concept have the same URIs as their source concept
+        test_concept_1 = ListItemValue.objects.filter(
+            value="Test Concept 1"
+        ).prefetch_related("list_item")
+        for item in test_concept_1:
+            self.assertEqual(
+                item.list_item.uri,
+                "http://www.archesproject.org/89ff530a-f350-44f0-ac88-bdd8904eb57e",
+            )
 
     def test_no_matching_collection_error(self):
         expected_output = "Failed to find the following collections in the database: Collection That Doesn't Exist"

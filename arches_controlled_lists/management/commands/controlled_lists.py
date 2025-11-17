@@ -359,12 +359,14 @@ class Command(BaseCommand):
             port = parsed_url.port
             if port:
                 new_netloc = f"{normalized_target.netloc}:{port}"
+                new_scheme = normalized_target.scheme
             else:
                 new_netloc = normalized_target.netloc
+                new_scheme = normalized_target.scheme
 
             updated_url = urlunparse(
                 (
-                    parsed_url.scheme,
+                    new_scheme,
                     new_netloc,
                     parsed_url.path,
                     parsed_url.params,

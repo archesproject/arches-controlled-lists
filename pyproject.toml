@@ -30,7 +30,7 @@ dependencies = [
     "arches>=8.0.1",
     "arches_component_lab==0.0.1a3",
 ]
-version = "1.0.1"
+version = "1.0.2b"
 
 [project.urls]
 Homepage = "https://archesproject.org/"

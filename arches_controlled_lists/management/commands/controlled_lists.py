@@ -40,6 +40,15 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "-li",
+            "--lists",
+            action="store",
+            dest="lists",
+            default=False,
+            help="A comma separated list of the listids of the resources you would like to change the url base for.  If not provided, all controlled lists will be updated.",
+        )
+
+        parser.add_argument(
             "-co",
             "--collections",
             action="store",
@@ -119,7 +128,13 @@ class Command(BaseCommand):
         elif options["operation"] == "change_url_base":
             if not options["host"] or options["host"] is None:
                 raise CommandError("Please provide a target host")
-            self.bulk_change_url_base(target_hostname=options["host"])
+            if options["lists"]:
+                list_ids = options["lists"].split(",")
+            else:
+                list_ids = []
+            self.bulk_change_url_base(
+                target_hostname=options["host"], list_ids=list_ids
+            )
 
     def migrate_collections_to_controlled_lists(
         self,
@@ -317,11 +332,14 @@ class Command(BaseCommand):
             )
 
     # Replaces the base URL for all list items in all controlled lists
-    def bulk_change_url_base(self, target_hostname: str) -> str:
+    def bulk_change_url_base(self, target_hostname: str, list_ids: list) -> str:
         normalized_url = self._normalize_url(target_hostname)
         try:
             with transaction.atomic():
-                for list_item in ListItem.objects.all():
+                list_item_query = ListItem.objects.all()
+                if list_ids:
+                    list_item_query = list_item_query.filter(list_id__in=list_ids)
+                for list_item in list_item_query.all():
                     new_uri = self._replace_hostname(list_item.uri, normalized_url)
                     list_item.uri = new_uri
                     list_item.save()
@@ -334,14 +352,24 @@ class Command(BaseCommand):
     # Ensure that the URL has a scheme and is properly formatted
     def _normalize_url(self, url, default_scheme="https"):
         if not url.startswith("//") and "://" not in url:
-            url = f"//{url}"
+            url = f"{default_scheme}://{url.lstrip('/')}"
 
-        parts = urlsplit(url, scheme=default_scheme)
+        parts = urlsplit(url)
+
         scheme = parts.scheme or default_scheme
 
-        return urlunsplit(
-            (scheme, parts.netloc, parts.path, parts.query, parts.fragment)
-        )
+        if parts.port is not None:
+            is_http_default = scheme == "http" and parts.port == 80
+            is_https_default = scheme == "https" and parts.port == 443
+
+            if is_http_default or is_https_default:
+                netloc = parts.hostname
+            else:
+                netloc = parts.netloc
+        else:
+            netloc = parts.netloc
+
+        return urlunsplit((scheme, netloc, parts.path, parts.query, parts.fragment))
 
     # Replace the hostname in a given URL with the target hostname
     def _replace_hostname(self, url_string: str, target_hostname: str) -> str:
@@ -356,13 +384,8 @@ class Command(BaseCommand):
                 )
                 return url_string
 
-            port = parsed_url.port
-            if port:
-                new_netloc = f"{normalized_target.netloc}:{port}"
-                new_scheme = normalized_target.scheme
-            else:
-                new_netloc = normalized_target.netloc
-                new_scheme = normalized_target.scheme
+            new_netloc = normalized_target.netloc
+            new_scheme = normalized_target.scheme
 
             updated_url = urlunparse(
                 (

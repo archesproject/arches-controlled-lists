@@ -345,3 +345,108 @@ class MigrateConceptNodesToReferenceDatatypeTests(TestCase):
             stderr=output,
         )
         self.assertEqual(output.getvalue().strip(), expected_output)
+
+
+class ChangeUrlBaseTests(TestCase):
+
+    def setUp(self):
+        self.list = List.objects.create(name="Test List")
+        self.item1 = ListItem.objects.create(
+            list=self.list,
+            uri="http://localhost:8000/plugins/controlled-list-manager/item/item-1",
+            sortorder=0,
+        )
+        self.item2 = ListItem.objects.create(
+            list=self.list,
+            uri="http://localhost:8000/plugins/controlled-list-manager/item/item-2",
+            sortorder=1,
+        )
+        self.item3 = ListItem.objects.create(
+            list=self.list,
+            uri="http://localhost:8080/plugins/controlled-list-manager/item/item-3",
+            sortorder=2,
+        )
+
+    def test_change_url_base_all_lists(self):
+        output = io.StringIO()
+        management.call_command(
+            "controlled_lists",
+            operation="change_url_base",
+            host="https://example.com",
+            stdout=output,
+        )
+
+        self.item1.refresh_from_db()
+        self.item2.refresh_from_db()
+        self.item3.refresh_from_db()
+
+        self.assertEqual(
+            self.item1.uri,
+            "https://example.com/plugins/controlled-list-manager/item/item-1",
+        )
+        self.assertEqual(
+            self.item2.uri,
+            "https://example.com/plugins/controlled-list-manager/item/item-2",
+        )
+        self.assertEqual(
+            self.item3.uri,
+            "https://example.com/plugins/controlled-list-manager/item/item-3",
+        )
+        self.assertIn("Successfully changed URL base.", output.getvalue())
+
+    def test_change_url_base_specific_list(self):
+        second_list = List.objects.create(name="Second List")
+        second_item = ListItem.objects.create(
+            list=second_list,
+            uri="http://localhost:8000/plugins/controlled-list-manager/item/second-item",
+            sortorder=0,
+        )
+
+        output = io.StringIO()
+        management.call_command(
+            "controlled_lists",
+            operation="change_url_base",
+            host="https://production.org:443",
+            lists=str(second_list.id),
+            stdout=output,
+        )
+
+        second_item.refresh_from_db()
+
+        self.assertEqual(
+            self.item1.uri,
+            "http://localhost:8000/plugins/controlled-list-manager/item/item-1",
+        )
+
+        self.assertEqual(
+            second_item.uri,
+            "https://production.org/plugins/controlled-list-manager/item/second-item",
+        )
+
+    def test_change_url_base_preserves_port(self):
+        output = io.StringIO()
+        management.call_command(
+            "controlled_lists",
+            operation="change_url_base",
+            host="https://newdomain.com:8080",
+            stdout=output,
+        )
+
+        self.item3.refresh_from_db()
+        self.assertEqual(
+            self.item3.uri,
+            "https://newdomain.com:8080/plugins/controlled-list-manager/item/item-3",
+        )
+
+    def test_change_url_base_normalizes_url(self):
+        output = io.StringIO()
+        management.call_command(
+            "controlled_lists",
+            operation="change_url_base",
+            host="example.org",
+            stdout=output,
+        )
+
+        self.item1.refresh_from_db()
+        self.assertTrue(self.item1.uri.startswith("https://"))
+        self.assertIn("example.org", self.item1.uri)

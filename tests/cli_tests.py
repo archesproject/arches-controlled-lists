@@ -450,3 +450,15 @@ class ChangeUrlBaseTests(TestCase):
         self.item1.refresh_from_db()
         self.assertTrue(self.item1.uri.startswith("https://"))
         self.assertIn("example.org", self.item1.uri)
+
+        management.call_command(
+            "controlled_lists",
+            operation="change_url_base",
+            host="http://test.org:80",
+            stdout=output,
+        )
+
+        self.item1.refresh_from_db()
+        self.assertTrue(self.item1.uri.startswith("http://"))
+        self.assertIn("test.org", self.item1.uri)
+        self.assertNotIn(":80", self.item1.uri)

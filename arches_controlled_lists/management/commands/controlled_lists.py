@@ -1,5 +1,6 @@
 from urllib.parse import urlparse, urlunparse, urlsplit, urlunsplit
 from django.core.management.base import BaseCommand, CommandError
+from django.core import management
 from django.db import connection, models, transaction
 from django.db.models.expressions import CombinedExpression
 from django.db.models.fields.json import KT
@@ -403,3 +404,36 @@ class Command(BaseCommand):
         except Exception as e:
             print(f"An error occurred while processing the URL: {e}")
             return url_string
+
+
+    def migrate__all_collections(self):
+        collections = (
+            Value.objects.filter(valuetype="prefLabel", concept__nodetype="Collection")
+            .order_by("value")
+            .values_list("value", flat=True)
+        )
+        for collection in collections:
+            management.call_command(
+                "controlled_lists",
+                "-o",
+                "migrate_collections_to_controlled_lists",
+                "-co",
+                collection,
+            )
+
+    def export_all_collections(self):
+        lists = List.objects.all()
+        for list in lists:
+            management.call_command(
+                "packages",
+                "-o",
+                "export_controlled_lists",
+                "-d",
+                "../arches-her/arches_her/pkg/reference_data/controlled_lists",
+                "-f",
+                "skos-rdf",
+                "-cl",
+                list.pk,
+                "-fn",
+                list.name,
+            )

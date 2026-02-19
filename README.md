@@ -23,18 +23,18 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
 
 2. When your project is ready, make the following changes to INSTALLED_APPS:
 - Move *"my_project_name"* to the top
-- Add "arches_controlled_lists" **above** "arches"
-- Add "django.contrib.postgres", "arches_querysets", "arches_component_lab", and "pgtrigger" to the bottom of the tuple along with any other arches applications:
+- Add "arches_controlled_lists", "arches_querysets", and "arches_component_lab" **above** "arches"
+- Add "django.contrib.postgres" and "pgtrigger" to the bottom of the tuple along with any other arches applications:
     ```
     INSTALLED_APPS = (
         "my_project_name"
         ...
         "arches_controlled_lists"
+        "arches_querysets",
+        "arches_component_lab",
         "arches"
         ...
         "django.contrib.postgres",
-        "arches_querysets",
-        "arches_component_lab",
         "pgtrigger",
     )
     ```

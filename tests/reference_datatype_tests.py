@@ -3,6 +3,9 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 from django.test import TestCase
+from rdflib import URIRef
+from rdflib.namespace import RDF, RDFS
+
 from arches.app.datatypes.datatypes import DataTypeFactory
 from arches.app.models.tile import Tile
 from arches.app.models.models import Node, TileModel
@@ -431,3 +434,152 @@ class ReferenceDataTypeTests(TestCase):
         mock_value = {"op": "null", "val": None}
         reference.append_search_filters(mock_value, mock_node, mock_query, Mock())
         mock_query.should.assert_called()
+
+    def test_get_rdf_uri(self):
+        reference = ReferenceDataType()
+        node = ListTests.node_using_list1
+
+        # Returns None for empty/falsy data
+        self.assertIsNone(reference.get_rdf_uri(node, None))
+        self.assertIsNone(reference.get_rdf_uri(node, []))
+
+        data = [
+            {"uri": "https://archesproject.org/0"},
+            {"uri": "https://archesproject.org/1"},
+        ]
+        result = reference.get_rdf_uri(node, data)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0], URIRef("https://archesproject.org/0"))
+        self.assertEqual(result[1], URIRef("https://archesproject.org/1"))
+        self.assertIsInstance(result[0], URIRef)
+
+    def test_to_rdf_empty(self):
+        reference = ReferenceDataType()
+        edge_info = {"range_tile_data": None, "d_uri": URIRef("http://example.com/r1")}
+        edge = Mock()
+        g = reference.to_rdf(edge_info, edge)
+        self.assertEqual(len(g), 0)
+
+    def test_to_rdf(self):
+        reference = ReferenceDataType()
+        domain_uri = URIRef("http://example.com/resource/1")
+        range_class = "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+        property_uri = "http://www.cidoc-crm.org/cidoc-crm/P2_has_type"
+        ref_uri_str = "https://archesproject.org/0"
+
+        edge_info = {
+            "range_tile_data": [
+                {
+                    "uri": ref_uri_str,
+                    "labels": [
+                        {
+                            "value": "Test Label",
+                            "language_id": "en",
+                            "valuetype_id": "prefLabel",
+                        },
+                        {
+                            "value": "Alt Label",
+                            "language_id": "en",
+                            "valuetype_id": "altLabel",
+                        },
+                    ],
+                }
+            ],
+            "d_uri": domain_uri,
+        }
+        edge = SimpleNamespace(
+            rangenode=SimpleNamespace(ontologyclass=range_class),
+            ontologyproperty=property_uri,
+        )
+
+        g = reference.to_rdf(edge_info, edge)
+        ref_uri = URIRef(ref_uri_str)
+
+        # Type triple
+        self.assertIn((ref_uri, RDF.type, URIRef(range_class)), g)
+        # Property triple
+        self.assertIn((domain_uri, URIRef(property_uri), ref_uri), g)
+        # prefLabel triple
+        from rdflib import Literal
+
+        self.assertIn((ref_uri, RDFS.label, Literal("Test Label", lang="en")), g)
+        # altLabel should NOT produce an rdfs:label triple
+        self.assertEqual(len(list(g.triples((ref_uri, RDFS.label, None)))), 1)
+
+    def test_to_rdf_multiple_refs(self):
+        reference = ReferenceDataType()
+        domain_uri = URIRef("http://example.com/resource/1")
+        edge_info = {
+            "range_tile_data": [
+                {"uri": "https://archesproject.org/0", "labels": []},
+                {"uri": "https://archesproject.org/1", "labels": []},
+            ],
+            "d_uri": domain_uri,
+        }
+        edge = SimpleNamespace(
+            rangenode=SimpleNamespace(
+                ontologyclass="http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+            ),
+            ontologyproperty="http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+        )
+
+        g = reference.to_rdf(edge_info, edge)
+        # 2 type triples + 2 property triples = 4
+        self.assertEqual(len(g), 4)
+
+    def test_from_rdf_single_known_uri(self):
+        reference = ReferenceDataType()
+        item = ListItem.objects.get(uri="https://archesproject.org/0")
+        expected = item.build_tile_value()
+
+        result = reference.from_rdf({"@id": "https://archesproject.org/0"})
+        self.assertEqual(result["uri"], expected["uri"])
+        self.assertEqual(result["list_id"], expected["list_id"])
+
+    def test_from_rdf_single_unknown_uri(self):
+        reference = ReferenceDataType()
+        result = reference.from_rdf({"@id": "https://unknown.example.com/999"})
+        self.assertIsNone(result)
+
+    def test_from_rdf_missing_id(self):
+        reference = ReferenceDataType()
+        result = reference.from_rdf({"@type": "some_type"})
+        self.assertIsNone(result)
+
+    def test_from_rdf_list(self):
+        reference = ReferenceDataType()
+        json_ld_nodes = [
+            {"@id": "https://archesproject.org/0"},
+            {"@id": "https://unknown.example.com/999"},
+            {"@id": "https://archesproject.org/1"},
+        ]
+        result = reference.from_rdf(json_ld_nodes)
+        # Unknown URI is filtered out
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["uri"], "https://archesproject.org/0")
+        self.assertEqual(result[1]["uri"], "https://archesproject.org/1")
+
+    def test_from_rdf_empty_list(self):
+        reference = ReferenceDataType()
+        result = reference.from_rdf([])
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 0)
+
+    def test_accepts_rdf_uri(self):
+        reference = ReferenceDataType()
+        self.assertTrue(reference.accepts_rdf_uri("https://archesproject.org/0"))
+        self.assertTrue(
+            reference.accepts_rdf_uri(URIRef("https://archesproject.org/0"))
+        )
+        self.assertFalse(
+            reference.accepts_rdf_uri("https://nonexistent.example.com/999")
+        )
+
+    def test_ignore_keys(self):
+        reference = ReferenceDataType()
+        keys = reference.ignore_keys()
+        self.assertIsInstance(keys, list)
+        self.assertEqual(len(keys), 1)
+        self.assertIn(str(RDFS.label), keys[0])
+        self.assertIn(str(RDFS.Literal), keys[0])

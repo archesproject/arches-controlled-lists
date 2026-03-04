@@ -56,7 +56,7 @@ class Command(BaseCommand):
             dest="collections_to_migrate",
             nargs="*",
             help="One or more collections to migrate to controlled lists. "
-                 "To migrate all collections, provide an empty string ('') as the only argument.",
+            "To migrate all collections, provide an empty string ('') as the only argument.",
         )
 
         parser.add_argument(
@@ -143,8 +143,8 @@ class Command(BaseCommand):
         preferred_sort_language,
     ):
         """
-        Wrapper around __arches_migrate_collections_to_clm Postgres function to migrate 
-        concept collections to controlled lists for use in the controlled list manager plugin. 
+        Wrapper around __arches_migrate_collections_to_clm Postgres function to migrate
+        concept collections to controlled lists for use in the controlled list manager plugin.
         Takes in a list of collection names to migrate, a host URL for URI generation,
         a language code to use for develop sort order of list items based on prefLabel in that language,
         and an overwrite boolean to determine whether to overwrite existing controlled lists or not.
@@ -416,4 +416,3 @@ class Command(BaseCommand):
         except Exception as e:
             print(f"An error occurred while processing the URL: {e}")
             return url_string
-

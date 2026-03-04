@@ -91,37 +91,36 @@ class Command(PackagesCommand):
 
     def load_concepts(self, package_dir, overwrite, stage, defer_indexing):
         super().load_concepts(package_dir, overwrite, stage, defer_indexing)
+        print("Importing controlled lists...")
+        self.load_controlled_lists(package_dir, overwrite or "overwrite")
 
-        def load_controlled_lists(package_dir, overwrite_options):
-            file_types = ["*.xml", "*.xlsx"]
-            controlled_list_files = []
-            for file_type in file_types:
-                controlled_list_files.extend(
-                    glob.glob(
-                        os.path.join(
-                            package_dir, "reference_data", "controlled_lists", file_type
-                        )
+    def load_controlled_lists(self, package_dir, overwrite_options):
+        file_types = ["*.xml", "*.xlsx"]
+        controlled_list_files = []
+        for file_type in file_types:
+            controlled_list_files.extend(
+                glob.glob(
+                    os.path.join(
+                        package_dir, "reference_data", "controlled_lists", file_type
                     )
                 )
-
-            bar = (
-                pyprind.ProgBar(
-                    len(controlled_list_files), bar_char="█", stream=self.stdout
-                )
-                if len(controlled_list_files) > 1
-                else None
             )
 
-            for path in controlled_list_files:
-                if bar is None:
-                    print(path)
-                self.import_controlled_lists(path, overwrite_options)
-                if bar is not None:
-                    head, tail = os.path.split(path)
-                    bar.update(item_id=tail + (" " * 10))
+        bar = (
+            pyprind.ProgBar(
+                len(controlled_list_files), bar_char="█", stream=self.stdout
+            )
+            if len(controlled_list_files) > 1
+            else None
+        )
 
-        print("Importing controlled lists...")
-        load_controlled_lists(package_dir, overwrite or "overwrite")
+        for path in controlled_list_files:
+            if bar is None:
+                self.stdout.write(path)
+            self.import_controlled_lists(path, overwrite_options)
+            if bar is not None:
+                head, tail = os.path.split(path)
+                bar.update(item_id=tail + (" " * 10))
 
     def import_controlled_lists(self, source, overwrite_options):
 

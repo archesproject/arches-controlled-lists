@@ -37,8 +37,8 @@ class Command(PackagesCommand):
             type=str,
             dest="controlled_lists",
             help="A comma-separated list of controlled list names to export. "
-                 "If not provided, all controlled lists will be exported. "
-                 "For SKOS/RDF-XML, use the -single_file flag to export all controlled lists to a single file.",
+            "If not provided, all controlled lists will be exported. "
+            "For SKOS/RDF-XML, use the -single_file flag to export all controlled lists to a single file.",
         )
 
     def handle(self, *args, **options):
@@ -51,8 +51,10 @@ class Command(PackagesCommand):
             file_name = options.get("file_name", None)
             single_file = options.get("single_file", True)
             if options["file_name"] and not options["single_file"]:
-                raise CommandError("The file_name argument cannot be used when the single_file flag is set to false. \
-                    Please provide a file_name only when batch exporting controlled lists or a single list.")
+                raise CommandError(
+                    "The file_name argument cannot be used when the single_file flag is set to false. \
+                    Please provide a file_name only when batch exporting controlled lists or a single list."
+                )
 
             self.export_controlled_lists(
                 options["dest_dir"],
@@ -238,7 +240,9 @@ class Command(PackagesCommand):
 
         return instance_pks
 
-    def export_controlled_lists(self, data_dest, file_name, controlled_lists, format, single_file=False):
+    def export_controlled_lists(
+        self, data_dest, file_name, controlled_lists, format, single_file=False
+    ):
 
         if format == "xlsx":
             wb = openpyxl.Workbook()
@@ -260,7 +264,6 @@ class Command(PackagesCommand):
             hierarchies_for_export = []
             parsed_lists = [lst.strip() for lst in controlled_lists.split(",")]
 
-
             if single_file:
                 if parsed_lists != [""]:
                     export_lists = List.objects.filter(
@@ -279,15 +282,13 @@ class Command(PackagesCommand):
                     export_lists,
                     export_list_items,
                     data_dest,
-                    file_name or export_lists.first().name
+                    file_name or self._slugify(export_lists.first().name),
                 )
 
             elif not single_file:
                 if parsed_lists != [""]:
                     for lst in parsed_lists:
-                        export_lists = List.objects.filter(
-                            Q(name=lst) | Q(id=lst)
-                        )
+                        export_lists = List.objects.filter(Q(name=lst) | Q(id=lst))
                         export_list_items = ListItem.objects.filter(
                             list__in=export_lists
                         ).prefetch_related("list_item_values", "parent", "children")
@@ -296,7 +297,7 @@ class Command(PackagesCommand):
                             export_lists,
                             export_list_items,
                             data_dest,
-                            export_lists.first().name
+                            self._slugify(export_lists.first().name),
                         )
                 else:
                     export_lists = List.objects.all()
@@ -306,18 +307,17 @@ class Command(PackagesCommand):
                         ).prefetch_related("list_item_values", "parent", "children")
 
                         self._write_to_skos_file(
-                            [lst],
-                            export_list_items,
-                            data_dest,
-                            lst.name
+                            [lst], export_list_items, data_dest, self._slugify(lst.name)
                         )
 
         else:
             self.stdout.write(
                 f"The specified format {format} is not supported. Please rerun this command with a supported format."
             )
-    
-    def _write_to_skos_file(self, export_lists, export_list_items, data_dest, file_name):
+
+    def _write_to_skos_file(
+        self, export_lists, export_list_items, data_dest, file_name
+    ):
         skos = SKOSWriter()
         skos_file = skos.write_controlled_lists(
             export_lists, export_list_items, format="pretty-xml"
@@ -327,6 +327,9 @@ class Command(PackagesCommand):
             with open(os.path.join(data_dest, f"{file_name}.xml"), "wb") as file:
                 file.write(skos_file)
             self.stdout.write(f"Data exported successfully to {file_name}.xml")
+
+    def _slugify(self, value):
+        return value.lower().replace(" ", "_").replace("/", "_")
 
     def export_model_to_sheet(self, wb, model):
         # For the first sheet (List), use blank sheet that is initiallized with workbook

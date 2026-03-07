@@ -4,6 +4,7 @@ from unittest.mock import Mock
 
 from django.test import TestCase
 from arches.app.datatypes.datatypes import DataTypeFactory
+from arches.app.models.graph import GraphValidationError
 from arches.app.models.tile import Tile
 from arches.app.models.models import Node, TileModel
 from arches.app.search.elasticsearch_dsl_builder import Bool
@@ -431,3 +432,358 @@ class ReferenceDataTypeTests(TestCase):
         mock_value = {"op": "null", "val": None}
         reference.append_search_filters(mock_value, mock_node, mock_query, Mock())
         mock_query.should.assert_called()
+
+    def test_to_python_directly(self):
+        reference = ReferenceDataType()
+
+        # Falsy inputs → None
+        self.assertIsNone(reference.to_python(None))
+        self.assertIsNone(reference.to_python([]))
+
+        # Valid reference
+        list_item_id = uuid.uuid4()
+        result = reference.to_python(
+            [
+                {
+                    "uri": "https://example.com/1",
+                    "labels": [
+                        {
+                            "id": str(uuid.uuid4()),
+                            "value": "Test",
+                            "language_id": "en",
+                            "valuetype_id": "prefLabel",
+                            "list_item_id": str(list_item_id),
+                        }
+                    ],
+                    "list_id": str(uuid.uuid4()),
+                }
+            ]
+        )
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 1)
+        self.assertIsInstance(result[0], Reference)
+        self.assertIsInstance(result[0].labels[0], ReferenceLabel)
+        # list_item_id is stored as the raw string value passed in
+        self.assertEqual(result[0].labels[0].list_item_id, str(list_item_id))
+
+    def test_serialize(self):
+        reference = ReferenceDataType()
+
+        # None → None
+        self.assertIsNone(reference.serialize(None))
+
+        # Reference dataclass → asdict
+        ref = Reference(
+            uri="https://example.com/ref",
+            labels=[
+                ReferenceLabel(
+                    id=uuid.uuid4(),
+                    value="Test",
+                    language_id="en",
+                    valuetype_id="prefLabel",
+                    list_item_id=uuid.uuid4(),
+                )
+            ],
+            list_id=uuid.uuid4(),
+        )
+        result = reference.serialize([ref])
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["uri"], ref.uri)
+        self.assertEqual(len(result[0]["labels"]), 1)
+
+        # Plain dict → spread passthrough
+        raw = {"uri": "https://example.com/dict", "labels": [], "list_id": "abc"}
+        result2 = reference.serialize([raw])
+        self.assertEqual(result2[0]["uri"], raw["uri"])
+
+    def test_validate_node(self):
+        reference = ReferenceDataType()
+        node = Mock()
+
+        # Valid UUID → no exception
+        node.config = {"controlledList": str(uuid.uuid4())}
+        reference.validate_node(node)
+
+        # Missing key → raises
+        node.config = {}
+        with self.assertRaises(GraphValidationError):
+            reference.validate_node(node)
+
+        # None value → raises
+        node.config = {"controlledList": None}
+        with self.assertRaises(GraphValidationError):
+            reference.validate_node(node)
+
+        # Invalid UUID string → ValueError propagates (only TypeError/KeyError are caught)
+        node.config = {"controlledList": "not-a-uuid"}
+        with self.assertRaises(ValueError):
+            reference.validate_node(node)
+
+    def test_transform_exception(self):
+        # TypeError: missing required args
+        e = TypeError("__init__() missing 1 required positional argument: 'uri'")
+        result = ReferenceDataType.transform_exception(e)
+        self.assertEqual(result["type"], "ERROR")
+        self.assertIn("Missing required value(s):", result["message"])
+        self.assertIn("Invalid Reference Datatype Value", result["title"])
+
+        # TypeError: unexpected keyword argument
+        e = TypeError("__init__() got an unexpected keyword argument 'garbage'")
+        result = ReferenceDataType.transform_exception(e)
+        self.assertIn("Unexpected value:", result["message"])
+
+        # TypeError: no args → falls through to "Unknown error"
+        e = TypeError()
+        result = ReferenceDataType.transform_exception(e)
+        self.assertIn("Unknown error", result["message"])
+
+        # ValueError with message
+        e = ValueError("Custom error message")
+        result = ReferenceDataType.transform_exception(e)
+        self.assertEqual(result["message"], "Custom error message")
+
+        # ValueError: no args → "Unknown error"
+        e = ValueError()
+        result = ReferenceDataType.transform_exception(e)
+        self.assertIn("Unknown error", result["message"])
+
+        # Other exception type → "Unknown error"
+        e = RuntimeError("something unexpected")
+        result = ReferenceDataType.transform_exception(e)
+        self.assertIn("Unknown error", result["message"])
+
+    def test_validate_multivalue_nodeid_lookup(self):
+        reference = ReferenceDataType()
+        node = ListTests.node_using_list1
+
+        parsed = reference.to_python(
+            [
+                {
+                    "uri": "https://example.com",
+                    "labels": [
+                        {
+                            "id": str(uuid.uuid4()),
+                            "value": "Test",
+                            "language_id": "en",
+                            "valuetype_id": "prefLabel",
+                            "list_item_id": str(uuid.uuid4()),
+                        }
+                    ],
+                    "list_id": str(uuid.uuid4()),
+                }
+            ]
+        )
+
+        # Valid nodeid → fetches node, single value is allowed on non-multiValue node
+        reference.validate_multivalue(parsed, None, str(node.pk))
+
+        # Nonexistent nodeid → Node.DoesNotExist caught, returns without raising
+        reference.validate_multivalue(parsed, None, str(uuid.uuid4()))
+
+        # Neither node nor nodeid → raises ValueError
+        with self.assertRaises(ValueError):
+            reference.validate_multivalue(parsed, None, None)
+
+        # Two references on a non-multiValue node → raises ValueError
+        two_refs = parsed + parsed
+        with self.assertRaises(ValueError):
+            reference.validate_multivalue(two_refs, node, None)
+
+    def test_lookup_listitem_from_label(self):
+        reference = ReferenceDataType()
+        list1_pk = str(ListTests.list1.pk)
+
+        # Valid lookup returns the expected item
+        result = reference.lookup_listitem_from_label("label1-pref", list1_pk)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, ListItem)
+
+        # Empty value → None
+        self.assertIsNone(reference.lookup_listitem_from_label("", list1_pk))
+
+        # None list_id → None
+        self.assertIsNone(reference.lookup_listitem_from_label("label1-pref", None))
+
+        # Nonexistent label → None
+        self.assertIsNone(
+            reference.lookup_listitem_from_label("xyz_no_such_label", list1_pk)
+        )
+
+    def test_transform_value_for_tile_uuid_string(self):
+        reference = DataTypeFactory().get_instance("reference")
+        config = {"controlledList": str(ListTests.list1.pk)}
+
+        # UUID string for a known item → resolved to tile value
+        item = ListTests.list1.list_items.get(sortorder=0)
+        result = reference.transform_value_for_tile([str(item.pk)], **config)
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 1)
+        self.assertIn("uri", result[0])
+        self.assertIn("labels", result[0])
+
+        # UUID string for unknown item → not found → empty list
+        result_not_found = reference.transform_value_for_tile(
+            [str(uuid.uuid4())], **config
+        )
+        self.assertEqual(result_not_found, [])
+
+        # Reference object → passes through as asdict
+        ref = Reference(
+            uri="https://example.com/passthrough",
+            labels=[
+                ReferenceLabel(
+                    id=uuid.uuid4(),
+                    value="Passthrough",
+                    language_id="en",
+                    valuetype_id="prefLabel",
+                    list_item_id=uuid.uuid4(),
+                )
+            ],
+            list_id=uuid.uuid4(),
+        )
+        result_ref = reference.transform_value_for_tile([ref], **config)
+        self.assertEqual(len(result_ref), 1)
+        self.assertEqual(result_ref[0]["uri"], ref.uri)
+
+    def test_transform_export_values_extended(self):
+        reference = DataTypeFactory().get_instance("reference")
+        node = ListTests.node_using_list1
+        mock_tile = self.get_mock_tile()
+        node_value = mock_tile.data[str(node.pk)]
+
+        # None value → implicit None return
+        self.assertIsNone(reference.transform_export_values(None))
+
+        # concept_export_value_type="" → treated as "label"
+        self.assertEqual(
+            reference.transform_export_values(node_value, concept_export_value_type=""),
+            "label0-pref",
+        )
+
+        # concept_export_value_type=None → treated as "label"
+        self.assertEqual(
+            reference.transform_export_values(
+                node_value, concept_export_value_type=None
+            ),
+            "label0-pref",
+        )
+
+    def test_get_details_none(self):
+        reference = DataTypeFactory().get_instance("reference")
+
+        # None → None
+        self.assertIsNone(reference.get_details(None))
+
+        # Empty list → None (hits `else: return None` branch)
+        self.assertIsNone(reference.get_details([]))
+
+    def test_get_details_with_datatype_context(self):
+        reference = DataTypeFactory().get_instance("reference")
+        node = ListTests.node_using_list1
+        mock_tile = self.get_mock_tile()
+        value = mock_tile.data[str(node.pk)]
+
+        list_item_id = uuid.UUID(value[0]["labels"][0]["list_item_id"])
+        item = (
+            ListItem.objects.filter(pk=list_item_id)
+            .with_list_item_labels()
+            .prefetch_related("children")
+            .first()
+        )
+
+        # Item provided in context → taken from context rather than fetched separately
+        details = reference.get_details(value, datatype_context=[item])
+        self.assertEqual(len(details), 1)
+        self.assertIn("list_item_id", details[0])
+
+    def test_default_es_mapping(self):
+        reference = ReferenceDataType()
+        mapping = reference.default_es_mapping()
+        self.assertIn("properties", mapping)
+        self.assertEqual(mapping["properties"]["uri"]["type"], "keyword")
+        self.assertEqual(mapping["properties"]["id"]["type"], "keyword")
+        self.assertIn("labels", mapping["properties"])
+
+    def test_append_search_filters_text_ops(self):
+        reference = ReferenceDataType()
+        mock_node = Mock(Node)
+        mock_node.config = {"controlledList": str(ListTests.list1.pk)}
+        mock_query = Mock()
+
+        # Ops that search by label value or URI and find matches
+        for op, term in [
+            ("like", "label1"),
+            ("startswith", "label1"),
+            ("like_uri", "archesproject"),
+            ("startswith_uri", "https://archesproject"),
+        ]:
+            with self.subTest(op=op):
+                mock_query.reset_mock()
+                mock_query.must = Mock()
+                reference.append_search_filters(
+                    {"op": op, "val": term}, mock_node, mock_query, Mock()
+                )
+                mock_query.must.assert_called()
+
+        # No matching items → must called with _no_match_ sentinel
+        mock_query.reset_mock()
+        mock_query.must = Mock()
+        reference.append_search_filters(
+            {"op": "like", "val": "xyz_absolutely_no_match_xyz"},
+            mock_node,
+            mock_query,
+            Mock(),
+        )
+        mock_query.must.assert_called()
+
+    def test_append_search_filters_not_null(self):
+        reference = ReferenceDataType()
+        mock_node = Mock(Node)
+        mock_query = Mock()
+        # Should delegate to append_null_search_filters without raising
+        reference.append_search_filters(
+            {"op": "not_null", "val": None}, mock_node, mock_query, Mock()
+        )
+
+    def test_append_search_filters_empty_val(self):
+        reference = ReferenceDataType()
+        mock_node = Mock(Node)
+        mock_query = Mock()
+        # Empty val list → falls through without calling should/must
+        reference.append_search_filters(
+            {"op": "eq", "val": []}, mock_node, mock_query, Mock()
+        )
+        mock_query.should.assert_not_called()
+        mock_query.must.assert_not_called()
+
+    def test_append_search_filters_missing_op(self):
+        reference = ReferenceDataType()
+        mock_node = Mock(Node)
+        mock_query = Mock()
+        # KeyError on missing "op" is caught silently
+        reference.append_search_filters({"val": []}, mock_node, mock_query, Mock())
+
+    def test_append_to_document_provisional(self):
+        datatype = DataTypeFactory().get_instance("reference")
+        tile = TileModel(nodegroup_id=uuid.uuid4())
+        document = {"references": [], "strings": []}
+        ref = Reference(
+            uri="http://example.com/provisional",
+            labels=[
+                ReferenceLabel(
+                    id=uuid.uuid4(),
+                    value="Provisional Label",
+                    language_id="en",
+                    valuetype_id="prefLabel",
+                    list_item_id=uuid.uuid4(),
+                )
+            ],
+            list_id=uuid.uuid4(),
+        )
+        nodevalue = datatype.serialize([ref])
+        datatype.append_to_document(
+            document, nodevalue, uuid.uuid4(), tile, provisional=True
+        )
+        self.assertTrue(document["references"][0]["provisional"])
+        self.assertTrue(document["strings"][0]["provisional"])

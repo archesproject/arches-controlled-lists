@@ -92,9 +92,21 @@ class Command(PackagesCommand):
     def load_concepts(self, package_dir, overwrite, stage, defer_indexing):
         super().load_concepts(package_dir, overwrite, stage, defer_indexing)
         print("Importing controlled lists...")
-        self.load_controlled_lists(package_dir, overwrite or "overwrite")
+        self._import_controlled_lists_from_dir(package_dir, overwrite or "overwrite")
 
-    def load_controlled_lists(self, package_dir, overwrite_options):
+    def import_controlled_lists(self, source, overwrite_options):
+        if os.path.isdir(source):
+            self._import_controlled_lists_from_dir(source, overwrite_options)
+        elif os.path.isfile(source):
+            self._import_controlled_list_from_file(source, overwrite_options)
+            print('Successfully imported "{0}"'.format(source))
+        else:
+            self.stdout.write(
+                "The source file or directory does not exist. Please rerun this command with a valid source file or directory."
+            )
+            sys.exit()
+
+    def _import_controlled_lists_from_dir(self, package_dir, overwrite_options):
         file_types = ["*.xml", "*.xlsx"]
         controlled_list_files = []
         for file_type in file_types:
@@ -117,13 +129,12 @@ class Command(PackagesCommand):
         for path in controlled_list_files:
             if bar is None:
                 self.stdout.write(path)
-            self.import_controlled_lists(path, overwrite_options)
+            self._import_controlled_list_from_file(path, overwrite_options)
             if bar is not None:
                 head, tail = os.path.split(path)
                 bar.update(item_id=tail + (" " * 10))
 
-    def import_controlled_lists(self, source, overwrite_options):
-
+    def _import_controlled_list_from_file(self, source, overwrite_options):
         if source.lower().endswith(".xml"):
             skos = SKOSReader()
             rdf = skos.read_file(source)

@@ -6,6 +6,7 @@ import pyprind
 import openpyxl
 from django.db import transaction
 from django.db.models import Q
+from django.core.management.base import CommandError
 
 from arches.management.commands.packages import Command as PackagesCommand
 from arches.app.models import models

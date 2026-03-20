@@ -621,3 +621,322 @@ class ListTests(TestCase):
         self.assertNotEqual(str(item_to_copy.pk), str(copied_item["id"]))
         self.assertEqual(copied_item["list_id"], str(self.list1.pk))
         self.assertEqual(len(copied_item.get("children", [])), 0)
+
+    # ListView error cases
+
+    def test_get_list_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse("controlled_list", kwargs={"list_id": str(uuid.uuid4())}),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    def test_patch_list_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.patch(
+            reverse("controlled_list", kwargs={"list_id": str(uuid.uuid4())}),
+            {"name": "New Name"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    def test_patch_list_no_update_fields(self):
+        self.client.force_login(self.admin)
+        response = self.client.patch(
+            reverse("controlled_list", kwargs={"list_id": str(self.list1.pk)}),
+            {},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST, response.content)
+
+    def test_patch_list_name(self):
+        self.client.force_login(self.admin)
+        response = self.client.patch(
+            reverse("controlled_list", kwargs={"list_id": str(self.list2.pk)}),
+            {"name": "Renamed List"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NO_CONTENT, response.content)
+        self.list2.refresh_from_db()
+        self.assertEqual(self.list2.name, "Renamed List")
+
+    def test_delete_list_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.delete(
+            reverse("controlled_list", kwargs={"list_id": str(uuid.uuid4())}),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    # FilteredListView tests
+
+    def test_filtered_list_view_basic(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse("filtered_controlled_list", kwargs={"list_id": str(self.list2.pk)}),
+            QUERY_STRING="flat=true",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
+        result = response.json()
+        self.assertIn("items", result)
+        items = result["items"]
+        # All 5 items returned in hierarchical order with depth/parent_path
+        self.assertEqual(len(items), 5)
+        for item in items:
+            self.assertIn("depth", item)
+            self.assertIn("parent_path", item)
+        # Root item is first, has depth=0 and empty parent_path
+        self.assertEqual(items[0]["depth"], 0)
+        self.assertEqual(items[0]["parent_path"], "")
+        # Children follow the root and have depth=1
+        children = [i for i in items if i["depth"] == 1]
+        self.assertEqual(len(children), 4)
+
+    def test_filtered_list_view_with_term(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse("filtered_controlled_list", kwargs={"list_id": str(self.list1.pk)}),
+            QUERY_STRING="flat=true&term=label0",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
+        result = response.json()
+        items = result["items"]
+        self.assertEqual(len(items), 1)
+        self.assertTrue(
+            any(
+                v.get("valuetype_id") == "prefLabel" and "label0" in v.get("value", "")
+                for v in items[0]["values"]
+            )
+        )
+
+    def test_filtered_list_view_no_match(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse("filtered_controlled_list", kwargs={"list_id": str(self.list1.pk)}),
+            QUERY_STRING="flat=true&term=doesnotexist",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
+        self.assertEqual(response.json()["items"], [])
+
+    def test_filtered_list_view_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse("filtered_controlled_list", kwargs={"list_id": str(uuid.uuid4())}),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    # ListItemView additional error cases
+
+    def test_create_list_item_anonymous(self):
+        self.client.force_login(self.anonymous)
+        with self.assertLogs("django.request", level="WARNING"):
+            response = self.client.post(
+                reverse("controlled_list_item_add"),
+                {"list_id": str(self.list1.pk), "parent_id": None},
+                content_type="application/json",
+            )
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN, response.content)
+
+    def test_create_list_item_missing_keys(self):
+        self.client.force_login(self.admin)
+        # Omit parent_id to trigger KeyError in the view
+        response = self.client.post(
+            reverse("controlled_list_item_add"),
+            {"list_id": str(self.list1.pk)},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST, response.content)
+
+    def test_create_list_item_invalid_list(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(
+            reverse("controlled_list_item_add"),
+            {"list_id": str(uuid.uuid4()), "parent_id": None},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST, response.content)
+
+    def test_patch_list_item_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.patch(
+            reverse("controlled_list_item", kwargs={"item_id": str(uuid.uuid4())}),
+            {"uri": "https://example.com/new"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    def test_patch_list_item_no_fields(self):
+        self.client.force_login(self.admin)
+        item = self.list1.list_items.first()
+        response = self.client.patch(
+            reverse("controlled_list_item", kwargs={"item_id": str(item.pk)}),
+            {},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST, response.content)
+
+    def test_delete_list_item_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.delete(
+            reverse("controlled_list_item", kwargs={"item_id": str(uuid.uuid4())}),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    # ListItemValueView additional tests
+
+    def test_create_label(self):
+        self.client.force_login(self.admin)
+        item = self.list1.list_items.first()
+        data = {
+            "value": "new-label",
+            "language_id": self.first_language.code,
+            "valuetype_id": "altLabel",
+            "list_item_id": str(item.pk),
+        }
+        response = self.client.post(
+            reverse("controlled_list_item_value_add"),
+            data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.CREATED, response.content)
+        result = response.json()
+        self.assertEqual(result["value"], "new-label")
+        self.assertEqual(result["valuetype_id"], "altLabel")
+
+    def test_update_label_not_found(self):
+        self.client.force_login(self.admin)
+        data = {
+            "value": "updated",
+            "valuetype_id": "altLabel",
+            "language_id": self.first_language.code,
+        }
+        response = self.client.put(
+            reverse(
+                "controlled_list_item_value",
+                kwargs={"value_id": str(uuid.uuid4())},
+            ),
+            data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    def test_update_label_missing_keys(self):
+        self.client.force_login(self.admin)
+        alt_label = ListItemValue.objects.filter(valuetype_id="altLabel").first()
+        response = self.client.put(
+            reverse(
+                "controlled_list_item_value",
+                kwargs={"value_id": str(alt_label.pk)},
+            ),
+            {"value": "updated"},  # missing valuetype_id and language_id
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST, response.content)
+
+    def test_delete_label_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.delete(
+            reverse(
+                "controlled_list_item_value",
+                kwargs={"value_id": str(uuid.uuid4())},
+            ),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    # ListItemImageView additional tests
+
+    def test_delete_image_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.delete(
+            reverse(
+                "controlled_list_item_image",
+                kwargs={"image_id": str(uuid.uuid4())},
+            ),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    # ListItemImageMetadataView additional tests
+
+    def test_create_metadata(self):
+        self.client.force_login(self.admin)
+        item = self.list1.list_items.first()
+        temp_image = ListItemImage.objects.create(
+            list_item=item,
+            value="path/to/temp_image.png",
+            valuetype_id="image",
+        )
+        first_metadata_type = ListItemImageMetadata.MetadataChoices.choices[0][0]
+        data = {
+            "list_item_image_id": str(temp_image.pk),
+            "metadata_type": first_metadata_type,
+            "value": "Test metadata value",
+            "language_id": self.first_language.code,
+        }
+        response = self.client.post(
+            reverse("controlled_list_item_image_metadata_add"),
+            data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.CREATED, response.content)
+
+    def test_update_metadata_not_found(self):
+        self.client.force_login(self.admin)
+        first_metadata_type = ListItemImageMetadata.MetadataChoices.choices[0][0]
+        data = {
+            "value": "Updated",
+            "language_id": self.first_language.code,
+            "metadata_type": first_metadata_type,
+        }
+        response = self.client.put(
+            reverse(
+                "controlled_list_item_image_metadata",
+                kwargs={"metadata_id": str(uuid.uuid4())},
+            ),
+            data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    def test_update_metadata_missing_keys(self):
+        self.client.force_login(self.admin)
+        metadata = self.image.list_item_image_metadata.first()
+        response = self.client.put(
+            reverse(
+                "controlled_list_item_image_metadata",
+                kwargs={"metadata_id": str(metadata.pk)},
+            ),
+            {"value": "Updated"},  # missing language_id and metadata_type
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST, response.content)
+
+    def test_delete_metadata_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.delete(
+            reverse(
+                "controlled_list_item_image_metadata",
+                kwargs={"metadata_id": str(uuid.uuid4())},
+            ),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    # ListExportView additional tests
+
+    def test_export_skos_empty_list_ids(self):
+        self.client.force_login(self.admin)
+        with self.assertLogs("django.request", level="WARNING"):
+            response = self.client.post(
+                reverse("controlled_list_export"),
+                {"list_ids": []},
+                content_type="application/json",
+            )
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST, response.content)
+
+    def test_export_skos_anonymous(self):
+        self.client.force_login(self.anonymous)
+        with self.assertLogs("django.request", level="WARNING"):
+            response = self.client.post(
+                reverse("controlled_list_export"),
+                {"list_ids": [str(self.list1.pk)]},
+                content_type="application/json",
+            )
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN, response.content)

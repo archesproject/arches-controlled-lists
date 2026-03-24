@@ -2,6 +2,7 @@ import os
 import sys
 import glob
 import pyprind
+import uuid
 
 import openpyxl
 from django.db import transaction
@@ -50,8 +51,18 @@ class Command(PackagesCommand):
 
         if options["operation"] == "export_controlled_lists":
             file_name = options.get("file_name", None)
-            single_file = options.get("single_file", True)
-            if options["file_name"] and not options["single_file"]:
+            single_file = options.get("single_file", False)
+            parsed_lists = (
+                [lst.strip() for lst in options["controlled_lists"].split(",")]
+                if options["controlled_lists"]
+                else []
+            )
+
+            if (
+                options["file_name"]
+                and not options["single_file"]
+                and len(parsed_lists) > 1
+            ):
                 raise CommandError(
                     "The file_name argument cannot be used when the single_file flag is set to false. \
                     Please provide a file_name only when batch exporting controlled lists or a single list."
@@ -60,7 +71,7 @@ class Command(PackagesCommand):
             self.export_controlled_lists(
                 options["dest_dir"],
                 file_name,
-                options["controlled_lists"],
+                parsed_lists,
                 options["format"],
                 single_file,
             )
@@ -252,7 +263,7 @@ class Command(PackagesCommand):
         return instance_pks
 
     def export_controlled_lists(
-        self, data_dest, file_name, controlled_lists, format, single_file=False
+        self, data_dest, file_name, controlled_lists, format, single_file
     ):
 
         if format == "xlsx":
@@ -272,17 +283,23 @@ class Command(PackagesCommand):
                 )
 
         elif format == "skos-rdf":
-            hierarchies_for_export = []
-            parsed_lists = [lst.strip() for lst in controlled_lists.split(",")]
-
             if single_file:
-                if parsed_lists != [""]:
-                    export_lists = List.objects.filter(
-                        Q(name__in=parsed_lists) | Q(id__in=parsed_lists)
-                    )
-                    export_list_items = ListItem.objects.filter(
-                        list__in=export_lists
-                    ).prefetch_related("list_item_values", "parent", "children")
+                if controlled_lists != [""]:
+                    export_lists = []
+                    export_list_items = []
+                    for lst in controlled_lists:
+                        try:
+                            uuid_lst = uuid.UUID(lst)
+                            export_lists.append(
+                                List.objects.filter(id=uuid_lst).first()
+                            )
+                        except ValueError:
+                            export_lists.append(List.objects.filter(name=lst).first())
+                        export_list_items.append(
+                            ListItem.objects.filter(
+                                list__in=export_lists
+                            ).prefetch_related("list_item_values", "parent", "children")
+                        )
                 else:
                     export_lists = List.objects.all()
                     export_list_items = ListItem.objects.all().prefetch_related(
@@ -297,9 +314,13 @@ class Command(PackagesCommand):
                 )
 
             elif not single_file:
-                if parsed_lists != [""]:
-                    for lst in parsed_lists:
-                        export_lists = List.objects.filter(Q(name=lst) | Q(id=lst))
+                if controlled_lists != [""]:
+                    for lst in controlled_lists:
+                        try:
+                            uuid_lst = uuid.UUID(lst)
+                            export_lists = List.objects.filter(id=uuid_lst)
+                        except ValueError:
+                            export_lists = List.objects.filter(name=lst)
                         export_list_items = ListItem.objects.filter(
                             list__in=export_lists
                         ).prefetch_related("list_item_values", "parent", "children")

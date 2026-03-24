@@ -69,7 +69,7 @@ class ListExportPackageTests(TestCase):
             )
         self.assertTrue(os.path.exists(file_path))
 
-    def test_export_controlled_list_skos(self):
+    def test_export_controlled_single_list_skos(self):
         export_file_name = "lists_skos_export"
         file_path = os.path.join(PROJECT_TEST_ROOT, f"{export_file_name}.xml")
         self.addCleanup(os.remove, file_path)
@@ -81,7 +81,45 @@ class ListExportPackageTests(TestCase):
                 operation="export_controlled_lists",
                 dest_dir=PROJECT_TEST_ROOT,
                 file_name=export_file_name,
+                controlled_lists="list1",
+                single_file=True,
+                format="skos-rdf",
+                stdout=output,
+            )
+        self.assertTrue(os.path.exists(file_path))
+
+    def test_export_controlled_all_lists_skos(self):
+        export_file_name = "all_lists_skos_export"
+        file_path = os.path.join(PROJECT_TEST_ROOT, f"{export_file_name}.xml")
+        self.addCleanup(os.remove, file_path)
+        output = io.StringIO()
+        # packages command does not yet fully avoid print()
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="export_controlled_lists",
+                dest_dir=PROJECT_TEST_ROOT,
+                file_name=export_file_name,
                 controlled_lists="",
+                single_file=True,
+                format="skos-rdf",
+                stdout=output,
+            )
+        self.assertTrue(os.path.exists(file_path))
+
+    def test_export_controlled_file_name_default_skos(self):
+        file_path = os.path.join(PROJECT_TEST_ROOT, f"{'list1'}.xml")
+        self.addCleanup(os.remove, file_path)
+        output = io.StringIO()
+        # packages command does not yet fully avoid print()
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="export_controlled_lists",
+                dest_dir=PROJECT_TEST_ROOT,
+                file_name="list1",
+                controlled_lists="",
+                single_file=True,
                 format="skos-rdf",
                 stdout=output,
             )

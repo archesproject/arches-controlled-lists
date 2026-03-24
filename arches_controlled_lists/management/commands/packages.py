@@ -262,10 +262,30 @@ class Command(PackagesCommand):
 
         return instance_pks
 
+    def _validate_controlled_lists(self, controlled_lists):
+        not_found = []
+        resolved_lists = []
+        for list_identifier in controlled_lists:
+            try:
+                list_uuid = uuid.UUID(list_identifier)
+                resolved_list = List.objects.filter(id=list_uuid).first()
+            except ValueError:
+                resolved_list = List.objects.filter(name=list_identifier).first()
+            if resolved_list is None:
+                not_found.append(list_identifier)
+            else:
+                resolved_lists.append(resolved_list)
+
+        if not_found:
+            raise CommandError(
+                "The following controlled lists were not found: " + ", ".join(not_found)
+            )
+
+        return resolved_lists
+
     def export_controlled_lists(
         self, data_dest, file_name, controlled_lists, format, single_file
     ):
-
         if format == "xlsx":
             wb = openpyxl.Workbook()
             ws = wb.active
@@ -283,64 +303,35 @@ class Command(PackagesCommand):
                 )
 
         elif format == "skos-rdf":
+            if controlled_lists and controlled_lists != [""]:
+                export_lists = self._validate_controlled_lists(controlled_lists)
+            else:
+                export_lists = list(List.objects.all())
+
             if single_file:
-                if controlled_lists != [""]:
-                    export_lists = []
-                    export_list_items = []
-                    for lst in controlled_lists:
-                        try:
-                            uuid_lst = uuid.UUID(lst)
-                            export_lists.append(
-                                List.objects.filter(id=uuid_lst).first()
-                            )
-                        except ValueError:
-                            export_lists.append(List.objects.filter(name=lst).first())
-                        export_list_items.append(
-                            ListItem.objects.filter(
-                                list__in=export_lists
-                            ).prefetch_related("list_item_values", "parent", "children")
-                        )
-                else:
-                    export_lists = List.objects.all()
-                    export_list_items = ListItem.objects.all().prefetch_related(
-                        "list_item_values", "parent", "children"
-                    )
+                export_list_items = ListItem.objects.filter(
+                    list__in=export_lists
+                ).prefetch_related("list_item_values", "parent", "children")
 
                 self._write_to_skos_file(
                     export_lists,
                     export_list_items,
                     data_dest,
-                    file_name or self._slugify(export_lists.first().name),
+                    file_name or self._slugify(export_lists[0].name),
                 )
 
             elif not single_file:
-                if controlled_lists != [""]:
-                    for lst in controlled_lists:
-                        try:
-                            uuid_lst = uuid.UUID(lst)
-                            export_lists = List.objects.filter(id=uuid_lst)
-                        except ValueError:
-                            export_lists = List.objects.filter(name=lst)
-                        export_list_items = ListItem.objects.filter(
-                            list__in=export_lists
-                        ).prefetch_related("list_item_values", "parent", "children")
+                for controlled_list in export_lists:
+                    export_list_items = ListItem.objects.filter(
+                        list=controlled_list
+                    ).prefetch_related("list_item_values", "parent", "children")
 
-                        self._write_to_skos_file(
-                            export_lists,
-                            export_list_items,
-                            data_dest,
-                            self._slugify(export_lists.first().name),
-                        )
-                else:
-                    export_lists = List.objects.all()
-                    for lst in export_lists:
-                        export_list_items = ListItem.objects.filter(
-                            list=lst
-                        ).prefetch_related("list_item_values", "parent", "children")
-
-                        self._write_to_skos_file(
-                            [lst], export_list_items, data_dest, self._slugify(lst.name)
-                        )
+                    self._write_to_skos_file(
+                        [controlled_list],
+                        export_list_items,
+                        data_dest,
+                        self._slugify(controlled_list.name),
+                    )
 
         else:
             self.stdout.write(

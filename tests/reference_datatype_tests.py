@@ -136,7 +136,7 @@ class ReferenceDataTypeTests(TestCase):
         self.assertEqual(len(errors), 1, errors)
 
         # User error (missing arguments)
-        errors = reference.validate(value=[data])
+        errors = reference.validate(value=data)
         self.assertEqual(len(errors), 1, errors)
 
     def test_tile_clean(self):
@@ -723,7 +723,7 @@ class ReferenceDataTypeTests(TestCase):
                         }
                     ],
                     "list_id": str(uuid.uuid4()),
-                }
+                },
             ]
         )
 
@@ -733,12 +733,12 @@ class ReferenceDataTypeTests(TestCase):
         # Nonexistent nodeid → Node.DoesNotExist caught, returns without raising
         reference.validate_multivalue(parsed, None, str(uuid.uuid4()))
 
+        two_refs = parsed + parsed
         # Neither node nor nodeid → raises ValueError
         with self.assertRaises(ValueError):
-            reference.validate_multivalue(parsed, None, None)
+            reference.validate_multivalue(two_refs, None, None)
 
         # Two references on a non-multiValue node → raises ValueError
-        two_refs = parsed + parsed
         with self.assertRaises(ValueError):
             reference.validate_multivalue(two_refs, node, None)
 

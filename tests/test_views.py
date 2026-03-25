@@ -172,7 +172,7 @@ class ListTests(TestCase):
             nodegroup=cls.nodegroup,
             istopnode=False,
             config={
-                "multiValue": False,
+                "multiValue": True,
                 "controlledList": str(cls.list2.pk),
             },
         )

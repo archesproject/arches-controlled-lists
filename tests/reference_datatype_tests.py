@@ -1,6 +1,7 @@
 import uuid
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
+
 
 from django.test import TestCase
 from rdflib import URIRef
@@ -728,10 +729,12 @@ class ReferenceDataTypeTests(TestCase):
         )
 
         # Valid nodeid → fetches node, single value is allowed on non-multiValue node
-        reference.validate_multivalue(parsed, None, str(node.pk))
+        self.assertIsNone(reference.validate_multivalue(parsed, None, str(node.pk)))
 
         # Nonexistent nodeid → Node.DoesNotExist caught, returns without raising
-        reference.validate_multivalue(parsed, None, str(uuid.uuid4()))
+        self.assertIsNone(
+            reference.validate_multivalue(parsed, None, str(uuid.uuid4()))
+        )
 
         two_refs = parsed + parsed
         # Neither node nor nodeid → raises ValueError
@@ -741,6 +744,22 @@ class ReferenceDataTypeTests(TestCase):
         # Two references on a non-multiValue node → raises ValueError
         with self.assertRaises(ValueError):
             reference.validate_multivalue(two_refs, node, None)
+
+        # Two references on a multiValue node passes validation
+        self.assertIsNone(
+            reference.validate_multivalue(
+                two_refs, None, str(ListTests.node_using_list2.pk)
+            )
+        )
+
+        # Node.DoesNotExist with multiValue True (should not raise, should return None)
+        # Patch Node.objects.get to raise DoesNotExist and simulate multiValue True
+        with patch("arches.app.models.models.Node.objects.get") as mock_get:
+            mock_get.side_effect = Node.DoesNotExist
+            # Should return None, not raise
+            self.assertIsNone(
+                reference.validate_multivalue(two_refs, None, str(uuid.uuid4()))
+            )
 
     def test_lookup_listitem_from_label(self):
         reference = ReferenceDataType()

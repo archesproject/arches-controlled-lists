@@ -125,6 +125,38 @@ class ListExportPackageTests(TestCase):
             )
         self.assertTrue(os.path.exists(file_path))
 
+    def test_export_multi_lists_single_file_raises(self):
+        output = io.StringIO()
+        with captured_stdout():
+            with self.assertRaises(CommandError):
+                management.call_command(
+                    "packages",
+                    operation="export_controlled_lists",
+                    dest_dir=PROJECT_TEST_ROOT,
+                    file_name="invalid_export",
+                    controlled_lists="list1,list2",
+                    format="skos-rdf",
+                    stdout=output,
+                )
+
+    def test_export_multi_lists_multi_file(self):
+        output = io.StringIO()
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="export_controlled_lists",
+                dest_dir=PROJECT_TEST_ROOT,
+                controlled_lists="list1,list2",
+                format="skos-rdf",
+                stdout=output,
+            )
+        file_path_list1 = os.path.join(PROJECT_TEST_ROOT, f"list1.xml")
+        file_path_list2 = os.path.join(PROJECT_TEST_ROOT, f"list2.xml")
+        self.assertTrue(os.path.exists(file_path_list1))
+        self.assertTrue(os.path.exists(file_path_list2))
+        self.addCleanup(os.remove, file_path_list1)
+        self.addCleanup(os.remove, file_path_list2)
+
 
 class ListImportPackageTests(TestCase):
 

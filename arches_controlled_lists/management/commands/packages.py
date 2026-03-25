@@ -118,17 +118,13 @@ class Command(PackagesCommand):
             )
             sys.exit()
 
-    def _import_controlled_lists_from_dir(self, package_dir, overwrite_options):
+    def _import_controlled_lists_from_dir(self, dir, overwrite_options):
         file_types = ["*.xml", "*.xlsx"]
+        reference_data_dir = os.path.join(dir, "reference_data", "controlled_lists")
+        search_dir = reference_data_dir if os.path.isdir(reference_data_dir) else dir
         controlled_list_files = []
         for file_type in file_types:
-            controlled_list_files.extend(
-                glob.glob(
-                    os.path.join(
-                        package_dir, "reference_data", "controlled_lists", file_type
-                    )
-                )
-            )
+            controlled_list_files.extend(glob.glob(os.path.join(search_dir, file_type)))
 
         bar = (
             pyprind.ProgBar(

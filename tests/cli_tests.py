@@ -218,6 +218,25 @@ class ListImportPackageTests(TestCase):
         self.assertEqual(ListItem.objects.count(), 34)
         self.assertEqual(ListItemValue.objects.count(), 42)
 
+    def test_import_from_skos_via_directory(self):
+        input_dir = os.path.join(
+            TEST_PACKAGE_DIR,
+        )
+        output = io.StringIO()
+        # packages command does not yet fully avoid print()
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="import_controlled_lists",
+                source=input_dir,
+                overwrite="ignore",
+                stdout=output,
+            )
+
+        self.assertEqual(List.objects.count(), 1)
+        self.assertEqual(ListItem.objects.count(), 17)
+        self.assertEqual(ListItemValue.objects.count(), 21)
+
 
 class RDMToControlledListsETLTests(TestCase):
     fixtures = ["polyhierarchical_collections"]

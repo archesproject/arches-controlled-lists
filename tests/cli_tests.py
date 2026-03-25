@@ -69,7 +69,7 @@ class ListExportPackageTests(TestCase):
             )
         self.assertTrue(os.path.exists(file_path))
 
-    def test_export_controlled_list_skos(self):
+    def test_export_controlled_single_list_skos(self):
         export_file_name = "lists_skos_export"
         file_path = os.path.join(PROJECT_TEST_ROOT, f"{export_file_name}.xml")
         self.addCleanup(os.remove, file_path)
@@ -81,11 +81,81 @@ class ListExportPackageTests(TestCase):
                 operation="export_controlled_lists",
                 dest_dir=PROJECT_TEST_ROOT,
                 file_name=export_file_name,
-                controlled_lists="",
+                controlled_lists="list1",
+                single_file=True,
                 format="skos-rdf",
                 stdout=output,
             )
         self.assertTrue(os.path.exists(file_path))
+
+    def test_export_controlled_all_lists_skos(self):
+        export_file_name = "all_lists_skos_export"
+        file_path = os.path.join(PROJECT_TEST_ROOT, f"{export_file_name}.xml")
+        self.addCleanup(os.remove, file_path)
+        output = io.StringIO()
+        # packages command does not yet fully avoid print()
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="export_controlled_lists",
+                dest_dir=PROJECT_TEST_ROOT,
+                file_name=export_file_name,
+                controlled_lists="",
+                single_file=True,
+                format="skos-rdf",
+                stdout=output,
+            )
+        self.assertTrue(os.path.exists(file_path))
+
+    def test_export_controlled_file_name_default_skos(self):
+        file_path = os.path.join(PROJECT_TEST_ROOT, f"{'list1'}.xml")
+        self.addCleanup(os.remove, file_path)
+        output = io.StringIO()
+        # packages command does not yet fully avoid print()
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="export_controlled_lists",
+                dest_dir=PROJECT_TEST_ROOT,
+                file_name="list1",
+                controlled_lists="",
+                single_file=True,
+                format="skos-rdf",
+                stdout=output,
+            )
+        self.assertTrue(os.path.exists(file_path))
+
+    def test_export_multi_lists_single_file_raises(self):
+        output = io.StringIO()
+        with captured_stdout():
+            with self.assertRaises(CommandError):
+                management.call_command(
+                    "packages",
+                    operation="export_controlled_lists",
+                    dest_dir=PROJECT_TEST_ROOT,
+                    file_name="invalid_export",
+                    controlled_lists="list1,list2",
+                    format="skos-rdf",
+                    stdout=output,
+                )
+
+    def test_export_multi_lists_multi_file(self):
+        output = io.StringIO()
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="export_controlled_lists",
+                dest_dir=PROJECT_TEST_ROOT,
+                controlled_lists="list1,list2",
+                format="skos-rdf",
+                stdout=output,
+            )
+        file_path_list1 = os.path.join(PROJECT_TEST_ROOT, f"list1.xml")
+        file_path_list2 = os.path.join(PROJECT_TEST_ROOT, f"list2.xml")
+        self.assertTrue(os.path.exists(file_path_list1))
+        self.assertTrue(os.path.exists(file_path_list2))
+        self.addCleanup(os.remove, file_path_list1)
+        self.addCleanup(os.remove, file_path_list2)
 
 
 class ListImportPackageTests(TestCase):
@@ -179,6 +249,25 @@ class ListImportPackageTests(TestCase):
         self.assertEqual(List.objects.count(), 2)
         self.assertEqual(ListItem.objects.count(), 34)
         self.assertEqual(ListItemValue.objects.count(), 42)
+
+    def test_import_from_skos_via_directory(self):
+        input_dir = os.path.join(
+            TEST_PACKAGE_DIR,
+        )
+        output = io.StringIO()
+        # packages command does not yet fully avoid print()
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                operation="import_controlled_lists",
+                source=input_dir,
+                overwrite="ignore",
+                stdout=output,
+            )
+
+        self.assertEqual(List.objects.count(), 1)
+        self.assertEqual(ListItem.objects.count(), 17)
+        self.assertEqual(ListItemValue.objects.count(), 21)
 
 
 class RDMToControlledListsETLTests(TestCase):

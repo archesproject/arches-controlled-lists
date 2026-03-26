@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arches-controlled-lists"
-version = "1.1.0a1"
+version = "1.1.0"
 description = "An Arches application designed to manage controlled lists and reference data within the Arches platform."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "AGPL-3.0-or-later"
 license-files = [ "LICENSE",]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Framework :: Django",
     "Framework :: Django :: 5.2",
     "Intended Audience :: Developers",

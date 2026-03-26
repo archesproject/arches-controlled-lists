@@ -1,3 +1,4 @@
+import contextvars
 import csv
 import uuid
 from dataclasses import asdict, dataclass
@@ -45,9 +46,16 @@ class Reference:
     list_id: uuid.UUID
 
 
+# Maps str(nodeid) -> node.config["multiValue"] bool.
+# Scoped to the current async context or thread, so it is naturally ephemeral
+# per ETL run or per ASGI request and cannot become stale across separate invocations.
+_node_multivalue_cache: contextvars.ContextVar[dict[str, bool]] = (
+    contextvars.ContextVar("node_multivalue_cache")
+)
+
+
 class ReferenceDataType(BaseDataType):
     model_field = ReferenceField(null=True)
-    _node_cache: dict[str, Node] = {}
 
     def to_python(
         self, value: Iterable[Mapping] | None, **kwargs
@@ -137,17 +145,29 @@ class ReferenceDataType(BaseDataType):
     def validate_multivalue(self, parsed: list[Reference] | None, node, nodeid):
         if not parsed or len(parsed) <= 1:
             return
-        if not node:
+        if node:
+            allows_multi_value = node.config.get("multiValue")
+        else:
+            try:
+                cache = _node_multivalue_cache.get()
+            except LookupError:
+                cache = {}
+                _node_multivalue_cache.set(cache)
+
             if not nodeid:
                 raise ValueError
-            nodeid_str = str(nodeid)
-            if nodeid_str not in self._node_cache:
+            if type(nodeid) == str:
+                nodeid = uuid.UUID(nodeid)
+            if nodeid not in cache:
                 try:
-                    self._node_cache[nodeid_str] = Node.objects.get(nodeid=nodeid)
+                    node_config = Node.objects.values_list("config", flat=True).get(
+                        nodeid=nodeid
+                    )
                 except Node.DoesNotExist:
                     return
-            node = self._node_cache[nodeid_str]
-        if not node.config.get("multiValue"):
+                cache[nodeid] = bool(node_config.get("multiValue"))
+            allows_multi_value = cache[nodeid]
+        if not allows_multi_value:
             raise ValueError(_("This node does not allow multiple references."))
 
     @staticmethod

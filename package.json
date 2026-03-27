@@ -1,5 +1,6 @@
 {
     "name": "arches_controlled_lists",
+    "version": "1.2.0",
     "license": "AGPL-3.0-only",
     "scripts": {
         "build_development": "npm run eslint:check && npm run ts:check && cross-env webpack --config ./webpack/webpack.config.dev.js",

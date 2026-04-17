@@ -1,5 +1,6 @@
 {
     "name": "arches_controlled_lists",
+    "version": "1.1.0",
     "license": "AGPL-3.0-only",
     "scripts": {
         "build_development": "npm run eslint:check && npm run ts:check && cross-env webpack --config ./webpack/webpack.config.dev.js",
@@ -23,7 +24,7 @@
         "vue-router": "4.4.3"
     },
     "devDependencies": {
-        "arches-dev-dependencies": "archesproject/arches-dev-dependencies#dev/8.0.x"
+        "arches-dev-dependencies": "archesproject/arches-dev-dependencies#dev/8.1.x"
     },
     "nodeModulesPaths": {},
     "overrides": {

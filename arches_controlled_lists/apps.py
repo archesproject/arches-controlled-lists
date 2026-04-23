@@ -19,3 +19,13 @@ class ArchesControlledListsConfig(AppConfig):
             TileAliasedDataSerializer.register_custom_datatype_field(
                 ReferenceField, ReferenceSerializer
             )
+
+    def register_mcp_tools(self, server) -> None:
+        """Register arches-controlled-lists MCP tools on *server*.
+
+        Called automatically by :func:`arches.mcp.server.register_extensions`
+        when the Arches MCP server starts.
+        """
+        from arches_controlled_lists.mcp import register
+
+        register(server)

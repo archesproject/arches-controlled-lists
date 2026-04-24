@@ -8,24 +8,17 @@ import type { WidgetMode } from "@/arches_component_lab/widgets/types.ts";
 
 import type {
     ReferenceSelectDatatypeCardXNodeXWidgetData,
-    ReferenceSelectValue,
+    ReferenceSelectNodeValue,
 } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 
-const {
-    mode,
-    nodeAlias,
-    graphSlug,
-    cardXNodeXWidgetData,
-    aliasedNodeData,
-    shouldEmitSimplifiedValue = false,
-} = defineProps<{
-    mode: WidgetMode;
-    nodeAlias: string;
-    graphSlug: string;
-    cardXNodeXWidgetData: ReferenceSelectDatatypeCardXNodeXWidgetData;
-    aliasedNodeData: ReferenceSelectValue;
-    shouldEmitSimplifiedValue?: boolean;
-}>();
+const { mode, nodeAlias, graphSlug, cardXNodeXWidgetData, nodeValue } =
+    defineProps<{
+        mode: WidgetMode;
+        nodeAlias: string;
+        graphSlug: string;
+        cardXNodeXWidgetData: ReferenceSelectDatatypeCardXNodeXWidgetData;
+        nodeValue: ReferenceSelectNodeValue[] | null;
+    }>();
 
 const emit = defineEmits(["update:value"]);
 </script>
@@ -34,14 +27,13 @@ const emit = defineEmits(["update:value"]);
     <ReferenceSelectWidgetEditor
         v-if="mode === EDIT"
         :card-x-node-x-widget-data="cardXNodeXWidgetData"
-        :aliased-node-data="aliasedNodeData"
+        :node-value="nodeValue"
         :graph-slug="graphSlug"
         :node-alias="nodeAlias"
-        :should-emit-simplified-value="shouldEmitSimplifiedValue"
         @update:value="emit('update:value', $event)"
     />
     <ReferenceSelectWidgetViewer
         v-if="mode === VIEW"
-        :aliased-node-data="aliasedNodeData"
+        :node-value="nodeValue"
     />
 </template>

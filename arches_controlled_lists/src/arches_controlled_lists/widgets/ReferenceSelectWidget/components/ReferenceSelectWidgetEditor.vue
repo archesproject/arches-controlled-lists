@@ -12,29 +12,18 @@ import type {
     ReferenceSelectDatatypeCardXNodeXWidgetData,
     ReferenceSelectDetails,
     ReferenceSelectTreeNode,
-    ReferenceSelectValue,
     ReferenceSelectNodeValue,
 } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 
-const {
-    aliasedNodeData,
-    cardXNodeXWidgetData,
-    graphSlug,
-    nodeAlias,
-    shouldEmitSimplifiedValue,
-} = defineProps<{
-    aliasedNodeData: ReferenceSelectValue;
+const { nodeValue, cardXNodeXWidgetData, graphSlug, nodeAlias } = defineProps<{
+    nodeValue: ReferenceSelectNodeValue[] | null;
     cardXNodeXWidgetData: ReferenceSelectDatatypeCardXNodeXWidgetData;
     graphSlug: string;
     nodeAlias: string;
-    shouldEmitSimplifiedValue?: boolean;
 }>();
 
 const emit = defineEmits<{
-    (
-        event: "update:value",
-        updatedValue: ReferenceSelectValue | string[],
-    ): void;
+    (event: "update:value", updatedValue: ReferenceSelectNodeValue[]): void;
 }>();
 
 const options = ref<ReferenceSelectTreeNode[]>();
@@ -43,10 +32,13 @@ const optionsError = ref<string | null>(null);
 const expandedKeys: Ref<TreeExpandedKeys> = ref({});
 
 const initialValueFromTileData = computed(() => {
-    if (aliasedNodeData?.details?.length) {
-        return aliasedNodeData.details.reduce<Record<string, boolean>>(
-            (accumulator, selectedOption) => {
-                accumulator[selectedOption.list_item_id] = true;
+    if (nodeValue?.length) {
+        return nodeValue.reduce<Record<string, boolean>>(
+            (accumulator, item) => {
+                const listItemId = item.labels?.[0]?.list_item_id;
+                if (listItemId) {
+                    accumulator[listItemId] = true;
+                }
                 return accumulator;
             },
             {},
@@ -121,22 +113,11 @@ function onUpdateModelValue(
     updatedValue: { [key: string]: boolean } | null,
 ): void {
     if (!updatedValue) {
-        if (shouldEmitSimplifiedValue) {
-            emit("update:value", []);
-        } else {
-            emit("update:value", {
-                node_value: [],
-                display_value: "",
-                details: [],
-            });
-        }
-
+        emit("update:value", []);
         return;
     }
 
-    const nodeValue = [];
-    const details = [];
-    const simplifiedValue = [];
+    const nodeValue: ReferenceSelectNodeValue[] = [];
 
     for (const updatedListItemId of Object.keys(updatedValue)) {
         const optionsQueue = [...(options.value || [])];
@@ -162,25 +143,9 @@ function onUpdateModelValue(
             labels: selectedOption!.data.list_item_values,
             uri: selectedOption!.data.uri,
         });
-        details.push(selectedOption!.data);
-
-        simplifiedValue.push(listId!);
     }
 
-    const displayValue = details.map((item) => item.display_value).join(", ");
-
-    if (shouldEmitSimplifiedValue) {
-        emit(
-            "update:value",
-            details.map((item) => item.display_value),
-        );
-    } else {
-        emit("update:value", {
-            node_value: nodeValue,
-            display_value: displayValue,
-            details: details,
-        });
-    }
+    emit("update:value", nodeValue);
 }
 </script>
 

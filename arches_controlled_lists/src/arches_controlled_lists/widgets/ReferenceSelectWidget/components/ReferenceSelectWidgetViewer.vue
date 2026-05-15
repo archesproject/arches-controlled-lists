@@ -2,13 +2,13 @@
 import type { ReferenceSelectNodeValue } from "@/arches_controlled_lists/datatypes/reference-select/types";
 
 defineProps<{
-    nodeValue: ReferenceSelectNodeValue[] | null;
+    value: ReferenceSelectNodeValue[] | null;
 }>();
 </script>
 
 <template>
     <span>{{
-        nodeValue
+        value
             ?.map((item) => item.labels?.[0]?.value)
             .filter(Boolean)
             .join(", ")

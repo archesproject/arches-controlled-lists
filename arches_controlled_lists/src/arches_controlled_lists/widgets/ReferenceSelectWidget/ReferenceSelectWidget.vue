@@ -11,13 +11,13 @@ import type {
     ReferenceSelectNodeValue,
 } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 
-const { mode, nodeAlias, graphSlug, cardXNodeXWidgetData, nodeValue } =
+const { mode, nodeAlias, graphSlug, cardXNodeXWidgetData, value } =
     defineProps<{
         mode: WidgetMode;
         nodeAlias: string;
         graphSlug: string;
         cardXNodeXWidgetData: ReferenceSelectDatatypeCardXNodeXWidgetData;
-        nodeValue: ReferenceSelectNodeValue[] | null;
+        value: ReferenceSelectNodeValue[] | null;
     }>();
 
 const emit = defineEmits(["update:value"]);
@@ -27,13 +27,13 @@ const emit = defineEmits(["update:value"]);
     <ReferenceSelectWidgetEditor
         v-if="mode === EDIT"
         :card-x-node-x-widget-data="cardXNodeXWidgetData"
-        :node-value="nodeValue"
+        :value="value"
         :graph-slug="graphSlug"
         :node-alias="nodeAlias"
         @update:value="emit('update:value', $event)"
     />
     <ReferenceSelectWidgetViewer
         v-if="mode === VIEW"
-        :node-value="nodeValue"
+        :value="value"
     />
 </template>

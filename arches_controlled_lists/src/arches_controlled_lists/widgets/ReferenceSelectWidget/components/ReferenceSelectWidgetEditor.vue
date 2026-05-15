@@ -15,8 +15,8 @@ import type {
     ReferenceSelectNodeValue,
 } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 
-const { nodeValue, cardXNodeXWidgetData, graphSlug, nodeAlias } = defineProps<{
-    nodeValue: ReferenceSelectNodeValue[] | null;
+const { value, cardXNodeXWidgetData, graphSlug, nodeAlias } = defineProps<{
+    value: ReferenceSelectNodeValue[] | null;
     cardXNodeXWidgetData: ReferenceSelectDatatypeCardXNodeXWidgetData;
     graphSlug: string;
     nodeAlias: string;
@@ -32,17 +32,14 @@ const optionsError = ref<string | null>(null);
 const expandedKeys: Ref<TreeExpandedKeys> = ref({});
 
 const initialValueFromTileData = computed(() => {
-    if (nodeValue?.length) {
-        return nodeValue.reduce<Record<string, boolean>>(
-            (accumulator, item) => {
-                const listItemId = item.labels?.[0]?.list_item_id;
-                if (listItemId) {
-                    accumulator[listItemId] = true;
-                }
-                return accumulator;
-            },
-            {},
-        );
+    if (value?.length) {
+        return value.reduce<Record<string, boolean>>((accumulator, item) => {
+            const listItemId = item.labels?.[0]?.list_item_id;
+            if (listItemId) {
+                accumulator[listItemId] = true;
+            }
+            return accumulator;
+        }, {});
     }
 
     const defaultValueFromWidgetConfig = cardXNodeXWidgetData?.config

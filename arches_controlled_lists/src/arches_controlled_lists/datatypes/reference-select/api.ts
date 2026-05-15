@@ -1,11 +1,16 @@
 import arches from "arches";
 
-const controlledListWidgetOptionsCache = new Map<string, Promise<unknown>>();
+import type { ReferenceSelectTreeNode } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
+
+const controlledListWidgetOptionsCache = new Map<
+    string,
+    Promise<ReferenceSelectTreeNode[]>
+>();
 
 export const fetchWidgetOptions = (
     graphSlug: string,
     nodeAlias: string,
-): Promise<unknown> => {
+): Promise<ReferenceSelectTreeNode[]> => {
     const cacheKey = `${graphSlug}:${nodeAlias}`;
     if (!controlledListWidgetOptionsCache.has(cacheKey)) {
         const queryParams = new URLSearchParams({

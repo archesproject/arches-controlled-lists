@@ -1,16 +1,24 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
+import type { AliasedNodeData } from "@/arches_component_lab/types.ts";
 import type { ReferenceSelectNodeValue } from "@/arches_controlled_lists/datatypes/reference-select/types";
 
-defineProps<{
-    value: ReferenceSelectNodeValue[] | null;
+const { value, aliasedNodeData } = defineProps<{
+    value?: ReferenceSelectNodeValue[] | null;
+    aliasedNodeData?: AliasedNodeData | null;
 }>();
-</script>
 
-<template>
-    <span>{{
+const displayValue = computed(
+    () =>
+        aliasedNodeData?.display_value ||
         value
             ?.map((item) => item.labels?.[0]?.value)
             .filter(Boolean)
-            .join(", ")
-    }}</span>
+            .join(", "),
+);
+</script>
+
+<template>
+    <span>{{ displayValue }}</span>
 </template>

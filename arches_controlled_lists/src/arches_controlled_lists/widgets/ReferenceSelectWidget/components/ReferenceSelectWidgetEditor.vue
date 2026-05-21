@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 
 import TreeSelect from "primevue/treeselect";
 
 import { fetchWidgetOptions } from "@/arches_controlled_lists/datatypes/reference-select/api.ts";
+import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/utils.ts";
 
 import type { Ref } from "vue";
 import type { TreeExpandedKeys } from "primevue/tree";
 
+import type { AliasedNodeData } from "@/arches_component_lab/types.ts";
 import type {
     ReferenceSelectDatatypeCardXNodeXWidgetData,
     ReferenceSelectDetails,
@@ -17,13 +19,15 @@ import type {
 
 const { value, cardXNodeXWidgetData, graphSlug, nodeAlias } = defineProps<{
     value: ReferenceSelectNodeValue[] | null;
-    cardXNodeXWidgetData: ReferenceSelectDatatypeCardXNodeXWidgetData;
-    graphSlug: string;
-    nodeAlias: string;
+    cardXNodeXWidgetData?: ReferenceSelectDatatypeCardXNodeXWidgetData;
+    graphSlug?: string;
+    nodeAlias?: string;
 }>();
 
 const emit = defineEmits<{
+    (event: "update:isLoading", updatedValue: boolean): void;
     (event: "update:value", updatedValue: ReferenceSelectNodeValue[]): void;
+    (event: "update:aliasedNodeData", updatedValue: AliasedNodeData): void;
 }>();
 
 const options = ref<ReferenceSelectTreeNode[]>();
@@ -71,6 +75,10 @@ watchEffect(() => {
     getOptions();
 });
 
+watch(isLoading, (newValue) => {
+    emit("update:isLoading", newValue);
+});
+
 function optionAsNode(item: ReferenceSelectTreeNode): ReferenceSelectTreeNode {
     expandedKeys.value = {
         ...expandedKeys.value,
@@ -94,6 +102,7 @@ function optionsAsNodes(
 }
 
 async function getOptions() {
+    if (!graphSlug || !nodeAlias) return;
     isLoading.value = true;
     try {
         const widgetOptions = await fetchWidgetOptions(graphSlug, nodeAlias);
@@ -111,6 +120,7 @@ function onUpdateModelValue(
 ): void {
     if (!updatedValue) {
         emit("update:value", []);
+        emit("update:aliasedNodeData", buildReferenceSelectAliasedNodeData(null));
         return;
     }
 
@@ -143,6 +153,7 @@ function onUpdateModelValue(
     }
 
     emit("update:value", nodeValue);
+    emit("update:aliasedNodeData", buildReferenceSelectAliasedNodeData(nodeValue));
 }
 </script>
 
@@ -150,14 +161,15 @@ function onUpdateModelValue(
     <TreeSelect
         style="display: flex"
         option-value="list_item_id"
+        :input-id="nodeAlias"
         :fluid="true"
         :loading="isLoading"
         :options="options"
         :expanded-keys="expandedKeys"
         :model-value="initialValueFromTileData"
-        :placeholder="cardXNodeXWidgetData.config.placeholder"
+        :placeholder="cardXNodeXWidgetData?.config.placeholder"
         :selection-mode="
-            cardXNodeXWidgetData.node.config.multiValue ? 'multiple' : 'single'
+            cardXNodeXWidgetData?.node.config.multiValue ? 'multiple' : 'single'
         "
         :show-clear="true"
         @update:model-value="onUpdateModelValue($event)"

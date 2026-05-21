@@ -3,7 +3,7 @@ import { computed, ref, watch, watchEffect } from "vue";
 
 import TreeSelect from "primevue/treeselect";
 
-import { fetchWidgetOptions } from "@/arches_controlled_lists/datatypes/reference-select/api.ts";
+import { useReferenceSelectOptionsStore } from "@/arches_controlled_lists/stores/useReferenceSelectOptionsStore.ts";
 import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/utils.ts";
 
 import type { Ref } from "vue";
@@ -105,7 +105,11 @@ async function getOptions() {
     if (!graphSlug || !nodeAlias) return;
     isLoading.value = true;
     try {
-        const widgetOptions = await fetchWidgetOptions(graphSlug, nodeAlias);
+        const widgetOptions =
+            await useReferenceSelectOptionsStore().fetchWidgetOptions(
+                graphSlug,
+                nodeAlias,
+            );
 
         options.value = optionsAsNodes(widgetOptions);
     } catch (error) {

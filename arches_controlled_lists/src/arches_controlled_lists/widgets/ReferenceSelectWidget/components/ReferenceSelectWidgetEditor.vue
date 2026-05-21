@@ -120,7 +120,10 @@ function onUpdateModelValue(
 ): void {
     if (!updatedValue) {
         emit("update:value", []);
-        emit("update:aliasedNodeData", buildReferenceSelectAliasedNodeData(null));
+        emit(
+            "update:aliasedNodeData",
+            buildReferenceSelectAliasedNodeData(null),
+        );
         return;
     }
 
@@ -153,7 +156,10 @@ function onUpdateModelValue(
     }
 
     emit("update:value", nodeValue);
-    emit("update:aliasedNodeData", buildReferenceSelectAliasedNodeData(nodeValue));
+    emit(
+        "update:aliasedNodeData",
+        buildReferenceSelectAliasedNodeData(nodeValue),
+    );
 }
 </script>
 

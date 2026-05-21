@@ -32,7 +32,11 @@ const emit = defineEmits<{
 // undefined means the prop was omitted, so fall back to the raw value.
 const resolvedNodeValue = computed<ReferenceSelectNodeValue[] | null>(() => {
     if (aliasedNodeData !== undefined) {
-        return (aliasedNodeData?.node_value as ReferenceSelectNodeValue[] | null) ?? null;
+        return (
+            (aliasedNodeData?.node_value as
+                | ReferenceSelectNodeValue[]
+                | null) ?? null
+        );
     }
     return value ?? null;
 });

@@ -1,9 +1,11 @@
-import type { AliasedNodeData } from "@/arches_component_lab/types.ts";
-import type { ReferenceSelectNodeValue } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
+import type {
+    ReferenceSelectAliasedNodeData,
+    ReferenceSelectNodeValue,
+} from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 
 export function buildReferenceSelectAliasedNodeData(
     nodeValue: ReferenceSelectNodeValue[] | null,
-): AliasedNodeData {
+): ReferenceSelectAliasedNodeData {
     return {
         node_value: nodeValue,
         display_value:

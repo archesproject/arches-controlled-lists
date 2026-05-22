@@ -1,6 +1,9 @@
 import type { TreeNode } from "primevue/treenode";
 
-import type { CardXNodeXWidgetData } from "@/arches_component_lab/types.ts";
+import type {
+    AliasedNodeData,
+    CardXNodeXWidgetData,
+} from "@/arches_component_lab/types.ts";
 
 export interface ReferenceSelectDatatypeCardXNodeXWidgetData
     extends CardXNodeXWidgetData {
@@ -42,4 +45,9 @@ export interface ReferenceSelectTreeNode extends TreeNode {
     label: string;
     children: ReferenceSelectTreeNode[];
     data: ReferenceSelectDetails;
+}
+
+export interface ReferenceSelectAliasedNodeData extends AliasedNodeData {
+    node_value: ReferenceSelectNodeValue[] | null;
+    details: ReferenceSelectNodeValue[];
 }

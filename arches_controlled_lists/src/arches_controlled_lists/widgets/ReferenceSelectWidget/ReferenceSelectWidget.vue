@@ -6,9 +6,9 @@ import ReferenceSelectWidgetViewer from "@/arches_controlled_lists/widgets/Refer
 
 import { EDIT, VIEW } from "@/arches_component_lab/widgets/constants.ts";
 
-import type { AliasedNodeData } from "@/arches_component_lab/types.ts";
 import type { WidgetMode } from "@/arches_component_lab/widgets/types.ts";
 import type {
+    ReferenceSelectAliasedNodeData,
     ReferenceSelectDatatypeCardXNodeXWidgetData,
     ReferenceSelectNodeValue,
 } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
@@ -18,25 +18,21 @@ const { aliasedNodeData, value } = defineProps<{
     nodeAlias?: string;
     graphSlug?: string;
     cardXNodeXWidgetData?: ReferenceSelectDatatypeCardXNodeXWidgetData;
-    aliasedNodeData?: AliasedNodeData | null;
+    aliasedNodeData?: ReferenceSelectAliasedNodeData | null;
     value?: ReferenceSelectNodeValue[] | null;
 }>();
 
 const emit = defineEmits<{
     "update:isLoading": [isLoading: boolean];
     "update:value": [updatedValue: ReferenceSelectNodeValue[]];
-    "update:aliasedNodeData": [updatedValue: AliasedNodeData];
+    "update:aliasedNodeData": [updatedValue: ReferenceSelectAliasedNodeData];
 }>();
 
 // aliasedNodeData !== undefined means the caller passed it (even if null);
 // undefined means the prop was omitted, so fall back to the raw value.
 const resolvedNodeValue = computed<ReferenceSelectNodeValue[] | null>(() => {
     if (aliasedNodeData !== undefined) {
-        return (
-            (aliasedNodeData?.node_value as
-                | ReferenceSelectNodeValue[]
-                | null) ?? null
-        );
+        return aliasedNodeData?.node_value ?? null;
     }
     return value ?? null;
 });

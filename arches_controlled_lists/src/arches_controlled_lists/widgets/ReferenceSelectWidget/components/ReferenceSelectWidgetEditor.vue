@@ -9,7 +9,7 @@ import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/d
 import type { Ref } from "vue";
 import type { TreeExpandedKeys } from "primevue/tree";
 
-import type { AliasedNodeData } from "@/arches_component_lab/types.ts";
+import type { ReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 import type {
     ReferenceSelectDatatypeCardXNodeXWidgetData,
     ReferenceSelectDetails,
@@ -27,7 +27,10 @@ const { value, cardXNodeXWidgetData, graphSlug, nodeAlias } = defineProps<{
 const emit = defineEmits<{
     (event: "update:isLoading", updatedValue: boolean): void;
     (event: "update:value", updatedValue: ReferenceSelectNodeValue[]): void;
-    (event: "update:aliasedNodeData", updatedValue: AliasedNodeData): void;
+    (
+        event: "update:aliasedNodeData",
+        updatedValue: ReferenceSelectAliasedNodeData,
+    ): void;
 }>();
 
 const options = ref<ReferenceSelectTreeNode[]>();

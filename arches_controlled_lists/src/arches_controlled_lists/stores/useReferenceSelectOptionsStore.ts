@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-import arches from "arches";
+import { fetchControlledListOptions } from "@/arches_controlled_lists/datatypes/reference-select/api.ts";
 
 import type { ReferenceSelectTreeNode } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 
@@ -27,24 +27,9 @@ export const useReferenceSelectOptionsStore = defineStore(
         ): Promise<ReferenceSelectTreeNode[]> {
             const nodeAliasCache = getNodeAliasCache(graphSlug);
             if (!nodeAliasCache.has(nodeAlias)) {
-                const queryParams = new URLSearchParams({
-                    graph_slug: graphSlug,
-                    node_alias: nodeAlias,
-                });
                 nodeAliasCache.set(
                     nodeAlias,
-                    (async () => {
-                        const response = await fetch(
-                            `${arches.urls.controlled_list_options}?${queryParams}`,
-                        );
-                        const parsed = await response.json();
-                        if (!response.ok) {
-                            throw new Error(
-                                parsed.message || response.statusText,
-                            );
-                        }
-                        return parsed;
-                    })(),
+                    fetchControlledListOptions(graphSlug, nodeAlias),
                 );
             }
             return nodeAliasCache.get(nodeAlias)!;

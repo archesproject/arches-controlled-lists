@@ -21,7 +21,6 @@
     "dependencies": {
         "arches": "archesproject/arches#dev/8.2.x",
         "arches-component-lab": "archesproject/arches-component-lab#main",
-        "pinia": "^3.0.4",
         "vue-router": "4.4.3"
     },
     "devDependencies": {

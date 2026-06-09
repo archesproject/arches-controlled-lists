@@ -506,6 +506,17 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
     GRAPH_ID = "d71a8f56-987f-4fd1-87b5-538378740f15"
     HOST = "http://localhost:8000/plugins/controlled-list-manager/item/"
 
+    DOMAIN_LIST = "domain_fa3e4e88-c8bf-11ed-bf64-0242ac130009"
+    DOMAIN_RADIO_LIST = "domain_radio_0f0509c4-c8c0-11ed-a644-0242ac130009"
+    DOMAIN_LIST_LIST = "domain_list_4780cbb2-c8c0-11ed-a172-0242ac130009"
+    DOMAIN_CHECKBOX_LIST = "domain_checkbox_5d9d4236-c8c0-11ed-bf64-0242ac130009"
+    EXPECTED_LIST_NAMES = {
+        DOMAIN_LIST,
+        DOMAIN_RADIO_LIST,
+        DOMAIN_LIST_LIST,
+        DOMAIN_CHECKBOX_LIST,
+    }
+
     DOMAIN_OPTION_IDS = {
         "cba2cbab-7e49-4248-985e-053f24fdf8eb",
         "ce55a9d7-2ec6-45e2-b8b8-0314ebe80109",
@@ -547,7 +558,7 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
     def test_migrate_single_domain_value_node(self):
         self._run_migrate(node_aliases=["domain"])
 
-        controlled_list = List.objects.get(name="domain")
+        controlled_list = List.objects.get(name=self.DOMAIN_LIST)
         list_items = controlled_list.list_items.all()
         self.assertEqual(list_items.count(), 4)
 
@@ -567,7 +578,7 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
     def test_migrate_single_domain_value_list_node(self):
         self._run_migrate(node_aliases=["domain_list"])
 
-        controlled_list = List.objects.get(name="domain_list")
+        controlled_list = List.objects.get(name=self.DOMAIN_LIST_LIST)
         list_items = controlled_list.list_items.all()
         self.assertEqual(list_items.count(), 4)
 
@@ -584,7 +595,12 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
     def test_migrate_all_domain_nodes_in_graph(self):
         self._run_migrate()
 
-        all_aliases = {"domain", "domain_radio", "domain_list", "domain_checkbox"}
+        all_aliases = {
+            self.DOMAIN_LIST,
+            self.DOMAIN_RADIO_LIST,
+            self.DOMAIN_LIST_LIST,
+            self.DOMAIN_CHECKBOX_LIST,
+        }
         self.assertEqual(List.objects.filter(name__in=all_aliases).count(), 4)
 
         for alias in all_aliases:
@@ -593,32 +609,34 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
         # domain and domain_radio share the same original option IDs; whichever
         # is processed second gets reminted IDs — assert no overlap between them.
         domain_ids = {
-            str(lst.id) for lst in List.objects.get(name="domain").list_items.all()
+            str(lst.id)
+            for lst in List.objects.get(name=self.DOMAIN_LIST).list_items.all()
         }
         domain_radio_ids = {
             str(lst.id)
-            for lst in List.objects.get(name="domain_radio").list_items.all()
+            for lst in List.objects.get(name=self.DOMAIN_RADIO_LIST).list_items.all()
         }
         self.assertTrue(domain_ids.isdisjoint(domain_radio_ids))
         self.assertEqual(len(domain_ids | domain_radio_ids), 8)
 
         # Same disjointness check for the domain_list / domain_checkbox pair.
         domain_list_ids = {
-            str(lst.id) for lst in List.objects.get(name="domain_list").list_items.all()
+            str(lst.id)
+            for lst in List.objects.get(name=self.DOMAIN_LIST_LIST).list_items.all()
         }
         domain_checkbox_ids = {
             str(lst.id)
-            for lst in List.objects.get(name="domain_checkbox").list_items.all()
+            for lst in List.objects.get(name=self.DOMAIN_CHECKBOX_LIST).list_items.all()
         }
         self.assertTrue(domain_list_ids.isdisjoint(domain_checkbox_ids))
         self.assertEqual(len(domain_list_ids | domain_checkbox_ids), 8)
 
         # All lists should carry the correct text labels regardless of ID reminting.
         for alias, expected_labels in [
-            ("domain", {"1", "2", "3", "4"}),
-            ("domain_radio", {"1", "2", "3", "4"}),
-            ("domain_list", {"A", "B", "C", "D"}),
-            ("domain_checkbox", {"A", "B", "C", "D"}),
+            (self.DOMAIN_LIST, {"1", "2", "3", "4"}),
+            (self.DOMAIN_RADIO_LIST, {"1", "2", "3", "4"}),
+            (self.DOMAIN_LIST_LIST, {"A", "B", "C", "D"}),
+            (self.DOMAIN_CHECKBOX_LIST, {"A", "B", "C", "D"}),
         ]:
             labels = set(
                 ListItemValue.objects.filter(

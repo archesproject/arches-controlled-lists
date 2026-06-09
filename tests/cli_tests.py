@@ -494,6 +494,140 @@ class MigrateConceptNodesToReferenceDatatypeTests(TestCase):
         self.assertEqual(output.getvalue().strip(), expected_output)
 
 
+class MigrateDomainNodesToControlledListsTests(TestCase):
+    # All_Datatypes has four domain nodes:
+    #   domain          (domain-value)      — options 1, 2, 3, 4
+    #   domain_radio    (domain-value)      — same option IDs as `domain`
+    #   domain_list     (domain-value-list) — options A, B, C, D
+    #   domain_checkbox (domain-value-list) — same option IDs as `domain_list`
+    #
+    # The shared-ID pairs exercise the duplicate-ID guard rails.
+
+    GRAPH_ID = "d71a8f56-987f-4fd1-87b5-538378740f15"
+    HOST = "http://localhost:8000/plugins/controlled-list-manager/item/"
+
+    DOMAIN_OPTION_IDS = {
+        "cba2cbab-7e49-4248-985e-053f24fdf8eb",
+        "ce55a9d7-2ec6-45e2-b8b8-0314ebe80109",
+        "a7556098-28bf-4eff-93df-542dc746a45e",
+        "77f312cb-5b17-4a02-8d1f-37def9599938",
+    }
+    DOMAIN_LIST_OPTION_IDS = {
+        "2e440bf6-4f0c-465c-8348-99d9be3cc148",
+        "2f53ffee-f7a2-48cd-850c-804cfd916e37",
+        "3d955540-8d06-4f3d-aad0-75b008549d3c",
+        "d249178e-c146-4adc-9eaf-dc0d6c9cf032",
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        fixture_path = os.path.join(
+            PROJECT_TEST_ROOT, "fixtures", "data", "All_Datatypes.json"
+        )
+        with captured_stdout():
+            management.call_command(
+                "packages",
+                ["-o", "import_graphs", "-s", fixture_path],
+            )
+
+    def _run_migrate(self, node_aliases=None, overwrite=False):
+        output = io.StringIO()
+        kwargs = dict(
+            operation="migrate_domain_nodes_to_controlled_lists",
+            graph=self.GRAPH_ID,
+            host=self.HOST,
+            overwrite=overwrite,
+            stdout=output,
+        )
+        if node_aliases is not None:
+            kwargs["node_aliases"] = node_aliases
+        management.call_command("controlled_lists", **kwargs)
+        return output.getvalue()
+
+    def test_migrate_single_domain_value_node(self):
+        self._run_migrate(node_aliases=["domain"])
+
+        controlled_list = List.objects.get(name="domain")
+        list_items = controlled_list.list_items.all()
+        self.assertEqual(list_items.count(), 4)
+
+        item_ids = {str(item.id) for item in list_items}
+        self.assertEqual(item_ids, self.DOMAIN_OPTION_IDS)
+
+        for item in list_items:
+            self.assertEqual(item.uri, f"{self.HOST.rstrip('/')}/{item.id}")
+
+        label_texts = set(
+            ListItemValue.objects.filter(list_item__list=controlled_list).values_list(
+                "value", flat=True
+            )
+        )
+        self.assertEqual(label_texts, {"1", "2", "3", "4"})
+
+    def test_migrate_single_domain_value_list_node(self):
+        self._run_migrate(node_aliases=["domain_list"])
+
+        controlled_list = List.objects.get(name="domain_list")
+        list_items = controlled_list.list_items.all()
+        self.assertEqual(list_items.count(), 4)
+
+        item_ids = {str(item.id) for item in list_items}
+        self.assertEqual(item_ids, self.DOMAIN_LIST_OPTION_IDS)
+
+        label_texts = set(
+            ListItemValue.objects.filter(list_item__list=controlled_list).values_list(
+                "value", flat=True
+            )
+        )
+        self.assertEqual(label_texts, {"A", "B", "C", "D"})
+
+    def test_migrate_all_domain_nodes_in_graph(self):
+        self._run_migrate()
+
+        all_aliases = {"domain", "domain_radio", "domain_list", "domain_checkbox"}
+        self.assertEqual(List.objects.filter(name__in=all_aliases).count(), 4)
+
+        for alias in all_aliases:
+            self.assertEqual(List.objects.get(name=alias).list_items.count(), 4)
+
+        # domain and domain_radio share the same original option IDs; whichever
+        # is processed second gets reminted IDs — assert no overlap between them.
+        domain_ids = {
+            str(lst.id) for lst in List.objects.get(name="domain").list_items.all()
+        }
+        domain_radio_ids = {
+            str(lst.id)
+            for lst in List.objects.get(name="domain_radio").list_items.all()
+        }
+        self.assertTrue(domain_ids.isdisjoint(domain_radio_ids))
+        self.assertEqual(len(domain_ids | domain_radio_ids), 8)
+
+        # Same disjointness check for the domain_list / domain_checkbox pair.
+        domain_list_ids = {
+            str(lst.id) for lst in List.objects.get(name="domain_list").list_items.all()
+        }
+        domain_checkbox_ids = {
+            str(lst.id)
+            for lst in List.objects.get(name="domain_checkbox").list_items.all()
+        }
+        self.assertTrue(domain_list_ids.isdisjoint(domain_checkbox_ids))
+        self.assertEqual(len(domain_list_ids | domain_checkbox_ids), 8)
+
+        # All lists should carry the correct text labels regardless of ID reminting.
+        for alias, expected_labels in [
+            ("domain", {"1", "2", "3", "4"}),
+            ("domain_radio", {"1", "2", "3", "4"}),
+            ("domain_list", {"A", "B", "C", "D"}),
+            ("domain_checkbox", {"A", "B", "C", "D"}),
+        ]:
+            labels = set(
+                ListItemValue.objects.filter(
+                    list_item__list=List.objects.get(name=alias)
+                ).values_list("value", flat=True)
+            )
+            self.assertEqual(labels, expected_labels, f"labels mismatch for {alias}")
+
+
 class ChangeUrlBaseTests(TestCase):
 
     def setUp(self):

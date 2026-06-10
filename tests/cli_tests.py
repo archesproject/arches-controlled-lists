@@ -646,6 +646,69 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
             self.assertEqual(labels, expected_labels, f"labels mismatch for {alias}")
 
 
+class MigrateDomainNodesToReferenceDatatypeTests(
+    MigrateDomainNodesToControlledListsTests
+):
+    def _run_migrate_to_reference(self, node_aliases=None):
+        output = io.StringIO()
+        kwargs = dict(
+            operation="migrate_domain_nodes_to_reference_datatype",
+            graph=self.GRAPH_ID,
+            stdout=output,
+        )
+        if node_aliases is not None:
+            kwargs["node_aliases"] = node_aliases
+        management.call_command("controlled_lists", **kwargs)
+        return output.getvalue()
+
+    def test_migrate_all_domain_nodes_to_reference_datatype(self):
+        self._run_migrate()
+        self._run_migrate_to_reference()
+
+        reference_nodes = Node.objects.filter(
+            graph_id=self.GRAPH_ID,
+            alias__in=["domain", "domain_radio", "domain_list", "domain_checkbox"],
+            datatype="reference",
+        )
+        self.assertEqual(reference_nodes.count(), 4)
+
+        for node in reference_nodes:
+            config = node.config
+            self.assertIn("controlledList", config)
+            if node.alias in ("domain", "domain_radio"):
+                self.assertFalse(config["multiValue"])
+            else:
+                self.assertTrue(config["multiValue"])
+
+        list_id_by_alias = {
+            "domain": self.DOMAIN_LIST,
+            "domain_radio": self.DOMAIN_RADIO_LIST,
+            "domain_list": self.DOMAIN_LIST_LIST,
+            "domain_checkbox": self.DOMAIN_CHECKBOX_LIST,
+        }
+        for node in reference_nodes:
+            expected_list_name = list_id_by_alias[node.alias]
+            expected_list_id = str(List.objects.get(name=expected_list_name).pk)
+            self.assertEqual(node.config["controlledList"], expected_list_id)
+
+    def test_migrate_domain_node_by_alias_to_reference_datatype(self):
+        self._run_migrate()
+        self._run_migrate_to_reference(node_aliases=["domain"])
+
+        domain_node = Node.objects.get(graph_id=self.GRAPH_ID, alias="domain")
+        self.assertEqual(domain_node.datatype, "reference")
+        self.assertFalse(domain_node.config["multiValue"])
+        expected_list_id = str(List.objects.get(name=self.DOMAIN_LIST).pk)
+        self.assertEqual(domain_node.config["controlledList"], expected_list_id)
+
+        unchanged_nodes = Node.objects.filter(
+            graph_id=self.GRAPH_ID,
+            alias__in=["domain_radio", "domain_list", "domain_checkbox"],
+        )
+        for node in unchanged_nodes:
+            self.assertIn(node.datatype, ["domain-value", "domain-value-list"])
+
+
 class ChangeUrlBaseTests(TestCase):
 
     def setUp(self):

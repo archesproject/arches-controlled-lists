@@ -22,12 +22,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Node-value"
                     },
                     "nodegroup_id": "d697b522-c8c0-11ed-87a7-0242ac130009",
                     "sortorder": 9,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -49,12 +49,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Url"
                     },
                     "nodegroup_id": "307c4274-c8c1-11ed-a172-0242ac130009",
                     "sortorder": 13,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -76,12 +76,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Geometry"
                     },
                     "nodegroup_id": "be25bdf0-c8bf-11ed-a172-0242ac130009",
                     "sortorder": 5,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -103,12 +103,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "String"
                     },
                     "nodegroup_id": "bf611c24-c8be-11ed-b6a9-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -130,12 +130,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Concept"
                     },
                     "nodegroup_id": "6584b9c6-c8bf-11ed-a644-0242ac130009",
                     "sortorder": 3,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -157,12 +157,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Domain"
                     },
                     "nodegroup_id": "fa3e4e88-c8bf-11ed-bf64-0242ac130009",
                     "sortorder": 6,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -184,12 +184,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "EDTF"
                     },
                     "nodegroup_id": "b74e29fe-c8c4-11ed-aab4-0242ac130009",
                     "sortorder": 11,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -211,12 +211,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "File-list"
                     },
                     "nodegroup_id": "1d1bfbea-c8bf-11ed-bf64-0242ac130009",
                     "sortorder": 2,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -238,12 +238,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Resource-instance"
                     },
                     "nodegroup_id": "402c95f2-c8c1-11ed-87a7-0242ac130009",
                     "sortorder": 14,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -265,12 +265,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Domain-list"
                     },
                     "nodegroup_id": "4780cbb2-c8c0-11ed-a172-0242ac130009",
                     "sortorder": 7,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -292,12 +292,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Date"
                     },
                     "nodegroup_id": "aa5a71de-c8c0-11ed-a172-0242ac130009",
                     "sortorder": 8,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -319,12 +319,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Boolean"
                     },
                     "nodegroup_id": "fa6614e4-c8c0-11ed-a172-0242ac130009",
                     "sortorder": 10,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -346,12 +346,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Annotation"
                     },
                     "nodegroup_id": "24012b72-c8c1-11ed-a172-0242ac130009",
                     "sortorder": 12,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -373,12 +373,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Number"
                     },
                     "nodegroup_id": "079e06e6-c8bf-11ed-a172-0242ac130009",
                     "sortorder": 1,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -400,12 +400,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Image"
                     },
                     "nodegroup_id": "f85dab40-791d-11ee-88a6-0242ac130007",
                     "sortorder": null,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -427,12 +427,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Concept-list"
                     },
                     "nodegroup_id": "96f14fa6-c8bf-11ed-a644-0242ac130009",
                     "sortorder": 4,
+                    "source_identifier_id": null,
                     "visible": true
                 },
                 {
@@ -454,12 +454,12 @@
                     "instructions": {
                         "en": ""
                     },
-                    "is_editable": true,
                     "name": {
                         "en": "Non-localized-string"
                     },
                     "nodegroup_id": "cb30d5aa-59c5-11ef-a45a-faffc210b420",
                     "sortorder": null,
+                    "source_identifier_id": null,
                     "visible": true
                 }
             ],
@@ -475,7 +475,8 @@
                         "options": [],
                         "placeholder": {
                             "en": "Select an option"
-                        }
+                        },
+                        "url": "/concepts/dropdown?conceptid=967d6bf5-1e18-4499-a804-1038d78d6ebe"
                     },
                     "id": "1c31887a-8331-4c30-847d-13aae9e84ebe",
                     "label": {
@@ -483,6 +484,7 @@
                     },
                     "node_id": "a39d6af0-c8bf-11ed-a644-0242ac130009",
                     "sortorder": 1,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000013"
                 },
@@ -497,7 +499,8 @@
                         "options": [],
                         "placeholder": {
                             "en": "Select an option"
-                        }
+                        },
+                        "url": "/concepts/dropdown?conceptid=967d6bf5-1e18-4499-a804-1038d78d6ebe"
                     },
                     "id": "1de548f0-ae5a-4722-9652-b317ce15dc03",
                     "label": {
@@ -505,6 +508,7 @@
                     },
                     "node_id": "76586b26-c8bf-11ed-a644-0242ac130009",
                     "sortorder": 1,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000009"
                 },
@@ -552,6 +556,7 @@
                     },
                     "node_id": "be25bdf0-c8bf-11ed-a172-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000007"
                 },
@@ -570,6 +575,7 @@
                     },
                     "node_id": "088e7d2c-c8c1-11ed-a172-0242ac130009",
                     "sortorder": 1,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000003"
                 },
@@ -599,6 +605,7 @@
                     },
                     "node_id": "db550634-c8be-11ed-b6a9-0242ac130009",
                     "sortorder": 1,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000005"
                 },
@@ -620,6 +627,7 @@
                     },
                     "node_id": "4780cbb2-c8c0-11ed-a172-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000016"
                 },
@@ -656,6 +664,7 @@
                     },
                     "node_id": "079e06e6-c8bf-11ed-a172-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000008"
                 },
@@ -677,6 +686,7 @@
                     },
                     "node_id": "402c95f2-c8c1-11ed-87a7-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "31f3728c-7613-11e7-a139-784f435179ea"
                 },
@@ -698,6 +708,7 @@
                     },
                     "node_id": "0f0509c4-c8c0-11ed-a644-0242ac130009",
                     "sortorder": 1,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000017"
                 },
@@ -719,6 +730,7 @@
                     },
                     "node_id": "7f4406d0-c8c1-11ed-a172-0242ac130009",
                     "sortorder": 1,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "ff3c400a-76ec-11e7-a793-784f435179ea"
                 },
@@ -738,6 +750,7 @@
                     },
                     "node_id": "f85dab40-791d-11ee-88a6-0242ac130007",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000019"
                 },
@@ -767,6 +780,7 @@
                     },
                     "node_id": "bf611c24-c8be-11ed-b6a9-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000001"
                 },
@@ -792,6 +806,7 @@
                     },
                     "node_id": "307c4274-c8c1-11ed-a172-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "ca0c43ff-af73-4349-bafd-53ff9f22eebd"
                 },
@@ -813,6 +828,7 @@
                     },
                     "node_id": "b74e29fe-c8c4-11ed-aab4-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "adfd15ce-dbab-11e7-86d1-0fcf08612b27"
                 },
@@ -835,6 +851,7 @@
                     },
                     "node_id": "6584b9c6-c8bf-11ed-a644-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000002"
                 },
@@ -857,6 +874,7 @@
                     },
                     "node_id": "96f14fa6-c8bf-11ed-a644-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000012"
                 },
@@ -878,6 +896,7 @@
                     },
                     "node_id": "d697b522-c8c0-11ed-87a7-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "f5d6b190-bbf0-4dc9-b991-1debab8cb4a9"
                 },
@@ -899,6 +918,7 @@
                     },
                     "node_id": "5d9d4236-c8c0-11ed-bf64-0242ac130009",
                     "sortorder": 1,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000018"
                 },
@@ -914,6 +934,7 @@
                     },
                     "node_id": "24012b72-c8c1-11ed-a172-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "aae743b8-4c48-11ea-988b-2bc775672c81"
                 },
@@ -929,6 +950,7 @@
                     },
                     "node_id": "fa6614e4-c8c0-11ed-a172-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000006"
                 },
@@ -953,6 +975,7 @@
                     },
                     "node_id": "cb30d5aa-59c5-11ef-a45a-faffc210b420",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "46ef064b-2611-4708-9f52-60136bd8a65b"
                 },
@@ -974,6 +997,7 @@
                     },
                     "node_id": "fa3e4e88-c8bf-11ed-bf64-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000015"
                 },
@@ -993,6 +1017,7 @@
                     },
                     "node_id": "aa5a71de-c8c0-11ed-a172-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000004"
                 },
@@ -1011,6 +1036,7 @@
                     },
                     "node_id": "1d1bfbea-c8bf-11ed-bf64-0242ac130009",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "visible": true,
                     "widget_id": "10000000-0000-0000-0000-000000000019"
                 }
@@ -1030,7 +1056,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "d697b522-c8c0-11ed-87a7-0242ac130009"
+                    "rangenode_id": "d697b522-c8c0-11ed-87a7-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1039,7 +1066,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "079e06e6-c8bf-11ed-a172-0242ac130009"
+                    "rangenode_id": "079e06e6-c8bf-11ed-a172-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1048,7 +1076,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "4780cbb2-c8c0-11ed-a172-0242ac130009"
+                    "rangenode_id": "4780cbb2-c8c0-11ed-a172-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1057,7 +1086,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "6584b9c6-c8bf-11ed-a644-0242ac130009"
+                    "rangenode_id": "6584b9c6-c8bf-11ed-a644-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1066,7 +1096,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "f85dab40-791d-11ee-88a6-0242ac130007"
+                    "rangenode_id": "f85dab40-791d-11ee-88a6-0242ac130007",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1075,7 +1106,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "a39d6af0-c8bf-11ed-a644-0242ac130009"
+                    "rangenode_id": "a39d6af0-c8bf-11ed-a644-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1084,7 +1116,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "bf611c24-c8be-11ed-b6a9-0242ac130009"
+                    "rangenode_id": "bf611c24-c8be-11ed-b6a9-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1093,7 +1126,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "96f14fa6-c8bf-11ed-a644-0242ac130009"
+                    "rangenode_id": "96f14fa6-c8bf-11ed-a644-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1102,7 +1136,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "5d9d4236-c8c0-11ed-bf64-0242ac130009"
+                    "rangenode_id": "5d9d4236-c8c0-11ed-bf64-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1111,7 +1146,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "1d1bfbea-c8bf-11ed-bf64-0242ac130009"
+                    "rangenode_id": "1d1bfbea-c8bf-11ed-bf64-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1120,7 +1156,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "b74e29fe-c8c4-11ed-aab4-0242ac130009"
+                    "rangenode_id": "b74e29fe-c8c4-11ed-aab4-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1129,7 +1166,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "aa5a71de-c8c0-11ed-a172-0242ac130009"
+                    "rangenode_id": "aa5a71de-c8c0-11ed-a172-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1138,7 +1176,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "088e7d2c-c8c1-11ed-a172-0242ac130009"
+                    "rangenode_id": "088e7d2c-c8c1-11ed-a172-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1147,7 +1186,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "402c95f2-c8c1-11ed-87a7-0242ac130009"
+                    "rangenode_id": "402c95f2-c8c1-11ed-87a7-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1156,7 +1196,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "7f4406d0-c8c1-11ed-a172-0242ac130009"
+                    "rangenode_id": "7f4406d0-c8c1-11ed-a172-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1165,7 +1206,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "76586b26-c8bf-11ed-a644-0242ac130009"
+                    "rangenode_id": "76586b26-c8bf-11ed-a644-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1174,7 +1216,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "fa3e4e88-c8bf-11ed-bf64-0242ac130009"
+                    "rangenode_id": "fa3e4e88-c8bf-11ed-bf64-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1183,7 +1226,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "cb30d5aa-59c5-11ef-a45a-faffc210b420"
+                    "rangenode_id": "cb30d5aa-59c5-11ef-a45a-faffc210b420",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1192,7 +1236,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "0f0509c4-c8c0-11ed-a644-0242ac130009"
+                    "rangenode_id": "0f0509c4-c8c0-11ed-a644-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1201,7 +1246,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "db550634-c8be-11ed-b6a9-0242ac130009"
+                    "rangenode_id": "db550634-c8be-11ed-b6a9-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1210,7 +1256,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "24012b72-c8c1-11ed-a172-0242ac130009"
+                    "rangenode_id": "24012b72-c8c1-11ed-a172-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1219,7 +1266,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "307c4274-c8c1-11ed-a172-0242ac130009"
+                    "rangenode_id": "307c4274-c8c1-11ed-a172-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1228,7 +1276,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "be25bdf0-c8bf-11ed-a172-0242ac130009"
+                    "rangenode_id": "be25bdf0-c8bf-11ed-a172-0242ac130009",
+                    "source_identifier_id": null
                 },
                 {
                     "description": null,
@@ -1237,7 +1286,8 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "name": null,
                     "ontologyproperty": null,
-                    "rangenode_id": "fa6614e4-c8c0-11ed-a172-0242ac130009"
+                    "rangenode_id": "fa6614e4-c8c0-11ed-a172-0242ac130009",
+                    "source_identifier_id": null
                 }
             ],
             "functions_x_graphs": [
@@ -1265,8 +1315,11 @@
                 }
             ],
             "graphid": "d71a8f56-987f-4fd1-87b5-538378740f15",
+            "group_permissions": {},
+            "has_unpublished_changes": true,
             "iconclass": "fa fa-align-justify",
-            "is_editable": true,
+            "is_active": false,
+            "is_copy_immutable": false,
             "isresource": true,
             "jsonldcontext": null,
             "name": {
@@ -1275,102 +1328,119 @@
             "nodegroups": [
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "079e06e6-c8bf-11ed-a172-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "079e06e6-c8bf-11ed-a172-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "1d1bfbea-c8bf-11ed-bf64-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "1d1bfbea-c8bf-11ed-bf64-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "24012b72-c8c1-11ed-a172-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "24012b72-c8c1-11ed-a172-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "307c4274-c8c1-11ed-a172-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "307c4274-c8c1-11ed-a172-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "402c95f2-c8c1-11ed-87a7-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "402c95f2-c8c1-11ed-87a7-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "4780cbb2-c8c0-11ed-a172-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "4780cbb2-c8c0-11ed-a172-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "6584b9c6-c8bf-11ed-a644-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "6584b9c6-c8bf-11ed-a644-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "96f14fa6-c8bf-11ed-a644-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "96f14fa6-c8bf-11ed-a644-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "aa5a71de-c8c0-11ed-a172-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "aa5a71de-c8c0-11ed-a172-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "b74e29fe-c8c4-11ed-aab4-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "b74e29fe-c8c4-11ed-aab4-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "be25bdf0-c8bf-11ed-a172-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "be25bdf0-c8bf-11ed-a172-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "bf611c24-c8be-11ed-b6a9-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "bf611c24-c8be-11ed-b6a9-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "cb30d5aa-59c5-11ef-a45a-faffc210b420",
                     "legacygroupid": null,
                     "nodegroupid": "cb30d5aa-59c5-11ef-a45a-faffc210b420",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "d697b522-c8c0-11ed-87a7-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "d697b522-c8c0-11ed-87a7-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "f85dab40-791d-11ee-88a6-0242ac130007",
                     "legacygroupid": null,
                     "nodegroupid": "f85dab40-791d-11ee-88a6-0242ac130007",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "fa3e4e88-c8bf-11ed-bf64-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "fa3e4e88-c8bf-11ed-bf64-0242ac130009",
                     "parentnodegroup_id": null
                 },
                 {
                     "cardinality": "1",
+                    "grouping_node_id": "fa6614e4-c8c0-11ed-a172-0242ac130009",
                     "legacygroupid": null,
                     "nodegroupid": "fa6614e4-c8c0-11ed-a172-0242ac130009",
                     "parentnodegroup_id": null
@@ -1389,6 +1459,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1398,6 +1469,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1421,6 +1493,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": false,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1430,15 +1503,31 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
                     "alias": "domain_radio",
                     "config": {
+                        "defaultValue": "cba2cbab-7e49-4248-985e-053f24fdf8eb",
                         "i18n_config": {
                             "fn": "arches.app.datatypes.datatypes.DomainDataType"
                         },
                         "options": [
+                            {
+                                "id": "77f312cb-5b17-4a02-8d1f-37def9599938",
+                                "selected": false,
+                                "text": {
+                                    "en": "4"
+                                }
+                            },
+                            {
+                                "id": "a7556098-28bf-4eff-93df-542dc746a45e",
+                                "selected": false,
+                                "text": {
+                                    "en": "3"
+                                }
+                            },
                             {
                                 "id": "cba2cbab-7e49-4248-985e-053f24fdf8eb",
                                 "selected": false,
@@ -1452,20 +1541,6 @@
                                 "text": {
                                     "en": "2"
                                 }
-                            },
-                            {
-                                "id": "a7556098-28bf-4eff-93df-542dc746a45e",
-                                "selected": false,
-                                "text": {
-                                    "en": "3"
-                                }
-                            },
-                            {
-                                "id": "77f312cb-5b17-4a02-8d1f-37def9599938",
-                                "selected": false,
-                                "text": {
-                                    "en": "4"
-                                }
                             }
                         ]
                     },
@@ -1476,6 +1551,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": false,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1485,6 +1561,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1502,6 +1579,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1511,6 +1589,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1525,6 +1604,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1534,6 +1614,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1548,6 +1629,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1557,6 +1639,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1582,6 +1665,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1591,11 +1675,16 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
                     "alias": "domain_list",
                     "config": {
+                        "defaultValue": [
+                            "2e440bf6-4f0c-465c-8348-99d9be3cc148",
+                            "2f53ffee-f7a2-48cd-850c-804cfd916e37"
+                        ],
                         "i18n_config": {
                             "fn": "arches.app.datatypes.datatypes.DomainDataType"
                         },
@@ -1637,6 +1726,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1646,27 +1736,25 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
                     "alias": "domain_checkbox",
                     "config": {
+                        "defaultValue": [
+                            "2f53ffee-f7a2-48cd-850c-804cfd916e37",
+                            "2e440bf6-4f0c-465c-8348-99d9be3cc148"
+                        ],
                         "i18n_config": {
                             "fn": "arches.app.datatypes.datatypes.DomainDataType"
                         },
                         "options": [
                             {
-                                "id": "d249178e-c146-4adc-9eaf-dc0d6c9cf032",
+                                "id": "2e440bf6-4f0c-465c-8348-99d9be3cc148",
                                 "selected": false,
                                 "text": {
-                                    "en": "D"
-                                }
-                            },
-                            {
-                                "id": "3d955540-8d06-4f3d-aad0-75b008549d3c",
-                                "selected": false,
-                                "text": {
-                                    "en": "C"
+                                    "en": "A"
                                 }
                             },
                             {
@@ -1677,10 +1765,17 @@
                                 }
                             },
                             {
-                                "id": "2e440bf6-4f0c-465c-8348-99d9be3cc148",
+                                "id": "3d955540-8d06-4f3d-aad0-75b008549d3c",
                                 "selected": false,
                                 "text": {
-                                    "en": "A"
+                                    "en": "C"
+                                }
+                            },
+                            {
+                                "id": "d249178e-c146-4adc-9eaf-dc0d6c9cf032",
+                                "selected": false,
+                                "text": {
+                                    "en": "D"
                                 }
                             }
                         ]
@@ -1692,6 +1787,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": false,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1701,10 +1797,11 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
-                    "alias": null,
+                    "alias": "all_datatypes",
                     "config": {
                         "en": ""
                     },
@@ -1715,6 +1812,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": false,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": true,
@@ -1724,12 +1822,14 @@
                     "ontologyclass": null,
                     "parentproperty": "",
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
                     "alias": "concept",
                     "config": {
-                        "rdmCollection": "967d6bf5-1e18-4499-a804-1038d78d6ebe"
+                        "defaultValue": "ac41d9be-79db-4256-b368-2f4559cfbe55",
+                        "rdmCollection": "00000000-0000-0000-0000-000000000005"
                     },
                     "datatype": "concept",
                     "description": null,
@@ -1738,6 +1838,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1747,6 +1848,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1761,6 +1863,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": false,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1770,6 +1873,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1795,6 +1899,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": false,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1804,12 +1909,16 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
                     "alias": "concept_list",
                     "config": {
-                        "rdmCollection": "967d6bf5-1e18-4499-a804-1038d78d6ebe"
+                        "defaultValue": [
+                            "ac41d9be-79db-4256-b368-2f4559cfbe55"
+                        ],
+                        "rdmCollection": "00000000-0000-0000-0000-000000000005"
                     },
                     "datatype": "concept-list",
                     "description": null,
@@ -1818,6 +1927,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1827,6 +1937,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1841,6 +1952,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": false,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1850,6 +1962,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1864,6 +1977,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1873,6 +1987,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1893,6 +2008,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1902,6 +2018,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1937,6 +2054,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1946,6 +2064,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1960,6 +2079,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": true,
                     "issearchable": true,
                     "istopnode": false,
@@ -1969,6 +2089,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -1983,6 +2104,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -1992,6 +2114,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -2007,6 +2130,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -2016,6 +2140,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -2030,6 +2155,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": false,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -2039,6 +2165,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -2056,6 +2183,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -2065,15 +2193,31 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
                     "alias": "domain",
                     "config": {
+                        "defaultValue": "cba2cbab-7e49-4248-985e-053f24fdf8eb",
                         "i18n_config": {
                             "fn": "arches.app.datatypes.datatypes.DomainDataType"
                         },
                         "options": [
+                            {
+                                "id": "77f312cb-5b17-4a02-8d1f-37def9599938",
+                                "selected": false,
+                                "text": {
+                                    "en": "4"
+                                }
+                            },
+                            {
+                                "id": "a7556098-28bf-4eff-93df-542dc746a45e",
+                                "selected": false,
+                                "text": {
+                                    "en": "3"
+                                }
+                            },
                             {
                                 "id": "cba2cbab-7e49-4248-985e-053f24fdf8eb",
                                 "selected": false,
@@ -2087,20 +2231,6 @@
                                 "text": {
                                     "en": "2"
                                 }
-                            },
-                            {
-                                "id": "a7556098-28bf-4eff-93df-542dc746a45e",
-                                "selected": false,
-                                "text": {
-                                    "en": "3"
-                                }
-                            },
-                            {
-                                "id": "77f312cb-5b17-4a02-8d1f-37def9599938",
-                                "selected": false,
-                                "text": {
-                                    "en": "4"
-                                }
                             }
                         ]
                     },
@@ -2111,6 +2241,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -2120,6 +2251,7 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 },
                 {
@@ -2143,6 +2275,7 @@
                     "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                     "hascustomalias": false,
                     "is_collector": true,
+                    "is_immutable": false,
                     "isrequired": false,
                     "issearchable": true,
                     "istopnode": false,
@@ -2152,20 +2285,83 @@
                     "ontologyclass": null,
                     "parentproperty": null,
                     "sortorder": 0,
+                    "source_identifier_id": null,
                     "sourcebranchpublication_id": null
                 }
             ],
             "ontology_id": null,
             "publication": {
                 "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
+                "most_recent_edit_id": null,
                 "notes": null,
-                "publicationid": "86be9906-59cb-11ef-a45a-faffc210b420",
-                "published_time": "2024-08-13T18:26:54.564"
+                "publicationid": "2245c4d1-587e-454a-8d35-2980b0eae1cb",
+                "published_time": "2026-06-11T10:36:02.300"
             },
             "relatable_resource_model_ids": [],
             "resource_2_resource_constraints": [],
+            "resource_instance_lifecycle": {
+                "id": "7e3cce56-fbfb-4a4b-8e83-59b9f9e7cb75",
+                "name": {
+                    "en": "Standard"
+                },
+                "resource_instance_lifecycle_states": [
+                    {
+                        "action_label": {
+                            "en": "Revert to Draft"
+                        },
+                        "can_delete_resource_instances": true,
+                        "can_edit_resource_instances": true,
+                        "id": "9375c9a7-dad2-4f14-a5c1-d7e329fdde4f",
+                        "is_initial_state": true,
+                        "name": {
+                            "en": "Draft"
+                        },
+                        "next_resource_instance_lifecycle_states": [
+                            "f75bb034-36e3-4ab4-8167-f520cf0b4c58"
+                        ],
+                        "previous_resource_instance_lifecycle_states": [],
+                        "resource_instance_lifecycle_id": "7e3cce56-fbfb-4a4b-8e83-59b9f9e7cb75"
+                    },
+                    {
+                        "action_label": {
+                            "en": "Make Active"
+                        },
+                        "can_delete_resource_instances": false,
+                        "can_edit_resource_instances": true,
+                        "id": "f75bb034-36e3-4ab4-8167-f520cf0b4c58",
+                        "is_initial_state": false,
+                        "name": {
+                            "en": "Active"
+                        },
+                        "next_resource_instance_lifecycle_states": [
+                            "d95d9c0e-0e2c-4450-93a3-d788b91abcc8"
+                        ],
+                        "previous_resource_instance_lifecycle_states": [
+                            "9375c9a7-dad2-4f14-a5c1-d7e329fdde4f"
+                        ],
+                        "resource_instance_lifecycle_id": "7e3cce56-fbfb-4a4b-8e83-59b9f9e7cb75"
+                    },
+                    {
+                        "action_label": {
+                            "en": "Retire"
+                        },
+                        "can_delete_resource_instances": false,
+                        "can_edit_resource_instances": false,
+                        "id": "d95d9c0e-0e2c-4450-93a3-d788b91abcc8",
+                        "is_initial_state": false,
+                        "name": {
+                            "en": "Retired"
+                        },
+                        "next_resource_instance_lifecycle_states": [],
+                        "previous_resource_instance_lifecycle_states": [
+                            "f75bb034-36e3-4ab4-8167-f520cf0b4c58"
+                        ],
+                        "resource_instance_lifecycle_id": "7e3cce56-fbfb-4a4b-8e83-59b9f9e7cb75"
+                    }
+                ]
+            },
             "root": {
-                "alias": null,
+                "alias": "all_datatypes",
                 "config": {
                     "en": ""
                 },
@@ -2176,6 +2372,7 @@
                 "graph_id": "d71a8f56-987f-4fd1-87b5-538378740f15",
                 "hascustomalias": false,
                 "is_collector": false,
+                "is_immutable": false,
                 "isrequired": false,
                 "issearchable": true,
                 "istopnode": true,
@@ -2184,20 +2381,24 @@
                 "nodeid": "64cbada6-c8be-11ed-a62f-0242ac130009",
                 "ontologyclass": null,
                 "sortorder": 0,
+                "source_identifier_id": null,
                 "sourcebranchpublication_id": null
             },
             "slug": "all_datatypes",
+            "source_identifier_id": null,
+            "spatial_views": [],
             "subtitle": {
                 "en": ""
             },
             "template_id": "50000000-0000-0000-0000-000000000001",
+            "user_permissions": {},
             "version": ""
         }
     ],
     "metadata": {
-        "db": "PostgreSQL 14.8 on aarch64-apple-darwin20.6.0, compiled by Apple clang version 12.0.5 (clang-1205.0.22.9), 64-bit",
-        "git hash": "8f8ac4b02c 2024-08-09 13:53:47 -0700",
+        "db": "PostgreSQL 17.9 (Postgres.app) on aarch64-apple-darwin23.6.0, compiled by Apple clang version 15.0.0 (clang-1500.3.9.4), 64-bit",
+        "git hash": "",
         "os": "Darwin",
-        "os version": "23.2.0"
+        "os version": "25.5.0"
     }
 }

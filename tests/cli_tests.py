@@ -439,19 +439,20 @@ class MigrateConceptNodesToReferenceDatatypeTests(TestCase):
         self.assertEqual(len(nodes.filter(datatype__in=["concept", "concept-list"])), 0)
         self.assertEqual(len(reference_nodes), 4)
 
-        expected_node_config_keys = ["multiValue", "controlledList"]
-        expected_widget_config_keys = [
-            "label",
-            "placeholder",
-            "defaultValue",
-            "i18n_properties",
-        ]
+        expected_node_config_keys = set(
+            ["multiValue", "defaultValue", "controlledList"]
+        )
+        expected_widget_config_keys = set(
+            [
+                "label",
+                "placeholder",
+                "i18n_properties",
+            ]
+        )
         for node in reference_nodes:
-            self.assertEqual(expected_node_config_keys, list(node.config.keys()))
+            self.assertEqual(expected_node_config_keys, set(node.config.keys()))
             for widget in node.cardxnodexwidget_set.all():
-                self.assertEqual(
-                    expected_widget_config_keys, list(widget.config.keys())
-                )
+                self.assertEqual(expected_widget_config_keys, set(widget.config.keys()))
 
     def test_no_matching_graph_error(self):
         output = io.StringIO()
@@ -672,9 +673,22 @@ class MigrateDomainNodesToReferenceDatatypeTests(
         )
         self.assertEqual(reference_nodes.count(), 4)
 
+        expected_node_config_keys = set(
+            ["multiValue", "defaultValue", "controlledList"]
+        )
+        expected_widget_config_keys = set(
+            [
+                "label",
+                "placeholder",
+                "i18n_properties",
+            ]
+        )
+
         for node in reference_nodes:
             config = node.config
-            self.assertIn("controlledList", config)
+            self.assertEqual(expected_node_config_keys, set(config.keys()))
+            for widget in node.cardxnodexwidget_set.all():
+                self.assertEqual(expected_widget_config_keys, set(widget.config.keys()))
             if node.alias in ("domain", "domain_radio"):
                 self.assertFalse(config["multiValue"])
             else:

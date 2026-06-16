@@ -674,7 +674,7 @@ class MigrateDomainNodesToReferenceDatatypeTests(
         self.assertEqual(reference_nodes.count(), 4)
 
         expected_node_config_keys = set(
-            ["multiValue", "defaultValue", "controlledList"]
+            ["multiValue", "defaultValue", "controlledList", "options", "i18n_config"]
         )
         expected_widget_config_keys = set(
             [

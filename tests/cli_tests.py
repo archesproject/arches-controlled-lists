@@ -39,8 +39,8 @@ class PackageCommandTests(TestCase):
             list_item_id__in=new_list_items.all()
         )
         self.assertEqual(new_lists.count(), 1)
-        self.assertEqual(new_list_items.count(), 17)
-        self.assertEqual(new_list_item_values.count(), 21)
+        self.assertEqual(new_list_items.count(), 19)
+        self.assertEqual(new_list_item_values.count(), 23)
 
 
 class ListExportPackageTests(TestCase):
@@ -199,8 +199,8 @@ class ListImportPackageTests(TestCase):
             )
 
         self.assertEqual(List.objects.count(), 1)
-        self.assertEqual(ListItem.objects.count(), 17)
-        self.assertEqual(ListItemValue.objects.count(), 21)
+        self.assertEqual(ListItem.objects.count(), 19)
+        self.assertEqual(ListItemValue.objects.count(), 23)
         # child1 list item should be duplicated
         child1_list_items = ListItem.objects.filter(
             uri="http://localhost:8000/fea17c9d-e9c2-4469-91f9-6519f6692625"
@@ -222,6 +222,13 @@ class ListImportPackageTests(TestCase):
             child1_instance_2.list_item_values.first().value,
         )
 
+        # child1 has a child item named grandchild1 that should also be duplicated with
+        # same URI but different pk and parent
+        self.assertNotEqual(
+            set(child1_instance_1.children.all()),
+            set(child1_instance_2.children.all()),
+        )
+
         # Re-run with overwrite
         with captured_stdout():
             management.call_command(
@@ -233,8 +240,8 @@ class ListImportPackageTests(TestCase):
             )
 
         self.assertEqual(List.objects.count(), 1)
-        self.assertEqual(ListItem.objects.count(), 17)
-        self.assertEqual(ListItemValue.objects.count(), 21)
+        self.assertEqual(ListItem.objects.count(), 19)
+        self.assertEqual(ListItemValue.objects.count(), 23)
 
         # Re-run last time with duplicate
         with captured_stdout():
@@ -247,8 +254,8 @@ class ListImportPackageTests(TestCase):
             )
 
         self.assertEqual(List.objects.count(), 2)
-        self.assertEqual(ListItem.objects.count(), 34)
-        self.assertEqual(ListItemValue.objects.count(), 42)
+        self.assertEqual(ListItem.objects.count(), 38)
+        self.assertEqual(ListItemValue.objects.count(), 46)
 
     def test_import_from_skos_via_directory(self):
         input_dir = os.path.join(
@@ -266,8 +273,8 @@ class ListImportPackageTests(TestCase):
             )
 
         self.assertEqual(List.objects.count(), 1)
-        self.assertEqual(ListItem.objects.count(), 17)
-        self.assertEqual(ListItemValue.objects.count(), 21)
+        self.assertEqual(ListItem.objects.count(), 19)
+        self.assertEqual(ListItemValue.objects.count(), 23)
 
 
 class RDMToControlledListsETLTests(TestCase):

@@ -275,8 +275,8 @@ class ListTests(TestCase):
             list_item_id__in=new_list_items.all()
         )
         self.assertEqual(new_lists.count(), 1)
-        self.assertEqual(new_list_items.count(), 17)
-        self.assertEqual(new_list_item_values.count(), 21)
+        self.assertEqual(new_list_items.count(), 19)
+        self.assertEqual(new_list_item_values.count(), 23)
 
     def test_export_skos_post(self):
         self.client.force_login(self.admin)

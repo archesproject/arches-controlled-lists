@@ -180,6 +180,7 @@ class SKOSReader(SKOSReader):
                     list_items_to_update = []
 
                     ### Relationships ###
+                    polyhierarchical_items = []
                     for child, parents in self.relations.items():
                         if not isinstance(child, ListItem):
                             child = self.list_items[child]
@@ -196,13 +197,21 @@ class SKOSReader(SKOSReader):
                             list_items_to_update.append(child)
 
                             if len(parents) > 1:
-                                new_children, new_children_values = (
-                                    child.duplicate_under_new_parent(parents[1:])
-                                )
-                                duplicate_list_items.extend(new_children)
-                                duplicate_list_items_values.extend(new_children_values)
+                                polyhierarchical_items.append((child, parents[1:]))
 
+                    # Commit parent FKs before duplicating so that child.children.all()
+                    # returns the correct descendants when include_children=True
                     ListItem.objects.bulk_update(list_items_to_update, ["parent"])
+
+                    for child, extra_parents in polyhierarchical_items:
+                        new_children, new_children_values = (
+                            child.duplicate_under_new_parent(
+                                extra_parents, include_children=True
+                            )
+                        )
+                        duplicate_list_items.extend(new_children)
+                        duplicate_list_items_values.extend(new_children_values)
+
                     new_list_items.extend(
                         ListItem.objects.bulk_create(duplicate_list_items)
                     )

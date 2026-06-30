@@ -26,6 +26,7 @@ const emit = defineEmits<{
     "update:isLoading": [isLoading: boolean];
     "update:value": [updatedValue: ReferenceSelectNodeValue[]];
     "update:aliasedNodeData": [updatedValue: ReferenceSelectAliasedNodeData];
+    initialized: [updatedValue: ReferenceSelectAliasedNodeData];
 }>();
 
 // aliasedNodeData !== undefined means the caller passed it (even if null);
@@ -48,6 +49,7 @@ const resolvedNodeValue = computed<ReferenceSelectNodeValue[] | null>(() => {
         @update:is-loading="emit('update:isLoading', $event)"
         @update:value="emit('update:value', $event)"
         @update:aliased-node-data="emit('update:aliasedNodeData', $event)"
+        @initialized="emit('initialized', $event)"
     />
     <ReferenceSelectWidgetViewer
         v-if="mode === VIEW"

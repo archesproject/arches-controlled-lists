@@ -31,9 +31,11 @@ const emit = defineEmits<{
         event: "update:aliasedNodeData",
         updatedValue: ReferenceSelectAliasedNodeData,
     ): void;
+    (event: "initialized", updatedValue: ReferenceSelectAliasedNodeData): void;
 }>();
 
 const options = ref<ReferenceSelectTreeNode[]>();
+const hasInitialized = ref(false);
 const isLoading = ref(false);
 const optionsError = ref<string | null>(null);
 const expandedKeys: Ref<TreeExpandedKeys> = ref({});
@@ -119,6 +121,14 @@ async function getOptions() {
         optionsError.value = (error as Error).message;
     } finally {
         isLoading.value = false;
+
+        if (!hasInitialized.value) {
+            hasInitialized.value = true;
+            emit(
+                "initialized",
+                buildReferenceSelectAliasedNodeData(value ?? []),
+            );
+        }
     }
 }
 

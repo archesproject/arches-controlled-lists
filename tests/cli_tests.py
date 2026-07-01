@@ -1,12 +1,13 @@
 import io
 import os
+from unittest.mock import patch
 
 from django.core import management
 from django.test import TestCase
 from django.test.utils import captured_stdout
 from django.core.management.base import CommandError
 
-from arches.app.models.models import Node
+from arches.app.models.models import Node, GraphModel, ResourceInstance, TileModel
 from arches_controlled_lists.models import List, ListItem, ListItemValue
 
 from .test_settings import PROJECT_TEST_ROOT, TEST_PACKAGE_DIR
@@ -838,3 +839,87 @@ class ChangeUrlBaseTests(TestCase):
         self.assertTrue(self.item1.uri.startswith("http://"))
         self.assertIn("test.org", self.item1.uri)
         self.assertNotIn(":80", self.item1.uri)
+
+
+class MigrateTileDataToReferenceDatatype(TestCase):
+    """
+    Tile tests fixtures have two models:
+    - `Concept Value Migration Test`, with four concept origin nodes
+    - `Domain Value Migration Test`, with four domain origin nodes
+    Each model has a resource instance with tiles created with concept & domain values, repectively.
+    The collections/domain values used by those nodes were migrated to controlled lists (see `MigrateCollectionsToControlledListsTests` and `MigrateDomainNodesToControlledListsTests`).
+    Then the nodes were migrated to reference datatype (see `MigrateConceptNodesToReferenceDatatypeTests` and `MigrateDomainNodesToReferenceDatatypeTests`).
+
+    The fixture mocks the state of an Arches instance just before tile data need to be migrated to the reference datatype.
+
+    To create test fixtures run:
+    python manage.py dumpdata models.CardModel models.CardComponent models.CardXNodeXWidget models.Concept models.Edge models.GraphModel models.GraphXPublishedGraph models.PublishedGraph models.PublishedGraphEdit models.Language models.NodeGroup models.Node models.Relation models.ResourceXResource models.ResourceInstance models.TileModel models.Value models.Widget arches_controlled_lists.List arches_controlled_lists.ListItem arches_controlled_lists.ListItemValue --format json --output tile_migration_test_data.json
+    """
+
+    fixtures = ["tile_migration_test_data"]
+
+    CONCEPT_GRAPH_SLUG = "concept-node-migration-test"
+    DOMAIN_GRAPH_SLUG = "domain-node-migration-test"
+
+    def _run_migration(self, graph, origin):
+        with (
+            captured_stdout(),
+            patch("arches.app.etl_modules.save.disable_tile_triggers"),
+            patch("arches.app.etl_modules.save.reenable_tile_triggers"),
+        ):
+            management.call_command(
+                "controlled_lists",
+                operation="migrate_tile_data_to_reference_datatype",
+                graph=graph,
+                origin=origin,
+            )
+
+    def _assert_reference_shape(self, node_val):
+        self.assertIsInstance(node_val, list)
+        for entry in node_val:
+            self.assertEqual(set(entry.keys()), {"uri", "labels", "list_id"})
+            self.assertIsInstance(entry["labels"], list)
+            self.assertTrue(entry["labels"])
+
+    def test_migrate_domain_tile_data_to_reference_datatype(self):
+        self._run_migration(self.DOMAIN_GRAPH_SLUG, "domain")
+
+        domain_graph = GraphModel.objects.get(slug=self.DOMAIN_GRAPH_SLUG)
+        domain_node = Node.objects.get(graph=domain_graph, alias="domain")
+        domain_list_node = Node.objects.get(graph=domain_graph, alias="domain_list")
+        resource = ResourceInstance.objects.filter(graph=domain_graph).first()
+
+        tile1 = TileModel.objects.filter(
+            resourceinstance=resource,
+            nodegroup=domain_node.nodegroup,
+        ).first()
+        node_val = tile1.data[str(domain_node.pk)]
+        self._assert_reference_shape(node_val)
+
+        tile2 = TileModel.objects.filter(
+            resourceinstance=resource,
+            nodegroup=domain_list_node.nodegroup,
+        ).first()
+        node_val = tile2.data[str(domain_list_node.pk)]
+        self._assert_reference_shape(node_val)
+
+    def test_migrate_concept_tile_data_to_reference_datatype(self):
+        self._run_migration(self.CONCEPT_GRAPH_SLUG, "concept")
+
+        concept_graph = GraphModel.objects.get(slug=self.CONCEPT_GRAPH_SLUG)
+        concept_node = Node.objects.get(
+            graph=concept_graph, alias="concept_n1_w_default"
+        )
+        concept_list_node = Node.objects.get(
+            graph=concept_graph, alias="concept-list_w_default"
+        )
+        resource = ResourceInstance.objects.filter(graph=concept_graph).first()
+
+        tile = TileModel.objects.filter(
+            resourceinstance=resource,
+            nodegroup=concept_node.nodegroup,
+        ).first()
+        node_val = tile.data[str(concept_node.pk)]
+        self._assert_reference_shape(node_val)
+        node_val = tile.data[str(concept_list_node.pk)]
+        self._assert_reference_shape(node_val)

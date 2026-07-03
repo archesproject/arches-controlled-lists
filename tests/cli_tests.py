@@ -1,7 +1,9 @@
 import io
 import os
+from pathlib import Path
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core import management
 from django.test import TestCase
 from django.test.utils import captured_stdout
@@ -860,6 +862,17 @@ class MigrateTileDataToReferenceDatatype(TestCase):
 
     CONCEPT_GRAPH_SLUG = "concept-node-migration-test"
     DOMAIN_GRAPH_SLUG = "domain-node-migration-test"
+
+    @classmethod
+    def _register_etl_module(cls, module_name):
+        from arches.management.commands.etl_module import Command as ETLModuleCommand
+
+        cmd = ETLModuleCommand()
+        cmd.register(source=str(Path(settings.APP_ROOT) / "etl_modules" / module_name))
+
+    def setUp(cls):
+        """setUpClass doesn't work because the rollback fixture is applied after that."""
+        cls._register_etl_module("migrate_to_reference_datatype.py")
 
     def _run_migration(self, graph, origin):
         with (

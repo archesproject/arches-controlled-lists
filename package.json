@@ -19,12 +19,12 @@
         "vitest": "vitest --run --coverage"
     },
     "dependencies": {
-        "arches": "archesproject/arches#dev/8.2.x",
+        "arches": "archesproject/arches#dev/8.1.x",
         "arches-component-lab": "archesproject/arches-component-lab#main",
         "vue-router": "4.4.3"
     },
     "devDependencies": {
-        "arches-dev-dependencies": "archesproject/arches-dev-dependencies#dev/8.2.x"
+        "arches-dev-dependencies": "archesproject/arches-dev-dependencies#dev/8.1.x"
     },
     "nodeModulesPaths": {},
     "overrides": {

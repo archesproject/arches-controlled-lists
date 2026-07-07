@@ -9,7 +9,13 @@ from django.test import TestCase
 from django.test.utils import captured_stdout
 from django.core.management.base import CommandError
 
-from arches.app.models.models import Node, GraphModel, ResourceInstance, TileModel
+from arches.app.models.models import (
+    Node,
+    GraphModel,
+    LoadErrors,
+    ResourceInstance,
+    TileModel,
+)
 from arches_controlled_lists.models import List, ListItem, ListItemValue
 
 from .test_settings import PROJECT_TEST_ROOT, TEST_PACKAGE_DIR
@@ -945,3 +951,17 @@ class MigrateTileDataToReferenceDatatype(TestCase):
         self._assert_reference_shape(node_val)
         node_val = tile.data[str(concept_list_node.pk)]
         self._assert_reference_shape(node_val)
+
+    def test_missing_list_items_during_migration(self):
+        concept_graph = GraphModel.objects.get(slug=self.CONCEPT_GRAPH_SLUG)
+        concept_node = Node.objects.get(
+            graph=concept_graph, alias="concept_n1_w_default"
+        )
+        controlled_list = concept_node.config["controlledList"]
+        ListItem.objects.filter(list_id=controlled_list).delete()
+        self._run_migration(self.CONCEPT_GRAPH_SLUG, "concept")
+
+        load_errors = LoadErrors.objects.all()
+        self.assertEqual(load_errors.count(), 2)
+        for error in load_errors:
+            self.assertIn("Could not resolve legacy concept id(s)", error.message)

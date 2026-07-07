@@ -442,14 +442,13 @@ class MigrateConceptNodesToReferenceDatatypeTests(TestCase):
         self.assertEqual(len(nodes.filter(datatype__in=["concept", "concept-list"])), 0)
         self.assertEqual(len(reference_nodes), 4)
 
-        expected_node_config_keys = set(
-            ["multiValue", "defaultValue", "controlledList"]
-        )
+        expected_node_config_keys = set(["multiValue", "controlledList"])
         expected_widget_config_keys = set(
             [
                 "label",
                 "placeholder",
                 "i18n_properties",
+                "defaultValue",
             ]
         )
         for node in reference_nodes:
@@ -682,13 +681,14 @@ class MigrateDomainNodesToReferenceDatatypeTests(
         self.assertEqual(reference_nodes.count(), 4)
 
         expected_node_config_keys = set(
-            ["multiValue", "defaultValue", "controlledList", "options", "i18n_config"]
+            ["multiValue", "controlledList", "options", "i18n_config"]
         )
         expected_widget_config_keys = set(
             [
                 "label",
                 "placeholder",
                 "i18n_properties",
+                "defaultValue",
             ]
         )
 
@@ -697,6 +697,10 @@ class MigrateDomainNodesToReferenceDatatypeTests(
             self.assertEqual(expected_node_config_keys, set(config.keys()))
             for widget in node.cardxnodexwidget_set.all():
                 self.assertEqual(expected_widget_config_keys, set(widget.config.keys()))
+                if node.alias in ("domain", "domain_list"):
+                    default_value = widget.config.get("defaultValue")
+                    self.assertTrue(isinstance(default_value, list))
+                    self.assertTrue(bool(default_value[0].get("uri")))
             if node.alias in ("domain", "domain_radio"):
                 self.assertFalse(config["multiValue"])
             else:
@@ -929,7 +933,7 @@ class MigrateTileDataToReferenceDatatype(TestCase):
             graph=concept_graph, alias="concept_n1_w_default"
         )
         concept_list_node = Node.objects.get(
-            graph=concept_graph, alias="concept-list_w_default"
+            graph=concept_graph, alias="concept_list_w_default"
         )
         resource = ResourceInstance.objects.filter(graph=concept_graph).first()
 

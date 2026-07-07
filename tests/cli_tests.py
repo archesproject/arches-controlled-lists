@@ -420,8 +420,8 @@ class MigrateConceptNodesToReferenceDatatypeTests(TestCase):
     # Contains a Collection "Top Concept", which has been migrated to a controlled list
 
     # To create test fixtures run:
-    # python manage.py dumpdata models.CardModel models.CardComponent models.CardXNodeXWidget models.Concept models.Edge models.GraphModel models.GraphXPublishedGraph models.PublishedGraphEdit models.Language models.NodeGroup models.Node models.Relation models.ResourceXResource models.ResourceInstance models.TileModel models.Value models.Widget arches_controlled_lists.List arches_controlled_lists.ListItem arches_controlled_lists.ListItemValue --format json --output concept_node_migration_test_data.json
-    fixtures = ["concept_node_migration_test_data"]
+    # python manage.py dumpdata models.CardModel models.CardComponent models.CardXNodeXWidget models.Concept models.Edge models.GraphModel models.GraphXPublishedGraph models.PublishedGraphEdit models.Language models.NodeGroup models.Node models.Relation models.ResourceXResource models.ResourceInstance models.TileModel models.Value models.Widget arches_controlled_lists.List arches_controlled_lists.ListItem arches_controlled_lists.ListItemValue --format json --output concept_node_migration_test_fixture.json
+    fixtures = ["concept_node_migration_test_fixture"]
 
     def test_migrate_concept_nodes_to_reference_datatype(self):
         output = io.StringIO()
@@ -499,7 +499,7 @@ class MigrateConceptNodesToReferenceDatatypeTests(TestCase):
 
 
 class MigrateDomainNodesToControlledListsTests(TestCase):
-    # All_Datatypes has four domain nodes:
+    # Domain-Node-Migration-Test model has four domain nodes:
     #   domain          (domain-value)      — options 1, 2, 3, 4
     #   domain_radio    (domain-value)      — same option IDs as `domain`
     #   domain_list     (domain-value-list) — options A, B, C, D
@@ -507,13 +507,13 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
     #
     # The shared-ID pairs exercise the duplicate-ID guard rails.
 
-    GRAPH_ID = "d71a8f56-987f-4fd1-87b5-538378740f15"
+    GRAPH_ID = "c86c9176-b41d-4a57-aeaa-d37928f7989b"
     HOST = "http://localhost:8000/plugins/controlled-list-manager/item/"
 
-    DOMAIN_LIST = "domain_fa3e4e88-c8bf-11ed-bf64-0242ac130009"
-    DOMAIN_RADIO_LIST = "domain_radio_0f0509c4-c8c0-11ed-a644-0242ac130009"
-    DOMAIN_LIST_LIST = "domain_list_4780cbb2-c8c0-11ed-a172-0242ac130009"
-    DOMAIN_CHECKBOX_LIST = "domain_checkbox_5d9d4236-c8c0-11ed-bf64-0242ac130009"
+    DOMAIN_LIST = "domain_19da2f83-ddaa-442e-b7b6-caee0eb3ab7e"
+    DOMAIN_RADIO_LIST = "domain_radio_937fec95-81f6-4396-871e-d99b9249579b"
+    DOMAIN_LIST_LIST = "domain_list_1341e31d-2fe4-4e89-960d-143049315f3f"
+    DOMAIN_CHECKBOX_LIST = "domain_checkbox_504f3271-ac1e-48bb-aba6-df3220405046"
     EXPECTED_LIST_NAMES = {
         DOMAIN_LIST,
         DOMAIN_RADIO_LIST,
@@ -537,7 +537,10 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         fixture_path = os.path.join(
-            PROJECT_TEST_ROOT, "fixtures", "data", "All_Datatypes.json"
+            TEST_PACKAGE_DIR,
+            "graphs",
+            "resource_models",
+            "Domain Node Migration Test.json",
         )
         with captured_stdout():
             management.call_command(
@@ -545,7 +548,7 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
                 ["-o", "import_graphs", "-s", fixture_path],
             )
 
-    def _run_migrate(self, node_aliases=None, overwrite=False):
+    def _run_migrate(self, node_aliases=None, overwrite=True):
         output = io.StringIO()
         kwargs = dict(
             operation="migrate_domain_nodes_to_controlled_lists",
@@ -653,6 +656,8 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
 class MigrateDomainNodesToReferenceDatatypeTests(
     MigrateDomainNodesToControlledListsTests
 ):
+    # Subclassed to re-use setupdata method
+
     def _run_migrate_to_reference(self, node_aliases=None):
         output = io.StringIO()
         kwargs = dict(

@@ -550,7 +550,7 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
     def _run_migrate(self, node_aliases=None, overwrite=True):
         output = io.StringIO()
         kwargs = dict(
-            operation="migrate_domain_nodes_to_controlled_lists",
+            operation="extract_domain_values_to_controlled_lists",
             graph=self.GRAPH_ID,
             host=self.HOST,
             overwrite=overwrite,

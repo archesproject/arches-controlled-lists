@@ -7,7 +7,7 @@ name = "arches-controlled-lists"
 version = "1.2.0a0"
 description = "An Arches application designed to manage controlled lists and reference data within the Arches platform."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 license = "AGPL-3.0-or-later"
 license-files = [ "LICENSE",]
 classifiers = [
@@ -24,7 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-dependencies = [ "arches>=8.2.0a1", "arches-component-lab>=0.0.1a11",]
+dependencies = [ "arches>=8.1.2", "arches-component-lab>=0.0.1a11",]
 dynamic = []
 
 [[project.authors]]

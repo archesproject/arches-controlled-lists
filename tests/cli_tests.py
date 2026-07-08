@@ -1,7 +1,7 @@
 import io
 import os
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 from django.core import management
@@ -16,7 +16,15 @@ from arches.app.models.models import (
     ResourceInstance,
     TileModel,
 )
+from arches.app.etl_modules.base_data_editor import MissingRequiredInputError
+
 from arches_controlled_lists.models import List, ListItem, ListItemValue
+from arches_controlled_lists.etl_modules.migrate_to_reference_datatype import (
+    MigrateToReferenceDatatype,
+)
+from arches_controlled_lists.management.commands.controlled_lists import (
+    Command as ControlledListsCommand,
+)
 
 from .test_settings import PROJECT_TEST_ROOT, TEST_PACKAGE_DIR
 
@@ -503,7 +511,7 @@ class MigrateConceptNodesToReferenceDatatypeTests(TestCase):
         self.assertEqual(output.getvalue().strip(), expected_output)
 
 
-class MigrateDomainNodesToControlledListsTests(TestCase):
+class ExtractDomainValuesToControlledListsTests(TestCase):
     # Domain-Node-Migration-Test model has four domain nodes:
     #   domain          (domain-value)      — options 1, 2, 3, 4
     #   domain_radio    (domain-value)      — same option IDs as `domain`
@@ -659,7 +667,7 @@ class MigrateDomainNodesToControlledListsTests(TestCase):
 
 
 class MigrateDomainNodesToReferenceDatatypeTests(
-    MigrateDomainNodesToControlledListsTests
+    ExtractDomainValuesToControlledListsTests
 ):
     # Subclassed to re-use setupdata method
 
@@ -858,7 +866,7 @@ class ChangeUrlBaseTests(TestCase):
         self.assertNotIn(":80", self.item1.uri)
 
 
-class MigrateTileDataToReferenceDatatype(TestCase):
+class MigrateTileDataToReferenceDatatypeTests(TestCase):
     """
     Tile tests fixtures have two models:
     - `Concept Value Migration Test`, with four concept origin nodes
@@ -965,3 +973,100 @@ class MigrateTileDataToReferenceDatatype(TestCase):
         self.assertEqual(load_errors.count(), 2)
         for error in load_errors:
             self.assertIn("Could not resolve legacy concept id(s)", error.message)
+
+    def test_validate_inputs(self):
+        etl_module = MigrateToReferenceDatatype()
+        with self.assertRaises(MissingRequiredInputError) as error:
+            graph_id = None
+            origin = None
+            etl_module.validate_inputs(graph_id, origin)
+
+        with self.assertRaises(MissingRequiredInputError) as error:
+            graph_id = "c86c9176-b41d-4a57-aeaa-d37928f7989b"
+            origin = None
+            etl_module.validate_inputs(graph_id, origin)
+            self.assertEqual(
+                str(error.exception), "Missing required value: Origin Datatype"
+            )
+
+        with self.assertRaises(MissingRequiredInputError) as error:
+            graph_id = None
+            origin = "concept"
+            etl_module.validate_inputs(graph_id, origin)
+            self.assertEqual(str(error.exception), "Missing required value: Graph ID")
+
+        with self.assertRaises(MissingRequiredInputError) as error:
+            graph_id = "c86c9176-b41d-4a57-aeaa-d37928f7989b"
+            origin = "string"
+            etl_module.validate_inputs(graph_id, origin)
+            self.assertEqual(
+                str(error.exception), "Origin must be either 'concept' or 'domain'."
+            )
+
+    def test_get_candidate_nodes(self):
+        etl_module = MigrateToReferenceDatatype()
+        graph_id = "8f7cfa3c-d0e0-4a66-8608-43dd726a1b81"
+        origin = "concept"
+        request = MagicMock(POST={"graph_id": graph_id, "origin": origin})
+        response = etl_module.get_candidate_nodes(request)
+        self.assertTrue(response["success"])
+        data = response["data"]
+        self.assertEqual(len(data), 4)
+        expected_keys = set(
+            ["nodeid", "alias", "name", "nodegroup", "list_name", "tile_count"]
+        )
+        for node in data:
+            self.assertEqual(set(node.keys()), expected_keys)
+
+    def test_write_missing_input_payload(self):
+        etl_module = MigrateToReferenceDatatype()
+        response = etl_module.write(request=MagicMock(POST={}))
+        self.assertFalse(response["success"])
+        self.assertEqual(response["data"]["title"], "Missing input error")
+
+
+class BulkChangeURLTests(TestCase):
+
+    def setUp(self):
+        self.command = ControlledListsCommand()
+
+    def test_handle_change_url_base_requires_host(self):
+        with self.assertRaises(CommandError):
+            self.command.handle(operation="change_url_base", host=None, lists=False)
+
+    def test_bulk_change_url_base_handles_update_errors(self):
+        self.command.stderr.write = MagicMock()
+        with patch(
+            "arches_controlled_lists.management.commands.controlled_lists.ListItem.objects.bulk_update",
+            side_effect=Exception("update failed"),
+        ):
+            self.command.bulk_change_url_base(
+                target_hostname="https://example.org",
+                list_ids=[],
+            )
+        self.command.stderr.write.assert_called_once()
+        self.assertIn(
+            "Could not change base url: update failed",
+            self.command.stderr.write.call_args[0][0],
+        )
+
+    def test_replace_hostname_handles_invalid_url(self):
+        bad_url = "no-netloc-path-only"
+        with patch("builtins.print") as mock_print:
+            result = self.command._replace_hostname(bad_url, "https://example.org")
+        self.assertEqual(result, bad_url)
+        mock_print.assert_called_once()
+
+    def test_replace_hostname_handles_parse_exception(self):
+        original_url = "https://localhost/item/1"
+        with patch(
+            "arches_controlled_lists.management.commands.controlled_lists.urlparse",
+            side_effect=Exception("parse error"),
+        ):
+            with patch("builtins.print") as mock_print:
+                result = self.command._replace_hostname(
+                    original_url,
+                    "https://example.org",
+                )
+        self.assertEqual(result, original_url)
+        mock_print.assert_called_once()

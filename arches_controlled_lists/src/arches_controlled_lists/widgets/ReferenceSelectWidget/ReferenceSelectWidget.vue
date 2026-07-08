@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 
 import ReferenceSelectWidgetEditor from "@/arches_controlled_lists/widgets/ReferenceSelectWidget/components/ReferenceSelectWidgetEditor.vue";
 import ReferenceSelectWidgetViewer from "@/arches_controlled_lists/widgets/ReferenceSelectWidget/components/ReferenceSelectWidgetViewer.vue";
 
 import { EDIT, VIEW } from "@/arches_component_lab/widgets/constants.ts";
+import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/utils.ts";
 
 import type { WidgetMode } from "@/arches_component_lab/widgets/types.ts";
 import type {
@@ -29,29 +30,39 @@ const emit = defineEmits<{
     initialized: [updatedValue: ReferenceSelectAliasedNodeData];
 }>();
 
-const resolvedNodeValue = computed<ReferenceSelectNodeValue[] | null>(() => {
-    if (aliasedNodeData !== undefined) {
-        return aliasedNodeData?.node_value ?? null;
+const isEditorLoading = ref(false);
+
+const resolvedAliasedNodeData = computed(() => {
+    if (aliasedNodeData) {
+        return aliasedNodeData;
     }
-    return value ?? null;
+    return buildReferenceSelectAliasedNodeData(value ?? null);
 });
+
+watch(isEditorLoading, (isLoading) => emit("update:isLoading", isLoading));
+
+function onUpdateAliasedNodeData(
+    updatedAliasedNodeData: ReferenceSelectAliasedNodeData,
+) {
+    emit("update:aliasedNodeData", updatedAliasedNodeData);
+    emit("update:value", updatedAliasedNodeData.node_value ?? []);
+}
 </script>
 
 <template>
     <ReferenceSelectWidgetEditor
         v-if="mode === EDIT"
         :card-x-node-x-widget-data="cardXNodeXWidgetData"
-        :value="resolvedNodeValue"
+        :aliased-node-data="resolvedAliasedNodeData"
         :graph-slug="graphSlug"
         :node-alias="nodeAlias"
-        @update:is-loading="emit('update:isLoading', $event)"
-        @update:value="emit('update:value', $event)"
-        @update:aliased-node-data="emit('update:aliasedNodeData', $event)"
+        @update:is-loading="isEditorLoading = $event"
+        @update:aliased-node-data="onUpdateAliasedNodeData"
         @initialized="emit('initialized', $event)"
     />
     <ReferenceSelectWidgetViewer
         v-if="mode === VIEW"
-        :value="resolvedNodeValue"
-        :aliased-node-data="aliasedNodeData"
+        :aliased-node-data="resolvedAliasedNodeData"
+        @initialized="emit('initialized', $event)"
     />
 </template>

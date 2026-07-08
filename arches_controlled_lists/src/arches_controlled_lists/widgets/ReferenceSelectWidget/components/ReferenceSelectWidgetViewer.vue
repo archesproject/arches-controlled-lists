@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 
-import type { AliasedNodeData } from "@/arches_component_lab/types.ts";
-import type { ReferenceSelectNodeValue } from "@/arches_controlled_lists/datatypes/reference-select/types";
+import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/utils.ts";
 
-const { value, aliasedNodeData } = defineProps<{
-    value?: ReferenceSelectNodeValue[] | null;
-    aliasedNodeData?: AliasedNodeData | null;
+import type { ReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/types";
+
+const { aliasedNodeData } = defineProps<{
+    aliasedNodeData?: ReferenceSelectAliasedNodeData | null;
 }>();
 
-const displayValue = computed(
-    () =>
-        aliasedNodeData?.display_value ||
-        value
-            ?.map((item) => item.labels?.[0]?.value)
-            .filter(Boolean)
-            .join(", "),
-);
+const emit = defineEmits<{
+    initialized: [updatedValue: ReferenceSelectAliasedNodeData];
+}>();
+
+const displayValue = computed(() => aliasedNodeData?.display_value);
+
+onMounted(() => {
+    emit(
+        "initialized",
+        aliasedNodeData ?? buildReferenceSelectAliasedNodeData(null),
+    );
+});
 </script>
 
 <template>

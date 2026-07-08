@@ -17,12 +17,13 @@ import type {
     ReferenceSelectNodeValue,
 } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 
-const { value, cardXNodeXWidgetData, graphSlug, nodeAlias } = defineProps<{
-    value: ReferenceSelectNodeValue[] | null;
-    cardXNodeXWidgetData?: ReferenceSelectDatatypeCardXNodeXWidgetData;
-    graphSlug?: string;
-    nodeAlias?: string;
-}>();
+const { aliasedNodeData, cardXNodeXWidgetData, graphSlug, nodeAlias } =
+    defineProps<{
+        aliasedNodeData: ReferenceSelectAliasedNodeData | null;
+        cardXNodeXWidgetData?: ReferenceSelectDatatypeCardXNodeXWidgetData;
+        graphSlug?: string;
+        nodeAlias?: string;
+    }>();
 
 const emit = defineEmits<{
     (event: "update:isLoading", updatedValue: boolean): void;
@@ -41,14 +42,17 @@ const optionsError = ref<string | null>(null);
 const expandedKeys: Ref<TreeExpandedKeys> = ref({});
 
 const initialValueFromTileData = computed(() => {
-    if (value?.length) {
-        return value.reduce<Record<string, boolean>>((accumulator, item) => {
-            const listItemId = item.labels?.[0]?.list_item_id;
-            if (listItemId) {
-                accumulator[listItemId] = true;
-            }
-            return accumulator;
-        }, {});
+    if (aliasedNodeData?.node_value?.length) {
+        return aliasedNodeData.node_value.reduce<Record<string, boolean>>(
+            (accumulator, item) => {
+                const listItemId = item.labels?.[0]?.list_item_id;
+                if (listItemId) {
+                    accumulator[listItemId] = true;
+                }
+                return accumulator;
+            },
+            {},
+        );
     }
 
     const defaultValueFromWidgetConfig = cardXNodeXWidgetData?.config
@@ -126,7 +130,7 @@ async function getOptions() {
             hasInitialized.value = true;
             emit(
                 "initialized",
-                buildReferenceSelectAliasedNodeData(value ?? []),
+                aliasedNodeData ?? buildReferenceSelectAliasedNodeData(null),
             );
         }
     }

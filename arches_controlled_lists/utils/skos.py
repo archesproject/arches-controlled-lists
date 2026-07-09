@@ -137,8 +137,8 @@ class SKOSReader(SKOSReader):
                         object_language = (
                             allowed_languages[object.language] or default_lang
                         )
-                        relation_or_value_type = predicate.replace(SKOS, "").replace(
-                            ARCHES, ""
+                        relation_or_value_type = str(predicate).replace(str(SKOS), "").replace(
+                            str(ARCHES), ""
                         )
                         list_item_value = ListItemValue(
                             list_item=list_item,

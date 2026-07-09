@@ -4,15 +4,12 @@ import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { useGettext } from "vue3-gettext";
 import TreeSelect from "primevue/treeselect";
 
-import arches from "arches";
-
 import { useReferenceSelectOptionsStore } from "@/arches_controlled_lists/stores/useReferenceSelectOptionsStore.ts";
 import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/utils.ts";
 
 import type { Ref } from "vue";
 import type { TreeExpandedKeys } from "primevue/tree";
 
-import type { Language } from "@/arches_controlled_lists/types.ts";
 import type { ReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 import type {
     ReferenceSelectDatatypeCardXNodeXWidgetData,
@@ -21,13 +18,19 @@ import type {
     ReferenceSelectNodeValue,
 } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 
-const { aliasedNodeData, cardXNodeXWidgetData, graphSlug, nodeAlias } =
-    defineProps<{
-        aliasedNodeData: ReferenceSelectAliasedNodeData | null;
-        cardXNodeXWidgetData?: ReferenceSelectDatatypeCardXNodeXWidgetData;
-        graphSlug?: string;
-        nodeAlias?: string;
-    }>();
+const {
+    aliasedNodeData,
+    cardXNodeXWidgetData,
+    graphSlug,
+    nodeAlias,
+    systemLanguageCode,
+} = defineProps<{
+    aliasedNodeData: ReferenceSelectAliasedNodeData | null;
+    cardXNodeXWidgetData?: ReferenceSelectDatatypeCardXNodeXWidgetData;
+    graphSlug?: string;
+    nodeAlias?: string;
+    systemLanguageCode: string;
+}>();
 
 const emit = defineEmits<{
     (event: "update:isLoading", updatedValue: boolean): void;
@@ -40,9 +43,6 @@ const emit = defineEmits<{
 }>();
 
 const { current: preferredLanguageCode } = useGettext();
-const systemLanguageCode =
-    (arches.languages as Language[]).find((lang) => lang.isdefault)?.code ??
-    preferredLanguageCode;
 
 const options = ref<ReferenceSelectTreeNode[]>();
 const isLoading = ref(false);

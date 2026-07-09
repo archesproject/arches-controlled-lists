@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 
 import { useGettext } from "vue3-gettext";
-
-import arches from "arches";
 
 import ReferenceSelectWidgetEditor from "@/arches_controlled_lists/widgets/ReferenceSelectWidget/components/ReferenceSelectWidgetEditor.vue";
 import ReferenceSelectWidgetViewer from "@/arches_controlled_lists/widgets/ReferenceSelectWidget/components/ReferenceSelectWidgetViewer.vue";
 
 import { EDIT, VIEW } from "@/arches_component_lab/widgets/constants.ts";
+import { useLanguageStore } from "@/arches_component_lab/stores/useLanguageStore.ts";
 import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/utils.ts";
 
 import type { WidgetMode } from "@/arches_component_lab/widgets/types.ts";
-import type { Language } from "@/arches_controlled_lists/types.ts";
 import type {
     ReferenceSelectAliasedNodeData,
     ReferenceSelectDatatypeCardXNodeXWidgetData,
@@ -36,9 +34,13 @@ const emit = defineEmits<{
 }>();
 
 const { current: preferredLanguageCode } = useGettext();
-const systemLanguageCode =
-    (arches.languages as Language[]).find((lang) => lang.isdefault)?.code ??
-    preferredLanguageCode;
+const languageStore = useLanguageStore();
+
+const systemLanguageCode = computed(
+    () =>
+        languageStore.languages.find((lang) => lang.isdefault)?.code ??
+        preferredLanguageCode,
+);
 
 const isEditorLoading = ref(false);
 
@@ -49,8 +51,12 @@ const resolvedAliasedNodeData = computed(() => {
     return buildReferenceSelectAliasedNodeData(
         value ?? null,
         preferredLanguageCode,
-        systemLanguageCode,
+        systemLanguageCode.value,
     );
+});
+
+watchEffect(() => {
+    languageStore.fetchAllLanguages();
 });
 
 watch(isEditorLoading, (isLoading) => emit("update:isLoading", isLoading));
@@ -70,6 +76,7 @@ function onUpdateAliasedNodeData(
         :aliased-node-data="resolvedAliasedNodeData"
         :graph-slug="graphSlug"
         :node-alias="nodeAlias"
+        :system-language-code="systemLanguageCode"
         @update:is-loading="isEditorLoading = $event"
         @update:aliased-node-data="onUpdateAliasedNodeData"
         @initialized="emit('initialized', $event)"
@@ -77,6 +84,7 @@ function onUpdateAliasedNodeData(
     <ReferenceSelectWidgetViewer
         v-if="mode === VIEW"
         :aliased-node-data="resolvedAliasedNodeData"
+        :system-language-code="systemLanguageCode"
         @initialized="emit('initialized', $event)"
     />
 </template>

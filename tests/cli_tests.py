@@ -15,6 +15,7 @@ from arches.app.models.models import (
     LoadErrors,
     ResourceInstance,
     TileModel,
+    Value,
 )
 from arches.app.etl_modules.base_data_editor import MissingRequiredInputError
 
@@ -408,6 +409,45 @@ class RDMToControlledListsETLTests(TestCase):
         )
         self.assertIn(expected_output, output.getvalue().strip())
 
+    def test_existing_controlled_list_raises_when_overwrite_false(self):
+        List.objects.create(name="Polyhierarchical Collection Test")
+
+        with self.assertRaises(CommandError) as error:
+            management.call_command(
+                "controlled_lists",
+                operation="migrate_collections_to_controlled_lists",
+                collections_to_migrate=["Polyhierarchical Collection Test"],
+                host="http://localhost:8000/plugins/controlled-list-manager/item/",
+                preferred_sort_language="en",
+                overwrite=False,
+            )
+
+        self.assertIn("already exists", str(error.exception))
+
+    def test_migrate_all_collections_warns_when_none_exist(self):
+        Value.objects.filter(concept__nodetype="Collection").delete()
+        error_output = io.StringIO()
+
+        management.call_command(
+            "controlled_lists",
+            operation="migrate_collections_to_controlled_lists",
+            collections_to_migrate=[""],
+            host="http://localhost:8000/plugins/controlled-list-manager/item/",
+            preferred_sort_language="en",
+            overwrite=False,
+            stderr=error_output,
+        )
+
+        stderr_text = error_output.getvalue()
+        self.assertIn(
+            "No collections were found in the database to migrate to controlled lists.",
+            stderr_text,
+        )
+        self.assertIn(
+            "No collections were found in the database for the provided collection names.",
+            stderr_text,
+        )
+
     def test_no_matching_language_error(self):
         expected_output = (
             "The preferred sort language, nonexistent, does not exist in the database."
@@ -665,6 +705,34 @@ class ExtractDomainValuesToControlledListsTests(TestCase):
             )
             self.assertEqual(labels, expected_labels, f"labels mismatch for {alias}")
 
+    def test_extract_domain_values_partial_alias_match_raises(self):
+        with self.assertRaises(CommandError) as error:
+            self._run_migrate(node_aliases=["domain", "missing_alias"])
+
+        self.assertIn("Could not find domain nodes with aliases", str(error.exception))
+
+    def test_extract_domain_values_existing_list_conflict_raises(self):
+        node = Node.objects.get(graph_id=self.GRAPH_ID, alias="domain")
+        List.objects.create(name=f"{node.alias}_{node.nodeid}")
+
+        with self.assertRaises(CommandError) as error:
+            self._run_migrate(node_aliases=["domain"], overwrite=False)
+
+        self.assertIn("already exists", str(error.exception))
+
+    def test_extract_domain_values_skips_node_without_options(self):
+        node = Node.objects.get(graph_id=self.GRAPH_ID, alias="domain")
+        node_config = dict(node.config or {})
+        node_config["options"] = []
+        node.config = node_config
+        node.save()
+
+        output = self._run_migrate(node_aliases=["domain"])
+        self.assertIn("has no options, skipping", output)
+        self.assertFalse(
+            List.objects.filter(name=f"{node.alias}_{node.nodeid}").exists()
+        )
+
 
 class MigrateDomainNodesToReferenceDatatypeTests(
     ExtractDomainValuesToControlledListsTests
@@ -747,6 +815,27 @@ class MigrateDomainNodesToReferenceDatatypeTests(
         )
         for node in unchanged_nodes:
             self.assertIn(node.datatype, ["domain-value", "domain-value-list"])
+
+    def test_migrate_domain_nodes_to_reference_no_matching_aliases_error(self):
+        with self.assertRaises(CommandError) as error:
+            self._run_migrate_to_reference(node_aliases=["missing_alias"])
+
+        self.assertIn("No domain/domain-list nodes found", str(error.exception))
+
+    def test_migrate_domain_nodes_to_reference_reports_missing_lists(self):
+        error_output = io.StringIO()
+
+        management.call_command(
+            "controlled_lists",
+            operation="migrate_domain_nodes_to_reference_datatype",
+            graph=self.GRAPH_ID,
+            stderr=error_output,
+        )
+
+        self.assertIn(
+            "have not been migrated to controlled lists",
+            error_output.getvalue(),
+        )
 
 
 class ChangeUrlBaseTests(TestCase):
@@ -1070,3 +1159,9 @@ class BulkChangeURLTests(TestCase):
                 )
         self.assertEqual(result, original_url)
         mock_print.assert_called_once()
+
+    def test_resolve_graph_requires_value(self):
+        with self.assertRaises(CommandError) as error:
+            self.command._resolve_graph(None)
+
+        self.assertIn("Please provide a valid graph id or slug", str(error.exception))

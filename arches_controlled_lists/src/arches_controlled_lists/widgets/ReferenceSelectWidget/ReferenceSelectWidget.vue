@@ -11,6 +11,7 @@ import { useLanguageStore } from "@/arches_component_lab/stores/useLanguageStore
 import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/utils.ts";
 
 import type { WidgetMode } from "@/arches_component_lab/widgets/types.ts";
+import type { Language } from "@/arches_component_lab/types.ts";
 import type {
     ReferenceSelectAliasedNodeData,
     ReferenceSelectDatatypeCardXNodeXWidgetData,
@@ -38,8 +39,8 @@ const languageStore = useLanguageStore();
 
 const systemLanguageCode = computed(
     () =>
-        languageStore.languages.find((lang) => lang.isdefault)?.code ??
-        preferredLanguageCode,
+        languageStore.languages.find((lang: Language) => lang.isdefault)
+            ?.code ?? preferredLanguageCode,
 );
 
 const isEditorLoading = ref(false);

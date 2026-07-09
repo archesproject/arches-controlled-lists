@@ -5,7 +5,7 @@ import { fetchControlledListOptions } from "@/arches_controlled_lists/datatypes/
 import type { ReferenceSelectTreeNode } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 
 export const useReferenceSelectOptionsStore = defineStore(
-    "referenceSelectOptions",
+    "arches_controlled_lists:referenceSelectOptions",
     () => {
         const inflightFetches = new Map<
             string,

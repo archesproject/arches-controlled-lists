@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, watchEffect } from "vue";
 
+import { useGettext } from "vue3-gettext";
 import TreeSelect from "primevue/treeselect";
+
+import arches from "arches";
 
 import { useReferenceSelectOptionsStore } from "@/arches_controlled_lists/stores/useReferenceSelectOptionsStore.ts";
 import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/utils.ts";
@@ -9,6 +12,7 @@ import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/d
 import type { Ref } from "vue";
 import type { TreeExpandedKeys } from "primevue/tree";
 
+import type { Language } from "@/arches_controlled_lists/types.ts";
 import type { ReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
 import type {
     ReferenceSelectDatatypeCardXNodeXWidgetData,
@@ -34,6 +38,11 @@ const emit = defineEmits<{
     ): void;
     (event: "initialized", updatedValue: ReferenceSelectAliasedNodeData): void;
 }>();
+
+const { current: preferredLanguageCode } = useGettext();
+const systemLanguageCode =
+    (arches.languages as Language[]).find((lang) => lang.isdefault)?.code ??
+    preferredLanguageCode;
 
 const options = ref<ReferenceSelectTreeNode[]>();
 const isLoading = ref(false);
@@ -82,7 +91,12 @@ const initialValueFromTileData = computed(() => {
 onMounted(() => {
     emit(
         "initialized",
-        aliasedNodeData ?? buildReferenceSelectAliasedNodeData(null),
+        aliasedNodeData ??
+            buildReferenceSelectAliasedNodeData(
+                null,
+                preferredLanguageCode,
+                systemLanguageCode,
+            ),
     );
 });
 
@@ -141,7 +155,11 @@ function onUpdateModelValue(
         emit("update:value", []);
         emit(
             "update:aliasedNodeData",
-            buildReferenceSelectAliasedNodeData(null),
+            buildReferenceSelectAliasedNodeData(
+                null,
+                preferredLanguageCode,
+                systemLanguageCode,
+            ),
         );
         return;
     }
@@ -177,7 +195,11 @@ function onUpdateModelValue(
     emit("update:value", nodeValue);
     emit(
         "update:aliasedNodeData",
-        buildReferenceSelectAliasedNodeData(nodeValue),
+        buildReferenceSelectAliasedNodeData(
+            nodeValue,
+            preferredLanguageCode,
+            systemLanguageCode,
+        ),
     );
 }
 </script>

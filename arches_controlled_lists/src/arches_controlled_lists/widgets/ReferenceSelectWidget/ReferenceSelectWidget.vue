@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 
+import { useGettext } from "vue3-gettext";
+
+import arches from "arches";
+
 import ReferenceSelectWidgetEditor from "@/arches_controlled_lists/widgets/ReferenceSelectWidget/components/ReferenceSelectWidgetEditor.vue";
 import ReferenceSelectWidgetViewer from "@/arches_controlled_lists/widgets/ReferenceSelectWidget/components/ReferenceSelectWidgetViewer.vue";
 
@@ -8,6 +12,7 @@ import { EDIT, VIEW } from "@/arches_component_lab/widgets/constants.ts";
 import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/utils.ts";
 
 import type { WidgetMode } from "@/arches_component_lab/widgets/types.ts";
+import type { Language } from "@/arches_controlled_lists/types.ts";
 import type {
     ReferenceSelectAliasedNodeData,
     ReferenceSelectDatatypeCardXNodeXWidgetData,
@@ -30,13 +35,22 @@ const emit = defineEmits<{
     initialized: [updatedValue: ReferenceSelectAliasedNodeData];
 }>();
 
+const { current: preferredLanguageCode } = useGettext();
+const systemLanguageCode =
+    (arches.languages as Language[]).find((lang) => lang.isdefault)?.code ??
+    preferredLanguageCode;
+
 const isEditorLoading = ref(false);
 
 const resolvedAliasedNodeData = computed(() => {
     if (aliasedNodeData) {
         return aliasedNodeData;
     }
-    return buildReferenceSelectAliasedNodeData(value ?? null);
+    return buildReferenceSelectAliasedNodeData(
+        value ?? null,
+        preferredLanguageCode,
+        systemLanguageCode,
+    );
 });
 
 watch(isEditorLoading, (isLoading) => emit("update:isLoading", isLoading));

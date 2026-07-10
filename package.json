@@ -23,9 +23,6 @@
         "arches-component-lab": "archesproject/arches-component-lab#main",
         "vue-router": "4.4.3"
     },
-    "devDependencies": {
-        "arches-dev-dependencies": "archesproject/arches-dev-dependencies#dev/8.2.x"
-    },
     "nodeModulesPaths": {},
     "overrides": {
         "moment-timezone": "^0.5.45",

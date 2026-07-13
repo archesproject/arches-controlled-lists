@@ -24,7 +24,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-dependencies = [ "arches>=8.1.2", "arches-vue-components>=1.0.0",]
+dependencies = [ 
+    "arches>=8.1.2", 
+    "arches_vue_components @ git+https://github.com/archesproject/arches-vue-components@dev/1.0.x",
+]
 dynamic = []
 
 [[project.authors]]

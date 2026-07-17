@@ -23,7 +23,7 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
 
 2. When your project is ready, make the following changes to INSTALLED_APPS:
 - Move *"my_project_name"* to the top
-- Add "arches_controlled_lists", "arches_querysets", and "arches_component_lab" **above** "arches"
+- Add "arches_controlled_lists", "arches_querysets", and "arches_vue_components" **above** "arches"
 - Add "django.contrib.postgres" and "pgtrigger" to the bottom of the tuple along with any other arches applications:
     ```
     INSTALLED_APPS = (
@@ -31,7 +31,7 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
         ...
         "arches_controlled_lists"
         "arches_querysets",
-        "arches_component_lab",
+        "arches_vue_components",
         "arches"
         ...
         "django.contrib.postgres",
@@ -80,15 +80,16 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
     "dependencies": {
         "arches": "archesproject/arches#stable/8.1.2",
         "arches-vue-components": "archesproject/arches-vue-components#dev/1.0.x",
-        "arches_controlled_lists": "archesproject/arches-controlled-lists#stable/1.1.0"
+        "arches_controlled_lists": "archesproject/arches-controlled-lists#stable/1.1.0",
+        "pinia": "^3.0.4"
     }
     ```
 
-5. Update urls.py to include the arches_controlled_lists and arches_component_lab urls
+5. Update urls.py to include the arches_controlled_lists and arches_vue_components urls
     ```
     urlpatterns = [
         path("", include("arches_controlled_lists.urls")),
-        path("", include("arches_component_lab.urls")),
+        path("", include("arches_vue_components.urls")),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     ```
 

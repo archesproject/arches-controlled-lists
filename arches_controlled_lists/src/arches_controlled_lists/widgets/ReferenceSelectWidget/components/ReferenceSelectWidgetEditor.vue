@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, onMounted, ref, watchEffect } from "vue";
 
 import TreeSelect from "primevue/treeselect";
 
@@ -35,6 +35,7 @@ const emit = defineEmits<{
         event: "update:value",
         updatedValue: ReferenceSelectValue | string[],
     ): void;
+    (event: "initialized", updatedValue: ReferenceSelectValue): void;
 }>();
 
 const options = ref<ReferenceSelectTreeNode[]>();
@@ -80,6 +81,17 @@ const initialValueFromTileData = computed(() => {
 
 watchEffect(() => {
     getOptions();
+});
+
+onMounted(() => {
+    emit(
+        "initialized",
+        aliasedNodeData ?? {
+            node_value: [],
+            display_value: "",
+            details: [],
+        },
+    );
 });
 
 function optionAsNode(item: ReferenceSelectTreeNode): ReferenceSelectTreeNode {

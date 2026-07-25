@@ -27,7 +27,19 @@ const {
     shouldEmitSimplifiedValue?: boolean;
 }>();
 
-const emit = defineEmits(["update:value"]);
+const emit = defineEmits([
+    "update:value",
+    "update:aliasedNodeData",
+    "initialized",
+]);
+
+function onUpdateValue(updatedValue: ReferenceSelectValue | string[]) {
+    emit("update:value", updatedValue);
+
+    if (!Array.isArray(updatedValue)) {
+        emit("update:aliasedNodeData", updatedValue);
+    }
+}
 </script>
 
 <template>
@@ -38,7 +50,8 @@ const emit = defineEmits(["update:value"]);
         :graph-slug="graphSlug"
         :node-alias="nodeAlias"
         :should-emit-simplified-value="shouldEmitSimplifiedValue"
-        @update:value="emit('update:value', $event)"
+        @update:value="onUpdateValue($event)"
+        @initialized="emit('initialized', $event)"
     />
     <ReferenceSelectWidgetViewer
         v-if="mode === VIEW"

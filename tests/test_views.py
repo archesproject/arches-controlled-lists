@@ -672,7 +672,9 @@ class ListTests(TestCase):
     def test_filtered_list_view_basic(self):
         self.client.force_login(self.admin)
         response = self.client.get(
-            reverse("filtered_controlled_list", kwargs={"list_id": str(self.list2.pk)}),
+            reverse(
+                "controlled_lists_filtered", kwargs={"list_id": str(self.list2.pk)}
+            ),
             QUERY_STRING="flat=true",
         )
         self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
@@ -694,7 +696,9 @@ class ListTests(TestCase):
     def test_filtered_list_view_with_term(self):
         self.client.force_login(self.admin)
         response = self.client.get(
-            reverse("filtered_controlled_list", kwargs={"list_id": str(self.list1.pk)}),
+            reverse(
+                "controlled_lists_filtered", kwargs={"list_id": str(self.list1.pk)}
+            ),
             QUERY_STRING="flat=true&term=label0",
         )
         self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
@@ -711,7 +715,9 @@ class ListTests(TestCase):
     def test_filtered_list_view_no_match(self):
         self.client.force_login(self.admin)
         response = self.client.get(
-            reverse("filtered_controlled_list", kwargs={"list_id": str(self.list1.pk)}),
+            reverse(
+                "controlled_lists_filtered", kwargs={"list_id": str(self.list1.pk)}
+            ),
             QUERY_STRING="flat=true&term=doesnotexist",
         )
         self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
@@ -720,7 +726,7 @@ class ListTests(TestCase):
     def test_filtered_list_view_not_found(self):
         self.client.force_login(self.admin)
         response = self.client.get(
-            reverse("filtered_controlled_list", kwargs={"list_id": str(uuid.uuid4())}),
+            reverse("controlled_lists_filtered", kwargs={"list_id": str(uuid.uuid4())}),
         )
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
 
@@ -1056,7 +1062,7 @@ class ListTests(TestCase):
         # A label that only the children of `parent` carry.
         response = self.client.get(
             reverse(
-                "filtered_controlled_list",
+                "controlled_lists_filtered",
                 kwargs={"list_id": str(self.list2.pk)},
             ),
             QUERY_STRING="term=label1-pref",

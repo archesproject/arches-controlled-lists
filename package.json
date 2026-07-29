@@ -1,6 +1,6 @@
 {
     "name": "arches_controlled_lists",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "license": "AGPL-3.0-only",
     "scripts": {
         "build_development": "npm run eslint:check && npm run ts:check && cross-env webpack --config ./webpack/webpack.config.dev.js",
@@ -19,8 +19,8 @@
         "vitest": "vitest --run --coverage"
     },
     "dependencies": {
-        "arches": "archesproject/arches#dev/8.1.x",
-        "arches-vue-components": "archesproject/arches-vue-components#dev/1.0.x",
+        "arches": "archesproject/arches#stable/8.1.3",
+        "arches-vue-components": "archesproject/arches-vue-components#stable/2.0.1",
         "pinia": "^3.0.4",
         "vue-router": "4.4.3"
     },

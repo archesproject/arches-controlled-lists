@@ -35,11 +35,7 @@ module.exports = () => {
                 cache: {
                     type: 'filesystem',
                     buildDependencies: {
-                        config: [
-                            __filename,
-                            Path.join(__dirname, '..', 'frontend_configuration', 'webpack-metadata.json'),
-                            Path.join(__dirname, '..', 'frontend_configuration', 'tsconfig-paths.json'),
-                        ],
+                        config: [__filename],
                     },
                 },
                 devtool: 'inline-source-map',
@@ -62,7 +58,6 @@ module.exports = () => {
                     modules: false,
                 },
                 plugins: [
-                    new Webpack.HotModuleReplacementPlugin(),
                     new Webpack.DefinePlugin({
                         'process.env.NODE_ENV': JSON.stringify('development'),
                     }),

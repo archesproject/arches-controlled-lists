@@ -23,7 +23,7 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
 
 2. When your project is ready, make the following changes to INSTALLED_APPS:
 - Move *"my_project_name"* to the top
-- Add "arches_controlled_lists", "arches_querysets", and "arches_component_lab" **above** "arches"
+- Add "arches_controlled_lists", "arches_querysets", and "arches_vue_components" **above** "arches"
 - Add "django.contrib.postgres" and "pgtrigger" to the bottom of the tuple along with any other arches applications:
     ```
     INSTALLED_APPS = (
@@ -31,7 +31,7 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
         ...
         "arches_controlled_lists"
         "arches_querysets",
-        "arches_component_lab",
+        "arches_vue_components",
         "arches"
         ...
         "django.contrib.postgres",
@@ -78,17 +78,17 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
 4. Next ensure arches and arches_controlled_lists are included as dependencies in package.json
     ```
     "dependencies": {
-        "arches": "archesproject/arches#stable/8.1.2",
-        "arches-component-lab": "archesproject/arches-component-lab#alpha/0.0.1a11",
-        "arches_controlled_lists": "archesproject/arches-controlled-lists#stable/1.1.0"
+        "arches": "archesproject/arches#stable/8.1.3",
+        "arches-vue-components": "archesproject/arches-vue-components#stable/2.0.2",
+        "arches_controlled_lists": "archesproject/arches-controlled-lists#stable/1.2.0",
     }
     ```
 
-5. Update urls.py to include the arches_controlled_lists and arches_component_lab urls
+5. Update urls.py to include the arches_controlled_lists and arches_vue_components urls
     ```
     urlpatterns = [
         path("", include("arches_controlled_lists.urls")),
-        path("", include("arches_component_lab.urls")),
+        path("", include("arches_vue_components.urls")),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     ```
 

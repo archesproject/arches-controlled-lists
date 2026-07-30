@@ -14,17 +14,26 @@ export default [
     {
         "languageOptions": {
             "globals": {
-                "define": false,
-                "require": false,
-                "window": false,
+                "Blob": false,
                 "console": false,
+                "define": false,
+                "document": false,
+                "fetch": false,
+                "File": false,
+                "FocusEvent": false,
+                "FormData": false,
                 "history": false,
+                "HTMLButtonElement": false,
+                "HTMLElement": false,
+                "HTMLInputElement": false,
                 "location": false,
                 "Promise": false,
+                "requestAnimationFrame": false,
+                "require": false,
                 "setTimeout": false,
                 "URL": false,
                 "URLSearchParams": false,
-                "fetch": false
+                "window": false
             },
             "parser": vueESLintParser,
             "parserOptions": {

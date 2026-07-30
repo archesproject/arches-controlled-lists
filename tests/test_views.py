@@ -672,7 +672,7 @@ class ListTests(TestCase):
     def test_filtered_list_view_basic(self):
         self.client.force_login(self.admin)
         response = self.client.get(
-            reverse("filtered_controlled_list", kwargs={"list_id": str(self.list2.pk)}),
+            reverse("controlled_list_filtered", kwargs={"list_id": str(self.list2.pk)}),
             QUERY_STRING="flat=true",
         )
         self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
@@ -694,7 +694,7 @@ class ListTests(TestCase):
     def test_filtered_list_view_with_term(self):
         self.client.force_login(self.admin)
         response = self.client.get(
-            reverse("filtered_controlled_list", kwargs={"list_id": str(self.list1.pk)}),
+            reverse("controlled_list_filtered", kwargs={"list_id": str(self.list1.pk)}),
             QUERY_STRING="flat=true&term=label0",
         )
         self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
@@ -711,7 +711,7 @@ class ListTests(TestCase):
     def test_filtered_list_view_no_match(self):
         self.client.force_login(self.admin)
         response = self.client.get(
-            reverse("filtered_controlled_list", kwargs={"list_id": str(self.list1.pk)}),
+            reverse("controlled_list_filtered", kwargs={"list_id": str(self.list1.pk)}),
             QUERY_STRING="flat=true&term=doesnotexist",
         )
         self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
@@ -720,7 +720,7 @@ class ListTests(TestCase):
     def test_filtered_list_view_not_found(self):
         self.client.force_login(self.admin)
         response = self.client.get(
-            reverse("filtered_controlled_list", kwargs={"list_id": str(uuid.uuid4())}),
+            reverse("controlled_list_filtered", kwargs={"list_id": str(uuid.uuid4())}),
         )
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
 
@@ -940,3 +940,131 @@ class ListTests(TestCase):
                 content_type="application/json",
             )
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN, response.content)
+
+    # Progressive-loading endpoints
+
+    def test_get_lists_shallow(self):
+        """?shallow=true returns root items only with has_children flags and
+        no nested children arrays."""
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse("controlled_lists"),
+            QUERY_STRING="shallow=true",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
+        result = json.loads(response.content)
+
+        lists_by_name = {lst["name"]: lst for lst in result["controlled_lists"]}
+        list1 = lists_by_name["list1"]
+        list2 = lists_by_name["list2"]
+
+        # list1: 5 flat items, none have children.
+        self.assertEqual(len(list1["items"]), 5)
+        for item in list1["items"]:
+            self.assertEqual(item["children"], [])
+            self.assertFalse(item["has_children"])
+
+        # list2: 1 root item (the parent), which DOES have children, but the
+        # shallow response must not include them inline.
+        self.assertEqual(len(list2["items"]), 1)
+        root = list2["items"][0]
+        self.assertEqual(root["children"], [])
+        self.assertTrue(root["has_children"])
+
+    def test_get_list_shallow(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse("controlled_list", kwargs={"list_id": str(self.list2.pk)}),
+            QUERY_STRING="shallow=true",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
+        result = json.loads(response.content)
+        self.assertEqual(len(result["items"]), 1)
+        self.assertTrue(result["items"][0]["has_children"])
+        self.assertEqual(result["items"][0]["children"], [])
+
+    def test_get_list_item_children(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse(
+                "controlled_list_item_children",
+                kwargs={"item_id": str(self.parent.pk)},
+            ),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
+        result = json.loads(response.content)
+        # parent has 4 children, none with grandchildren.
+        self.assertEqual(len(result["children"]), 4)
+        for child in result["children"]:
+            self.assertFalse(child["has_children"])
+            self.assertEqual(child["children"], [])
+            self.assertEqual(child["parent_id"], str(self.parent.pk))
+
+    def test_get_list_item_children_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse(
+                "controlled_list_item_children",
+                kwargs={"item_id": str(uuid.uuid4())},
+            ),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    def test_get_list_item_ancestor_path(self):
+        self.client.force_login(self.admin)
+        target = self.parent.children.order_by("sortorder").first()
+        response = self.client.get(
+            reverse(
+                "controlled_list_item_path",
+                kwargs={"item_id": str(target.pk)},
+            ),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
+        result = json.loads(response.content)
+
+        # Expect a single path: [list2_dict, parent_item_dict, target_item_dict]
+        self.assertEqual(len(result["paths"]), 1)
+        search_results = result["paths"][0]["searchResults"]
+        self.assertEqual(len(search_results), 3)
+
+        list_dict = search_results[0]
+        self.assertEqual(list_dict["id"], str(self.list2.pk))
+        self.assertEqual(list_dict["name"], self.list2.name)
+
+        parent_dict = search_results[1]
+        self.assertEqual(parent_dict["id"], str(self.parent.pk))
+        self.assertTrue(parent_dict["has_children"])
+
+        target_dict = search_results[2]
+        self.assertEqual(target_dict["id"], str(target.pk))
+        self.assertFalse(target_dict["has_children"])
+
+    def test_get_list_item_ancestor_path_not_found(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse(
+                "controlled_list_item_path",
+                kwargs={"item_id": str(uuid.uuid4())},
+            ),
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
+
+    def test_filtered_list_includes_parent_ids(self):
+        """FilteredListView rows must include parent_ids so the frontend can
+        lazy-load the right branches to reveal a match."""
+        self.client.force_login(self.admin)
+        # A label that only the children of `parent` carry.
+        response = self.client.get(
+            reverse(
+                "controlled_list_filtered",
+                kwargs={"list_id": str(self.list2.pk)},
+            ),
+            QUERY_STRING="term=label1-pref",
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
+        result = json.loads(response.content)
+        for item in result.get("items", []):
+            self.assertIn("parent_ids", item)
+            if item.get("parent_id"):
+                # The immediate parent id must appear last in parent_ids.
+                self.assertEqual(item["parent_ids"][-1], item["parent_id"])

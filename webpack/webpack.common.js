@@ -338,6 +338,7 @@ module.exports = () => {
                 new VueLoaderPlugin(),
             ],
             resolve: {
+                extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.vue'],
                 modules: [Path.resolve(__dirname, PROJECT_RELATIVE_NODE_MODULES_PATH)],
                 alias: {
                     ...javascriptRelativeFilepathToAbsoluteFilepathLookup,

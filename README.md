@@ -78,10 +78,9 @@ For developer install instructions, see the [Developer Setup](#developer-setup-f
 4. Next ensure arches and arches_controlled_lists are included as dependencies in package.json
     ```
     "dependencies": {
-        "arches": "archesproject/arches#stable/8.1.2",
-        "arches-vue-components": "archesproject/arches-vue-components#dev/1.0.x",
-        "arches_controlled_lists": "archesproject/arches-controlled-lists#stable/1.1.0",
-        "pinia": "^3.0.4"
+        "arches": "archesproject/arches#stable/8.1.3",
+        "arches-vue-components": "archesproject/arches-vue-components#stable/2.0.2",
+        "arches_controlled_lists": "archesproject/arches-controlled-lists#stable/1.2.0",
     }
     ```
 

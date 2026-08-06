@@ -606,7 +606,7 @@ class ListItemValue(models.Model):
         query.delete(index=settings.REFERENCES_INDEX_NAME)
 
     def get_index_document(self):
-        return {
+        document = {
             "item_id": self.list_item_id,
             "uri": self.list_item.uri,
             "label_id": self.pk,
@@ -616,6 +616,19 @@ class ListItemValue(models.Model):
             "list_id": self.list_item.list_id,
             "list_name": self.list_item.list.name,
         }
+        if self.valuetype_id == "prefLabel":
+            document["pref_label"] = self.value
+        else:
+            pref_label_value = self.list_item.list_item_values.filter(
+                valuetype_id="prefLabel", language_id=self.language_id
+            ).values_list("value", flat=True).first()
+            if not pref_label_value:
+                pref_label_value = self.list_item.list_item_values.filter(
+                    valuetype_id="prefLabel"
+                ).values_list("value", flat=True).first() or self.value
+            document["pref_label"] = pref_label_value
+        return document
+        
 
     def index(self):
         SearchEngineInstance.index_data(

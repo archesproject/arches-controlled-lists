@@ -31,6 +31,7 @@ class ReferenceIndex(BaseIndex):
                 "properties": {
                     "item_id": {"type": "keyword"},
                     "uri": {"type": "keyword"},
+                    "pref_label": {"type": "keyword"},
                     "label_id": {"type": "keyword"},
                     "label": {
                         "analyzer": "whitespace",
@@ -88,7 +89,7 @@ class ReferenceIndex(BaseIndex):
         base_agg = Aggregation(
             name="label_agg",
             type="terms",
-            field="label.raw",
+            field="pref_label",
             size=settings.SEARCH_DROPDOWN_LENGTH,
             order={"max_score": "desc"},
         )

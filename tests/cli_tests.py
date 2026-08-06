@@ -283,9 +283,20 @@ class ListImportPackageTests(TestCase):
                 stdout=output,
             )
 
-        self.assertEqual(List.objects.count(), 1)
+        self.assertEqual(List.objects.count(), 3)
         self.assertEqual(ListItem.objects.count(), 17)
         self.assertEqual(ListItemValue.objects.count(), 21)
+
+        # Test Thesaurus does not have searchable attribute in skos file
+        test_thesaurus = List.objects.get(name="Test Thesaurus")
+        self.assertEqual(test_thesaurus.searchable, False)
+
+        # Searchable Thesaurus has searchable attribute in skos file
+        searchable = List.objects.get(name="Searchable")
+        self.assertEqual(searchable.searchable, True)
+
+        not_searchable = List.objects.get(name="Not Searchable")
+        self.assertEqual(not_searchable.searchable, False)
 
 
 class RDMToControlledListsETLTests(TestCase):

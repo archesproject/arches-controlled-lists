@@ -24,7 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-dependencies = [ "arches>=8.2.0a7", "arches-vue-components<3.0.0,>=2.0.2",]
+dependencies = [ "Django==6.0.7", "arches>=8.2.0a7", "arches-vue-components<3.0.0,>=2.0.2",]
 dynamic = []
 
 [[project.authors]]

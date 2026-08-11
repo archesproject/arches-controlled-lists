@@ -11,18 +11,20 @@ export function buildReferenceSelectAliasedNodeData(
     preferredLanguageCode: string,
     systemLanguageCode: string,
 ): ReferenceSelectAliasedNodeData {
-    const details: ReferenceSelectDetails[] = nodeValue ? nodeValue.map((item) => ({
-        children: [],
-        display_value: getItemLabel(
-            item,
-            preferredLanguageCode,
-            systemLanguageCode,
-        ).value,
-        list_item_id: item.list_id,
-        list_item_values: item.labels,
-        sortorder: 0,
-        uri: item.uri,
-    })) : [];
+    const details: ReferenceSelectDetails[] = nodeValue
+        ? nodeValue.map((item) => ({
+              children: [],
+              display_value: getItemLabel(
+                  item,
+                  preferredLanguageCode,
+                  systemLanguageCode,
+              ).value,
+              list_item_id: "",
+              list_item_values: item.labels,
+              sortorder: 0,
+              uri: item.uri,
+          }))
+        : [];
     return {
         node_value: nodeValue,
         display_value:

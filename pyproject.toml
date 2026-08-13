@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arches-controlled-lists"
-version = "1.3.0a1"
+version = "1.3.0a2"
 description = "An Arches application designed to manage controlled lists and reference data within the Arches platform."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -24,7 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-dependencies = [ "Django~=6.1.0", "arches>=8.2.0a8", "arches-vue-components<3.0.0,>=2.0.2",]
+dependencies = [ "arches>=8.2.0a8", "arches-vue-components<3.0.0,>=2.0.2", "django~=6.1.0",]
 dynamic = []
 
 [[project.authors]]

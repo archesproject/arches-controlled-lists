@@ -19,7 +19,7 @@ export function buildReferenceSelectAliasedNodeData(
                   preferredLanguageCode,
                   systemLanguageCode,
               ).value,
-              list_item_id: "",
+              list_item_id: item.labels[0]?.list_item_id ?? "",
               list_item_values: item.labels,
               sortorder: 0,
               uri: item.uri,

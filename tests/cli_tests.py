@@ -29,7 +29,6 @@ from arches_controlled_lists.management.commands.controlled_lists import (
 
 from .test_settings import PROJECT_TEST_ROOT, TEST_PACKAGE_DIR
 
-
 # these tests can be run from the command line via
 # python manage.py test tests.cli_tests --settings="tests.test_settings"
 

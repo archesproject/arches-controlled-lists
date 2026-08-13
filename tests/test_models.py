@@ -8,7 +8,6 @@ from arches.app.search.elasticsearch_dsl_builder import Query
 from arches.app.search.search_engine_factory import SearchEngineInstance
 from arches_controlled_lists.models import List, ListItem, ListItemValue
 
-
 # these tests can be run from the command line via
 # python manage.py test tests.test_models --settings="tests.test_settings"
 

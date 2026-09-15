@@ -191,6 +191,22 @@ class ReferenceDataTypeTests(TestCase):
         # Also test None.
         self.assertIsNone(reference.serialize(None))
 
+    def test_transform_value_for_tile_reparses_raw_tile_value_shape(self):
+        # Test a node's configured defaultValue (or any other raw
+        # tile-value shape produced by build_tile_value() such as {"uri": ...,
+        # "labels": [...], "list_id": ...} with no top-level "list_item_id")
+        # passes through transform_value_for_tile without error.
+        reference = DataTypeFactory().get_instance("reference")
+        list1_pk = str(List.objects.get(name="list1").pk)
+        config = {"controlledList": list1_pk}
+        tile_val = reference.transform_value_for_tile("label1-pref", **config)
+        with self.subTest("no top-level list_item_id"):
+            self.assertNotIn("list_item_id", tile_val[0])
+
+        tile_val_reparsed = reference.transform_value_for_tile(tile_val, **config)
+        with self.subTest("round-trips unchanged"):
+            self.assertEqual(tile_val_reparsed, tile_val)
+
     def test_transform_value_for_tile(self):
         reference = DataTypeFactory().get_instance("reference")
         list1_pk = str(List.objects.get(name="list1").pk)

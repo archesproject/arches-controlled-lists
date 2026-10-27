@@ -126,6 +126,9 @@ export const fetchFilteredList = async (listId: string, term: string) => {
         arches.urls.controlled_list_filtered(listId),
         window.location.origin,
     );
+    // Without flat=true the server only returns root items, so the term
+    // would never match anything below the top level.
+    url.searchParams.set("flat", "true");
     if (term) {
         url.searchParams.set("term", term);
     }

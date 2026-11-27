@@ -26,6 +26,7 @@ export interface ReferenceSelectNodeValue {
 export interface ReferenceSelectDetails {
     children: ReferenceSelectNodeValue[];
     display_value: string;
+    guide: boolean;
     list_item_id: string;
     list_item_values: ReferenceSelectLabel[];
     sortorder: number;

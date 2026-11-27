@@ -14,6 +14,7 @@ export function buildReferenceSelectAliasedNodeData(
     const details: ReferenceSelectDetails[] = nodeValue
         ? nodeValue.map((item) => ({
               children: [],
+              guide: false,
               display_value: getItemLabel(
                   item,
                   preferredLanguageCode,

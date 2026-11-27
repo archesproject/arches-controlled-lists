@@ -1049,6 +1049,41 @@ class ListTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND, response.content)
 
+    def test_list_options_includes_guide_field(self):
+        """ListOptionsView (used by Vue widgets) must include the guide flag so
+        the checkbox/radio widget can render guide items as section headers."""
+        self.client.force_login(self.admin)
+
+        # Give the parent item in list2 a guide flag so we can verify both values.
+        guide_item = ListItem.objects.get(pk=self.parent.pk)
+        guide_item.guide = True
+        guide_item.save()
+        self.addCleanup(
+            lambda: ListItem.objects.filter(pk=self.parent.pk).update(guide=False)
+        )
+
+        response = self.client.get(
+            reverse("controlled_list_options"),
+            {
+                "graph_slug": self.draft_graph.slug,
+                "node_alias": self.node_using_list2.alias,
+            },
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK, response.content)
+        items = response.json()
+        self.assertTrue(len(items) > 0)
+
+        guide_items = [i for i in items if i.get("guide")]
+        non_guide_items = [i for i in items if not i.get("guide")]
+        self.assertTrue(len(guide_items) >= 1, "Expected at least one guide item")
+        self.assertTrue(len(non_guide_items) >= 0)
+
+        # Verify the field is present on children too.
+        for item in items:
+            self.assertIn("guide", item, "Top-level item missing 'guide' field")
+            for child in item.get("children", []):
+                self.assertIn("guide", child, "Child item missing 'guide' field")
+
     def test_filtered_list_includes_parent_ids(self):
         """FilteredListView rows must include parent_ids so the frontend can
         lazy-load the right branches to reveal a match."""

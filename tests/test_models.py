@@ -3,7 +3,7 @@ import time
 from django.conf import settings
 from django.test import TestCase
 
-from arches.app.models.models import DValueType
+from arches.app.models.models import DValueType, Language
 from arches.app.search.elasticsearch_dsl_builder import Query
 from arches.app.search.search_engine_factory import SearchEngineInstance
 from arches_controlled_lists.models import List, ListItem, ListItemValue
@@ -54,6 +54,85 @@ class ListItemGetChildUrisTests(TestCase):
     def test_get_child_uris_empty_for_item_without_children(self):
         uris = self.child_item_1.get_child_uris()
         self.assertEqual(uris, [self.child_item_1.uri])
+
+
+class ListItemBuildSelectOptionTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.pref_label = DValueType.objects.get(valuetype="prefLabel")
+        cls.first_language = Language.objects.first()
+
+        cls.list = List.objects.create(name="Test List")
+
+        cls.guide_item = ListItem.objects.create(
+            list=cls.list,
+            sortorder=0,
+            uri="http://example.com/guide",
+            guide=True,
+        )
+        ListItemValue.objects.create(
+            list_item=cls.guide_item,
+            valuetype=cls.pref_label,
+            language=cls.first_language,
+            value="Section Header",
+        )
+
+        cls.selectable_item = ListItem.objects.create(
+            list=cls.list,
+            sortorder=1,
+            uri="http://example.com/selectable",
+            guide=False,
+        )
+        ListItemValue.objects.create(
+            list_item=cls.selectable_item,
+            valuetype=cls.pref_label,
+            language=cls.first_language,
+            value="Selectable Option",
+        )
+
+        cls.child_item = ListItem.objects.create(
+            list=cls.list,
+            parent=cls.guide_item,
+            sortorder=0,
+            uri="http://example.com/child",
+            guide=False,
+        )
+        ListItemValue.objects.create(
+            list_item=cls.child_item,
+            valuetype=cls.pref_label,
+            language=cls.first_language,
+            value="Child Option",
+        )
+
+    def test_guide_item_includes_guide_true(self):
+        result = self.guide_item.build_select_option()
+        self.assertIn("guide", result)
+        self.assertTrue(result["guide"])
+
+    def test_selectable_item_includes_guide_false(self):
+        result = self.selectable_item.build_select_option()
+        self.assertIn("guide", result)
+        self.assertFalse(result["guide"])
+
+    def test_children_also_include_guide_field(self):
+        result = self.guide_item.build_select_option()
+        self.assertEqual(len(result["children"]), 1)
+        child = result["children"][0]
+        self.assertIn("guide", child)
+        self.assertFalse(child["guide"])
+
+    def test_required_fields_present(self):
+        result = self.selectable_item.build_select_option()
+        for field in (
+            "list_item_id",
+            "uri",
+            "guide",
+            "list_item_values",
+            "display_value",
+            "sortorder",
+            "children",
+        ):
+            self.assertIn(field, result)
 
 
 class ListIndexTests(TestCase):

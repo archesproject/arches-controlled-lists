@@ -382,6 +382,7 @@ class ListItem(models.Model):
         data = {
             "list_item_id": str(self.id),
             "uri": self.uri,
+            "guide": self.guide,
             "list_item_values": [label.serialize() for label in labels],
             "display_value": best_label,
             "sortorder": self.sortorder,

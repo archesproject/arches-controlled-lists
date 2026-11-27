@@ -378,12 +378,18 @@ class ListItem(models.Model):
 
     def build_select_option(self):
         labels = getattr(self, "list_item_labels", self.list_item_values.labels())
+        notes = getattr(
+            self,
+            "list_item_notes",
+            self.list_item_values.filter(valuetype__category="note"),
+        )
         best_label = self.find_best_label_from_set(labels)
         data = {
             "list_item_id": str(self.id),
             "uri": self.uri,
             "guide": self.guide,
             "list_item_values": [label.serialize() for label in labels],
+            "note_values": [note.serialize() for note in notes],
             "display_value": best_label,
             "sortorder": self.sortorder,
         }

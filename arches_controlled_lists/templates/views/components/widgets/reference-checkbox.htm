@@ -1,0 +1,117 @@
+{% extends "views/components/widgets/base.htm" %}
+{% load i18n %}
+
+{% block form %}
+<div class="row widget-wrapper" data-bind="class: nodeCssClasses">
+    <div class="form-group">
+        <span class="control-label widget-input-label" data-bind="text: label, class: nodeCssClasses"></span>
+        <!-- ko if: node -->
+        <i data-bind="
+            css: {'ion-asterisk widget-label-required': node.isrequired},
+            attr: {'aria-label': $root.translations.required}
+        "></i>
+        <!-- /ko -->
+
+        <!-- ko if: isLoading -->
+        <div class="reference-checkbox-loading">
+            <i class="fa fa-spinner fa-spin"></i>
+        </div>
+        <!-- /ko -->
+
+        <!-- ko ifnot: isLoading -->
+        <div class="reference-checkbox-group">
+            <!-- ko foreach: flatItems -->
+            <div class="reference-checkbox-row" data-bind="style: { paddingLeft: (depth * 1.5) + 'rem' }">
+
+                <!-- Guide item: non-interactive section label -->
+                <!-- ko if: guide -->
+                <span class="reference-checkbox-section-label" data-bind="text: $parent.getDisplayLabel(values)"></span>
+                <!-- /ko -->
+
+                <!-- Selectable item -->
+                <!-- ko ifnot: guide -->
+
+                <!-- Checkbox (multi-value) -->
+                <!-- ko if: $parent.multiple -->
+                <label class="reference-checkbox-label">
+                    <input
+                        type="checkbox"
+                        data-bind="checkedValue: id, checked: $parent.selectedIds"
+                    >
+                    <span data-bind="text: $parent.getDisplayLabel(values)"></span>
+                </label>
+                <!-- /ko -->
+
+                <!-- Radio (single-value) -->
+                <!-- ko ifnot: $parent.multiple -->
+                <label class="reference-checkbox-label">
+                    <input
+                        type="radio"
+                        data-bind="
+                            attr: { name: 'ref-cb-' + $parent.node.nodeid },
+                            checkedValue: id,
+                            checked: $parent.selectedId
+                        "
+                    >
+                    <span data-bind="text: $parent.getDisplayLabel(values)"></span>
+                </label>
+                <!-- /ko -->
+
+                <!-- /ko --><!-- end ifnot guide -->
+            </div>
+            <!-- /ko --><!-- end foreach flatItems -->
+        </div>
+        <!-- /ko --><!-- end ifnot isLoading -->
+
+    </div>
+</div>
+{% endblock form %}
+
+{% block config_form %}
+<div>
+    <div class="control-label">
+        <span data-bind="text: $root.translations.placeholder"></span>
+    </div>
+    <div class="col-xs-12 pad-no crud-widget-container">
+        <input
+            class="form-control input-md widget-input"
+            data-bind="
+                attr: {
+                    placeholder: $root.translations.placeholder,
+                    'aria-label': $root.translations.placeholder
+                },
+                value: placeholder,
+                valueUpdate: 'keyup'
+            "
+        >
+    </div>
+</div>
+<div>
+    <div class="control-label">
+        <span>{% trans "Label Value Type" %}</span>
+    </div>
+    <div class="col-xs-12 pad-no crud-widget-container">
+        <select
+            class="form-control input-md widget-input"
+            data-bind="
+                options: labelValueTypeOptions,
+                optionsText: 'label',
+                optionsValue: 'value',
+                value: labelValueType
+            "
+        ></select>
+    </div>
+</div>
+{% endblock config_form %}
+
+{% block report %}
+<dt data-bind="text: label, class: nodeCssClasses"></dt>
+<dd data-bind="class: nodeCssClasses">
+    <!-- ko if: displayValue -->
+    <span data-bind="text: displayValue"></span>
+    <!-- /ko -->
+    <!-- ko ifnot: displayValue -->
+    <span data-bind="text: $root.translations.none"></span>
+    <!-- /ko -->
+</dd>
+{% endblock report %}

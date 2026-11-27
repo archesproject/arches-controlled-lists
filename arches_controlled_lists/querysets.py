@@ -47,6 +47,22 @@ class ListItemQuerySet(models.QuerySet):
             )
         )
 
+    def with_list_item_labels_and_notes(self):
+        from arches_controlled_lists.models import ListItemValue
+
+        return self.prefetch_related(
+            models.Prefetch(
+                "list_item_values",
+                ListItemValue.objects.labels(),
+                to_attr="list_item_labels",
+            ),
+            models.Prefetch(
+                "list_item_values",
+                ListItemValue.objects.filter(valuetype__category="note"),
+                to_attr="list_item_notes",
+            ),
+        )
+
     def annotate_has_children(self):
         from arches_controlled_lists.models import ListItem
 

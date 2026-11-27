@@ -15,6 +15,7 @@ function makeItem(overrides: {
     label?: string;
     guide?: boolean;
     children?: ReferenceSelectTreeNode[];
+    noteValues?: { valuetype_id: string; value: string }[];
 }): ReferenceSelectTreeNode {
     return {
         key: overrides.key ?? "item-1",
@@ -35,6 +36,13 @@ function makeItem(overrides: {
                     valuetype_id: "prefLabel",
                 },
             ],
+            note_values: (overrides.noteValues ?? []).map((n, i) => ({
+                id: `note-${i}`,
+                language_id: "en",
+                list_item_id: overrides.key ?? "item-1",
+                value: n.value,
+                valuetype_id: n.valuetype_id,
+            })),
             children: [],
         },
     };
@@ -203,6 +211,56 @@ describe("selectable item, radio mode", () => {
             Set<string>,
         ][];
         expect(emitted[0][0]).toEqual(new Set(["item-1"]));
+    });
+});
+
+// ---------------------------------------------------------------------------
+// labelValueType — configurable display label
+// ---------------------------------------------------------------------------
+
+describe("labelValueType", () => {
+    it("shows the prefLabel by default when labelValueType is not set", () => {
+        const wrapper = mountItem({
+            ...BASE_PROPS,
+            item: makeItem({
+                label: "My Option",
+                noteValues: [
+                    { valuetype_id: "definition", value: "A definition" },
+                ],
+            }),
+        });
+
+        expect(wrapper.find("label").text()).toBe("My Option");
+    });
+
+    it("shows the matching note value when labelValueType is set", () => {
+        const wrapper = mountItem({
+            ...BASE_PROPS,
+            item: makeItem({
+                label: "My Option",
+                noteValues: [
+                    { valuetype_id: "definition", value: "A definition" },
+                ],
+            }),
+            labelValueType: "definition",
+        });
+
+        expect(wrapper.find("label").text()).toBe("A definition");
+    });
+
+    it("falls back to prefLabel when no note matches labelValueType", () => {
+        const wrapper = mountItem({
+            ...BASE_PROPS,
+            item: makeItem({
+                label: "My Option",
+                noteValues: [
+                    { valuetype_id: "scopeNote", value: "A scope note" },
+                ],
+            }),
+            labelValueType: "definition",
+        });
+
+        expect(wrapper.find("label").text()).toBe("My Option");
     });
 });
 

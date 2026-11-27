@@ -8,9 +8,9 @@ import { useReferenceSelectOptionsStore } from "@/arches_controlled_lists/stores
 import { buildReferenceSelectAliasedNodeData } from "@/arches_controlled_lists/datatypes/reference-select/utils.ts";
 
 import type {
+    ReferenceCheckboxDatatypeCardXNodeXWidgetData,
     ReferenceSelectAliasedNodeData,
     ReferenceSelectDetails,
-    ReferenceSelectDatatypeCardXNodeXWidgetData,
     ReferenceSelectNodeValue,
     ReferenceSelectTreeNode,
 } from "@/arches_controlled_lists/datatypes/reference-select/types.ts";
@@ -23,7 +23,7 @@ const {
     systemLanguageCode,
 } = defineProps<{
     aliasedNodeData?: ReferenceSelectAliasedNodeData | null;
-    cardXNodeXWidgetData?: ReferenceSelectDatatypeCardXNodeXWidgetData;
+    cardXNodeXWidgetData?: ReferenceCheckboxDatatypeCardXNodeXWidgetData;
     graphSlug?: string;
     nodeAlias?: string;
     systemLanguageCode: string;
@@ -46,6 +46,11 @@ const optionsLoaded = ref(false);
 const optionsError = ref<string | null>(null);
 
 const multiple = computed(() => !!cardXNodeXWidgetData?.node.config.multiValue);
+
+/** Optional note value type to display instead of the prefLabel. */
+const labelValueType = computed(
+    () => cardXNodeXWidgetData?.config.labelValueType ?? null,
+);
 
 /** Unique radio-group name so browsers group all radios in one widget. */
 const radioGroupName = computed(
@@ -173,6 +178,7 @@ function onSelectionChange(newIds: Set<string>) {
                 :multiple="multiple"
                 :selected-ids="selectedIds"
                 :radio-group-name="radioGroupName"
+                :label-value-type="labelValueType"
                 @update:selected-ids="onSelectionChange"
             />
         </div>

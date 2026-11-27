@@ -15,6 +15,8 @@ const props = defineProps<{
     selectedIds: Set<string>;
     /** Shared radio-group name so browsers group all radios in one widget. */
     radioGroupName: string;
+    /** Optional note valuetype_id (e.g. "definition") to show instead of prefLabel. */
+    labelValueType?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -25,6 +27,18 @@ const isChecked = computed(() => props.selectedIds.has(props.item.key));
 
 /** For radio mode: the single selected key, or null. */
 const radioModelValue = computed(() => [...props.selectedIds][0] ?? null);
+
+/**
+ * Display label: use the first note_value matching labelValueType when
+ * configured, otherwise fall back to the prefLabel-derived item.label.
+ */
+const displayLabel = computed(() => {
+    if (!props.labelValueType) return props.item.label;
+    const match = props.item.data.note_values?.find(
+        (v) => v.valuetype_id === props.labelValueType,
+    );
+    return match?.value ?? props.item.label;
+});
 
 function onCheckboxChange(checked: boolean) {
     const next = new Set(props.selectedIds);
@@ -63,6 +77,7 @@ function onChildUpdate(newIds: Set<string>) {
                 :multiple="multiple"
                 :selected-ids="selectedIds"
                 :radio-group-name="radioGroupName"
+                :label-value-type="labelValueType"
                 @update:selected-ids="onChildUpdate"
             />
         </div>
@@ -92,7 +107,7 @@ function onChildUpdate(newIds: Set<string>) {
             <label
                 :for="multiple ? `ref-cb-${item.key}` : `ref-rb-${item.key}`"
             >
-                {{ item.label }}
+                {{ displayLabel }}
             </label>
         </div>
         <div
@@ -106,6 +121,7 @@ function onChildUpdate(newIds: Set<string>) {
                 :multiple="multiple"
                 :selected-ids="selectedIds"
                 :radio-group-name="radioGroupName"
+                :label-value-type="labelValueType"
                 @update:selected-ids="onChildUpdate"
             />
         </div>

@@ -5,13 +5,18 @@ import type {
     CardXNodeXWidgetData,
 } from "@/arches_vue_components/types.ts";
 
-export interface ReferenceSelectDatatypeCardXNodeXWidgetData
-    extends CardXNodeXWidgetData {
+export interface ReferenceSelectDatatypeCardXNodeXWidgetData extends CardXNodeXWidgetData {
     node: CardXNodeXWidgetData["node"] & {
         config: {
             controlledList: string;
             multiValue: boolean;
         };
+    };
+}
+
+export interface ReferenceCheckboxDatatypeCardXNodeXWidgetData extends ReferenceSelectDatatypeCardXNodeXWidgetData {
+    config: CardXNodeXWidgetData["config"] & {
+        labelValueType?: string;
     };
 }
 
@@ -29,6 +34,7 @@ export interface ReferenceSelectDetails {
     guide: boolean;
     list_item_id: string;
     list_item_values: ReferenceSelectLabel[];
+    note_values: ReferenceSelectLabel[];
     sortorder: number;
     uri: string;
 }

@@ -15,6 +15,7 @@ export function buildReferenceSelectAliasedNodeData(
         ? nodeValue.map((item) => ({
               children: [],
               guide: false,
+              note_values: [],
               display_value: getItemLabel(
                   item,
                   preferredLanguageCode,

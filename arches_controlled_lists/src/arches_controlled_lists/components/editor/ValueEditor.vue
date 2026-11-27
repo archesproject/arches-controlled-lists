@@ -517,8 +517,8 @@ p {
 }
 
 :deep(
-        .p-button.p-component.p-button-icon-only.p-button-secondary.p-button-rounded.p-button-text.p-datatable-row-editor-cancel:hover
-    ) {
+    .p-button.p-component.p-button-icon-only.p-button-secondary.p-button-rounded.p-button-text.p-datatable-row-editor-cancel:hover
+) {
     background: var(--p-amber-300);
     color: var(--p-button-primary-hover-color);
 }

@@ -2,7 +2,6 @@ import uuid
 
 from django.db import migrations
 
-
 CHECKBOX_WIDGET_ID = "1cce9f4a-5ba2-4f7e-8d1c-b6a8294e3f10"
 
 
@@ -15,7 +14,7 @@ def create_reference_checkbox_widget(apps, schema_editor):
             'reference-checkbox-widget',
             'views/components/widgets/reference-checkbox',
             'reference',
-            '{"placeholder": "", "i18n_properties": ["placeholder"]}'
+            '{"placeholder": "", "labelValueType": "", "i18n_properties": ["placeholder"]}'
         )
         ON CONFLICT DO NOTHING;
         """,

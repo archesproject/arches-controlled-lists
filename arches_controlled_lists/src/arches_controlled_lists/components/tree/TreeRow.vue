@@ -406,8 +406,7 @@ const acceptNewListShortcutEntry = async () => {
         <span>
             {{ splitFilterValue[0]
             }}<template v-if="splitFilterValue[1]">
-                <b>{{ splitFilterValue[1] }}</b
-                >{{ splitFilterValue[2] }}
+                <b>{{ splitFilterValue[1] }}</b>{{ splitFilterValue[2] }}
             </template>
         </span>
         <div

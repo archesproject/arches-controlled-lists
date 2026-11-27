@@ -631,7 +631,7 @@ class ListOptionsView(APIBase):
 
         list_items = ListItem.objects.filter(
             list_id=controlled_list_id
-        ).with_list_item_labels()
+        ).with_list_item_labels_and_notes()
         serialized = [
             item.build_select_option() for item in list_items if item.parent_id is None
         ]

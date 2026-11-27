@@ -63,8 +63,7 @@ export interface NewControlledListItemImageMetadata {
 }
 
 export type NewOrExistingControlledListItemImageMetadata =
-    | ControlledListItemImageMetadata
-    | NewControlledListItemImageMetadata;
+    ControlledListItemImageMetadata | NewControlledListItemImageMetadata;
 
 export interface LabeledChoice {
     type: string;
@@ -115,9 +114,7 @@ export interface ControlledList {
 }
 
 export type Selectable =
-    | ControlledList
-    | ControlledListItem
-    | NewControlledListItem;
+    ControlledList | ControlledListItem | NewControlledListItem;
 
 export type RowSetter = (val: Selectable | null) => void;
 
@@ -147,10 +144,7 @@ type DisplayedRowRef = Ref<
 >;
 type DisplayedRowSetter = (
     DisplayedRowRef:
-        | ControlledList
-        | ControlledListItem
-        | NewControlledListItem
-        | null,
+        ControlledList | ControlledListItem | NewControlledListItem | null,
 ) => void;
 export type DisplayedRowRefAndSetter = {
     displayedRow: DisplayedRowRef;
